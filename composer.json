@@ -1,0 +1,33 @@
+{
+    "name": "latz/linkblog",
+    "description": "LinkBlog WordPress plugin – curated link roundups",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "autoload": {
+        "psr-4": {
+            "LinkBlog\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LinkBlog\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=8.2"
+    },
+    "require-dev": {
+        "pestphp/pest": "^4.0",
+        "brain/monkey": "^2.7"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "test:unit": "pest --testsuite=Unit",
+        "test:integration": "pest --testsuite=Integration"
+    }
+}

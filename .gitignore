@@ -28,6 +28,10 @@ yarn-error.log*
 
 node_modules/
 build/
+vendor/
+reports/
+.qwen/
+CLAUDE.local.md
 
 # SonarCloud / SonarQube
 .sonar/

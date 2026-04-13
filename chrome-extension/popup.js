@@ -26,7 +26,7 @@ function extractPageDescription() {
     for (const [attr, value] of candidates) {
         const nodes = document.querySelectorAll(`[${attr}="${value}" i]`);
         for (const node of nodes) {
-            const text = (node.content || '').trim().replace(/(^\n+)|(\n+$)/g, '');
+            const text = (node.content || '').trim().replaceAll(/(^\n+)|(\n+$)/g, '');
             if (text) return text;
         }
     }
@@ -51,8 +51,8 @@ async function loadPageInfo() {
                 if (result) {
                     document.getElementById('content').value = result;
                 }
-            } catch (_) {
-                // Silently skip on restricted pages (e.g. chrome://)
+            } catch (e) {
+                console.debug('Skipping description extraction on restricted page:', e.message);
             }
         }
     } catch (error) {

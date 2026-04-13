@@ -1,0 +1,73 @@
+/**
+ * Playwright — REST API tests for the LinkBlog plugin.
+ *
+ * Prerequisites:
+ *   npm run env:start          (first time: pulls Docker images, ~2 min)
+ *   npm run test:e2e:api
+ *
+ * The wp-env container runs at http://localhost:8888.
+ * Authorization header is set globally in playwright.config.js.
+ */
+
+import { test, expect } from '@playwright/test';
+import { createRequire }  from 'module';
+const require = createRequire(import.meta.url);
+const { REST_NAMESPACE, ROUTES } = require('../../../constants.json');
+
+const api = (route) => `/wp-json/${REST_NAMESPACE}${route}`;
+
+// ---------------------------------------------------------------------------
+// GET /categories
+// ---------------------------------------------------------------------------
+test.describe('GET /categories', () => {
+    test('returns 200 with an array', async ({ request }) => {
+        const res = await request.get(api(ROUTES.CATEGORIES));
+        expect(res.status()).toBe(200);
+
+        const body = await res.json();
+        expect(Array.isArray(body)).toBe(true);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// POST /add-link → GET /links/{id} → DELETE /links/{id}
+// ---------------------------------------------------------------------------
+test.describe('Link CRUD', () => {
+    let createdId;
+
+    test('POST /add-link creates a link and returns its ID', async ({ request }) => {
+        const res = await request.post(api(ROUTES.ADD_LINK), {
+            data: {
+                url:      'https://example.com/test',
+                title:    'Playwright Test Link',
+                category: 'Uncategorized',
+            },
+        });
+
+        // Accept 200 or 201 depending on your handler.
+        expect([200, 201]).toContain(res.status());
+
+        const body = await res.json();
+        expect(body).toHaveProperty('id');
+        expect(typeof body.id).toBe('number');
+        createdId = body.id;
+    });
+
+    test('DELETE /links/{id} removes the link', async ({ request }) => {
+        test.skip(!createdId, 'No link was created in the previous step');
+
+        const res = await request.delete(api(`${ROUTES.LINKS}/${createdId}`));
+        expect([200, 204]).toContain(res.status());
+    });
+});
+
+// ---------------------------------------------------------------------------
+// Auth guard
+// ---------------------------------------------------------------------------
+test('unauthenticated POST /add-link returns 401 or 403', async ({ request }) => {
+    const res = await request.post(api(ROUTES.ADD_LINK), {
+        headers: { Authorization: '' },   // strip the global header
+        data:    { url: 'https://example.com', title: 'No auth' },
+    });
+    expect([401, 403]).toContain(res.status());
+});

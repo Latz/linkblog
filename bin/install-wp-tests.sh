@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# Install the WordPress test suite and create the test database.
+#
+# Usage:
+#   bash bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version]
+#
+# Example:
+#   bash bin/install-wp-tests.sh wordpress_test root '' localhost latest
+
+set -e
+
+DB_NAME=${1:-wordpress_test}
+DB_USER=${2:-root}
+DB_PASS=${3:-''}
+DB_HOST=${4:-localhost}
+WP_VERSION=${5:-latest}
+
+WP_TESTS_DIR=${WP_TESTS_DIR:-/tmp/wordpress-tests-lib}
+WP_CORE_DIR=${WP_CORE_DIR:-/tmp/wordpress}
+
+# ---------------------------------------------------------------------------
+# Download WordPress core
+# ---------------------------------------------------------------------------
+download_wp() {
+    local archive
+    if [[ "$WP_VERSION" == "latest" ]]; then
+        local api
+        api=$(curl -s https://api.wordpress.org/core/version-check/1.7/ | grep '"version"' | head -1 | sed 's/.*"\(.*\)".*/\1/')
+        archive="wordpress-${api}.tar.gz"
+        curl -s "https://wordpress.org/${archive}" -o /tmp/wordpress.tar.gz
+    else
+        curl -s "https://wordpress.org/wordpress-${WP_VERSION}.tar.gz" -o /tmp/wordpress.tar.gz
+    fi
+    tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C "$WP_CORE_DIR"
+    rm /tmp/wordpress.tar.gz
+}
+
+# ---------------------------------------------------------------------------
+# Download the WP test suite via SVN
+# ---------------------------------------------------------------------------
+install_test_suite() {
+    if [[ -d "$WP_TESTS_DIR/includes" ]]; then
+        return
+    fi
+    mkdir -p "$WP_TESTS_DIR"
+    svn co --quiet \
+        "https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/" \
+        "$WP_TESTS_DIR/includes" 2>/dev/null ||
+    svn co --quiet \
+        "https://develop.svn.wordpress.org/trunk/tests/phpunit/includes/" \
+        "$WP_TESTS_DIR/includes"
+
+    cat > "$WP_TESTS_DIR/wp-tests-config.php" <<PHP
+<?php
+define( 'ABSPATH', '${WP_CORE_DIR}/' );
+define( 'WP_DEFAULT_THEME', 'default' );
+define( 'DB_NAME', '${DB_NAME}' );
+define( 'DB_USER', '${DB_USER}' );
+define( 'DB_PASSWORD', '${DB_PASS}' );
+define( 'DB_HOST', '${DB_HOST}' );
+define( 'DB_CHARSET', 'utf8' );
+define( 'DB_COLLATE', '' );
+\$table_prefix = 'wptests_';
+define( 'WP_TESTS_DOMAIN', 'example.org' );
+define( 'WP_TESTS_EMAIL', 'admin@example.org' );
+define( 'WP_TESTS_TITLE', 'Test Blog' );
+define( 'WP_PHP_BINARY', 'php' );
+define( 'WPLANG', '' );
+PHP
+}
+
+# ---------------------------------------------------------------------------
+# Create test database
+# ---------------------------------------------------------------------------
+create_db() {
+    mysql -u "$DB_USER" --password="$DB_PASS" -h "$DB_HOST" \
+        -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;" 2>/dev/null && \
+    echo "Database '${DB_NAME}' ready." || \
+    echo "WARN: Could not create database. It may already exist."
+}
+
+mkdir -p "$WP_CORE_DIR"
+download_wp
+install_test_suite
+create_db
+
+echo ""
+echo "Done. Set WP_TESTS_DIR=${WP_TESTS_DIR} and run:"
+echo "  vendor/bin/pest --testsuite=Integration --bootstrap tests/bootstrap-integration.php"
