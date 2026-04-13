@@ -1476,274 +1476,216 @@ function linkblog_dashboard_page() {
 
     ?>
     <div class="wrap">
+        <h1><?php _e('LinkBlog', 'linkblog'); ?></h1>
+
         <?php if ($batch_result !== null) : ?>
             <?php if ($batch_result['success'] > 0) : ?>
-                <div class="lb-result-success">
-                    <?php printf(
-                        __('Successfully processed %d link(s). %s', 'linkblog'),
-                        $batch_result['success'],
-                        $batch_result['failed'] > 0 ? sprintf(__('%d failed.', 'linkblog'), $batch_result['failed']) : ''
-                    ); ?>
-                </div>
+                <div class="notice notice-success"><p><?php printf(
+                    __('Successfully processed %d link(s). %s', 'linkblog'),
+                    $batch_result['success'],
+                    $batch_result['failed'] > 0 ? sprintf(__('%d failed.', 'linkblog'), $batch_result['failed']) : ''
+                ); ?></p></div>
             <?php endif; ?>
             <?php if (!empty($batch_result['messages'])) : ?>
-                <div class="lb-result-error">
-                    <?php echo implode('<br>', array_map('esc_html', $batch_result['messages'])); ?>
-                </div>
+                <div class="notice notice-error"><p><?php echo implode('<br>', array_map('esc_html', $batch_result['messages'])); ?></p></div>
             <?php endif; ?>
         <?php endif; ?>
 
         <?php if ($roundup_result !== null) : ?>
             <?php if ($roundup_result['success']) : ?>
-                <div class="lb-result-success">
+                <div class="notice notice-success"><p>
                     <?php echo esc_html($roundup_result['message']); ?>
-                    <a href="<?php echo get_permalink($roundup_result['post_id']); ?>" target="_blank" style="color: white; text-decoration: underline; margin-left: 8px;">
+                    <a href="<?php echo get_permalink($roundup_result['post_id']); ?>" target="_blank">
                         <?php _e('View Post', 'linkblog'); ?> →
                     </a>
-                </div>
+                </p></div>
             <?php else : ?>
-                <div class="lb-result-error">
-                    <?php echo esc_html($roundup_result['message']); ?>
-                </div>
+                <div class="notice notice-error"><p><?php echo esc_html($roundup_result['message']); ?></p></div>
             <?php endif; ?>
         <?php endif; ?>
 
-        <!-- Statistics Cards -->
+        <!-- Statistics -->
         <div class="lb-stats-grid">
             <div class="lb-stat-card">
-                <div class="lb-stat-icon">📚</div>
-                <div class="lb-stat-text">
-                    <div class="lb-stat-value"><?php echo number_format($total_links); ?></div>
-                    <p class="lb-stat-label"><?php _e('Total Links', 'linkblog'); ?></p>
-                </div>
+                <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
+                <div><span class="lb-stat-value"><?php echo number_format($total_links); ?></span>
+                <span class="lb-stat-label"><?php _e('Total Links', 'linkblog'); ?></span></div>
             </div>
-
             <div class="lb-stat-card">
-                <div class="lb-stat-icon">📁</div>
-                <div class="lb-stat-text">
-                    <div class="lb-stat-value"><?php echo number_format($total_categories); ?></div>
-                    <p class="lb-stat-label"><?php _e('Categories', 'linkblog'); ?></p>
-                </div>
+                <span class="dashicons dashicons-category lb-stat-icon"></span>
+                <div><span class="lb-stat-value"><?php echo number_format($total_categories); ?></span>
+                <span class="lb-stat-label"><?php _e('Categories', 'linkblog'); ?></span></div>
             </div>
-
             <div class="lb-stat-card">
-                <div class="lb-stat-icon">📄</div>
-                <div class="lb-stat-text">
-                    <div class="lb-stat-value"><?php echo number_format($published_links); ?></div>
-                    <p class="lb-stat-label"><?php _e('Published', 'linkblog'); ?></p>
-                </div>
+                <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
+                <div><span class="lb-stat-value"><?php echo number_format($published_links); ?></span>
+                <span class="lb-stat-label"><?php _e('Published', 'linkblog'); ?></span></div>
             </div>
-
             <div class="lb-stat-card">
-                <div class="lb-stat-icon">⏳</div>
-                <div class="lb-stat-text">
-                    <div class="lb-stat-value"><?php echo number_format($unpublished_links); ?></div>
-                    <p class="lb-stat-label"><?php _e('Unpublished', 'linkblog'); ?></p>
-                </div>
+                <span class="dashicons dashicons-clock lb-stat-icon"></span>
+                <div><span class="lb-stat-value"><?php echo number_format($unpublished_links); ?></span>
+                <span class="lb-stat-label"><?php _e('Unpublished', 'linkblog'); ?></span></div>
             </div>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="lb-dashboard-content">
-            <!-- Left Column: Recent Links and Recently Published -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Main Content -->
+        <div class="metabox-holder">
+            <div id="postbox-container-1" class="postbox-container">
+
                 <!-- Recent Unpublished Links -->
-                <div class="lb-section-card">
-                    <div class="lb-section-header">
-                        <h2 class="lb-section-title"><?php _e('Recent Unpublished Links', 'linkblog'); ?></h2>
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2 class="hndle"><?php _e('Recent Unpublished Links', 'linkblog'); ?></h2>
                     </div>
-
-                    <?php if (empty($recent_links)) : ?>
-                        <div class="lb-empty-state">
-                            <div class="lb-empty-icon">✓</div>
-                            <h3 class="lb-empty-title"><?php _e('All caught up!', 'linkblog'); ?></h3>
-                            <p class="lb-empty-text"><?php _e('No unpublished links at the moment', 'linkblog'); ?></p>
-                        </div>
-                    <?php else : ?>
-                        <ul class="lb-recent-links">
-                            <?php foreach ($recent_links as $link) :
-                                $url = get_post_meta($link->ID, '_linkblog_url', true);
-                                $categories_list = get_the_terms($link->ID, 'linkblog_category');
-                                $category_name = $categories_list && !is_wp_error($categories_list) ? $categories_list[0]->name : '';
-                            ?>
-                                <li class="lb-link-item" data-link-id="<?php echo esc_attr($link->ID); ?>">
-                                    <div class="lb-link-item-header">
-                                        <h3 class="lb-link-title"><?php echo esc_html($link->post_title); ?></h3>
-                                        <button class="lb-delete-btn" title="<?php esc_attr_e('Delete link', 'linkblog'); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
-                                    </div>
-                                    <?php if ($url) : ?>
-                                        <a href="<?php echo esc_url($url); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                                            <?php echo esc_html(parse_url($url, PHP_URL_HOST)); ?> ↗
-                                        </a>
-                                    <?php endif; ?>
-                                    <div class="lb-link-meta">
-                                        <?php if ($category_name) : ?>
-                                            <span class="lb-link-meta-item">📁 <?php echo esc_html($category_name); ?></span>
+                    <div class="inside" style="margin:0;padding:0;">
+                        <?php if (empty($recent_links)) : ?>
+                            <p style="padding:12px 16px;margin:0;color:#646970;"><?php _e('No unpublished links at the moment.', 'linkblog'); ?></p>
+                        <?php else : ?>
+                            <ul class="lb-recent-links">
+                                <?php foreach ($recent_links as $link) :
+                                    $url = get_post_meta($link->ID, '_linkblog_url', true);
+                                    $categories_list = get_the_terms($link->ID, 'linkblog_category');
+                                    $category_name = $categories_list && !is_wp_error($categories_list) ? $categories_list[0]->name : '';
+                                ?>
+                                    <li class="lb-link-item" data-link-id="<?php echo esc_attr($link->ID); ?>">
+                                        <div class="lb-link-item-header">
+                                            <strong class="lb-link-title"><?php echo esc_html($link->post_title); ?></strong>
+                                            <button class="lb-delete-btn" title="<?php esc_attr_e('Delete link', 'linkblog'); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
+                                        </div>
+                                        <?php if ($url) : ?>
+                                            <a href="<?php echo esc_url($url); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                                                <?php echo esc_html(parse_url($url, PHP_URL_HOST)); ?> ↗
+                                            </a>
                                         <?php endif; ?>
-                                        <span class="lb-link-meta-item lb-date-time" data-timestamp="<?php echo get_the_time('U', $link->ID); ?>">
-                                            📅 <?php echo get_the_date('M j, Y', $link->ID); ?> at <?php echo get_the_time('g:i a', $link->ID); ?>
-                                        </span>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-
-                    <?php if (!empty($recent_links)) : ?>
-                        <div class="lb-section-body" style="padding-top: 0; text-align: center;">
-                            <a href="<?php echo admin_url('admin.php?page=linkblog-admin'); ?>" class="lb-btn lb-btn-primary">
-                                <?php _e('View All Links', 'linkblog'); ?> →
-                            </a>
-                        </div>
-                    <?php endif; ?>
+                                        <div class="lb-link-meta">
+                                            <?php if ($category_name) : ?>
+                                                <span><?php echo esc_html($category_name); ?></span>
+                                            <?php endif; ?>
+                                            <span class="lb-date-time" data-timestamp="<?php echo get_the_time('U', $link->ID); ?>">
+                                                <?php echo get_the_date('M j, Y', $link->ID); ?> <?php echo get_the_time('g:i a', $link->ID); ?>
+                                            </span>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
+                                <a href="<?php echo admin_url('admin.php?page=linkblog-admin'); ?>" class="button">
+                                    <?php _e('View All Links', 'linkblog'); ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <!-- Recently Published -->
-                <div class="lb-section-card">
-                    <div class="lb-section-header">
-                        <h2 class="lb-section-title"><?php _e('Recently Published', 'linkblog'); ?></h2>
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2 class="hndle"><?php _e('Recently Published', 'linkblog'); ?></h2>
                     </div>
-
-                    <?php if (empty($recently_published)) : ?>
-                        <div class="lb-empty-state">
-                            <div class="lb-empty-icon">📄</div>
-                            <h3 class="lb-empty-title"><?php _e('No published links yet', 'linkblog'); ?></h3>
-                            <p class="lb-empty-text"><?php _e('Published links will appear here', 'linkblog'); ?></p>
-                        </div>
-                    <?php else : ?>
-                        <ul class="lb-recent-links">
-                            <?php foreach ($recently_published as $link) :
-                                $url = get_post_meta($link->ID, '_linkblog_url', true);
-                                $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
-                                $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
-                                $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
-                                $categories_list = get_the_terms($link->ID, 'linkblog_category');
-                                $category_name = $categories_list && !is_wp_error($categories_list) ? $categories_list[0]->name : '';
-                            ?>
-                                <li class="lb-link-item">
-                                    <h3 class="lb-link-title"><?php echo esc_html($link->post_title); ?></h3>
-                                    <?php if ($published_post_id) : ?>
-                                        <a href="<?php echo $publish_status === 'draft' ? get_edit_post_link($published_post_id) : get_permalink($published_post_id); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                                            <?php echo $publish_status === 'draft' ? __('View Draft', 'linkblog') : __('View Post', 'linkblog'); ?> ↗
-                                        </a>
-                                    <?php endif; ?>
-                                    <div class="lb-link-meta">
-                                        <?php if ($category_name) : ?>
-                                            <span class="lb-link-meta-item">📁 <?php echo esc_html($category_name); ?></span>
-                                        <?php endif; ?>
-                                        <?php if ($published_date) : ?>
-                                            <span class="lb-link-meta-item">📅 <?php echo mysql2date('M j, Y', $published_date); ?></span>
-                                        <?php endif; ?>
-                                        <span class="lb-link-meta-item">
+                    <div class="inside" style="margin:0;padding:0;">
+                        <?php if (empty($recently_published)) : ?>
+                            <p style="padding:12px 16px;margin:0;color:#646970;"><?php _e('No published links yet.', 'linkblog'); ?></p>
+                        <?php else : ?>
+                            <ul class="lb-recent-links">
+                                <?php foreach ($recently_published as $link) :
+                                    $url = get_post_meta($link->ID, '_linkblog_url', true);
+                                    $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
+                                    $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
+                                    $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
+                                    $categories_list = get_the_terms($link->ID, 'linkblog_category');
+                                    $category_name = $categories_list && !is_wp_error($categories_list) ? $categories_list[0]->name : '';
+                                ?>
+                                    <li class="lb-link-item">
+                                        <div class="lb-link-item-header">
+                                            <strong class="lb-link-title"><?php echo esc_html($link->post_title); ?></strong>
                                             <?php if ($publish_status === 'published') : ?>
-                                                <span class="lb-status-badge lb-status-published" style="font-size: 10px; padding: 2px 8px;">✓ <?php _e('Published', 'linkblog'); ?></span>
+                                                <span class="lb-status-badge lb-status-published"><?php _e('Published', 'linkblog'); ?></span>
                                             <?php elseif ($publish_status === 'draft') : ?>
-                                                <span class="lb-status-badge lb-status-draft" style="font-size: 10px; padding: 2px 8px;">📝 <?php _e('Draft', 'linkblog'); ?></span>
+                                                <span class="lb-status-badge lb-status-draft"><?php _e('Draft', 'linkblog'); ?></span>
                                             <?php endif; ?>
-                                        </span>
-                                    </div>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <!-- Right Column -->
-            <div style="display: flex; flex-direction: column; gap: 24px;">
-                <!-- Publish Links -->
-                <div class="lb-section-card">
-                    <div class="lb-section-header">
-                        <h2 class="lb-section-title"><?php _e('Publish Links', 'linkblog'); ?></h2>
+                                        </div>
+                                        <?php if ($published_post_id) : ?>
+                                            <a href="<?php echo $publish_status === 'draft' ? get_edit_post_link($published_post_id) : get_permalink($published_post_id); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                                                <?php echo $publish_status === 'draft' ? __('View Draft', 'linkblog') : __('View Post', 'linkblog'); ?> ↗
+                                            </a>
+                                        <?php endif; ?>
+                                        <div class="lb-link-meta">
+                                            <?php if ($category_name) : ?>
+                                                <span><?php echo esc_html($category_name); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ($published_date) : ?>
+                                                <span><?php echo mysql2date('M j, Y', $published_date); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </div>
-                    <div class="lb-section-body">
+                </div>
+
+            </div><!-- #postbox-container-1 -->
+
+            <div id="postbox-container-2" class="postbox-container">
+
+                <!-- Publish Links -->
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2 class="hndle"><?php _e('Publish Links', 'linkblog'); ?></h2>
+                    </div>
+                    <div class="inside">
                         <?php if ($unpublished_links > 0) : ?>
-                            <p style="margin-bottom: 20px; color: var(--lb-neutral-600);">
-                                <?php printf(__('You have %d unpublished link(s) ready to be published.', 'linkblog'), $unpublished_links); ?>
-                            </p>
-
-                            <form method="post" action="" class="lb-quick-form">
+                            <p><?php printf(__('You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkblog'), $unpublished_links); ?></p>
+                            <form method="post" action="">
                                 <?php wp_nonce_field('linkblog_create_roundup', 'linkblog_roundup_nonce'); ?>
-
-                                <div class="lb-form-group">
-                                    <label for="roundup_title" class="lb-form-label"><?php _e('Post Title', 'linkblog'); ?></label>
-                                    <input
-                                        type="text"
-                                        id="roundup_title"
-                                        name="roundup_title"
-                                        class="lb-form-input"
-                                        value="<?php echo esc_attr(sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'))); ?>"
-                                        placeholder="<?php echo esc_attr(sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'))); ?>"
-                                    >
-                                </div>
-
-                                <div class="lb-button-group">
-                                    <button type="submit" name="linkblog_create_roundup" class="lb-btn lb-btn-primary">
-                                        <?php _e('Publish', 'linkblog'); ?>
-                                    </button>
-                                    <button type="submit" name="linkblog_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="lb-btn lb-btn-secondary">
-                                        <?php _e('Save as Draft', 'linkblog'); ?>
-                                    </button>
-                                </div>
+                                <p>
+                                    <label for="roundup_title"><strong><?php _e('Post Title', 'linkblog'); ?></strong></label><br>
+                                    <input type="text" id="roundup_title" name="roundup_title" class="regular-text"
+                                        value="<?php echo esc_attr(sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'))); ?>">
+                                </p>
                                 <input type="hidden" name="roundup_as_draft" value="0">
+                                <p>
+                                    <button type="submit" name="linkblog_create_roundup" class="button button-primary"><?php _e('Publish', 'linkblog'); ?></button>
+                                    &nbsp;
+                                    <button type="submit" name="linkblog_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php _e('Save as Draft', 'linkblog'); ?></button>
+                                </p>
                             </form>
                         <?php else : ?>
-                            <div class="lb-empty-state">
-                                <div class="lb-empty-icon">✓</div>
-                                <h3 class="lb-empty-title"><?php _e('All caught up!', 'linkblog'); ?></h3>
-                                <p class="lb-empty-text"><?php _e('No unpublished links at the moment.', 'linkblog'); ?></p>
-                            </div>
+                            <p style="color:#646970;"><?php _e('No unpublished links at the moment.', 'linkblog'); ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
 
-                <!-- Quick Add Form -->
-                <div class="lb-section-card">
-                    <div class="lb-section-header">
-                        <h2 class="lb-section-title"><?php _e('Quick Add', 'linkblog'); ?></h2>
+                <!-- Quick Add -->
+                <div class="postbox">
+                    <div class="postbox-header">
+                        <h2 class="hndle"><?php _e('Quick Add', 'linkblog'); ?></h2>
                     </div>
-                    <div class="lb-section-body">
+                    <div class="inside">
                         <?php if ($quick_add_success) : ?>
-                            <div class="lb-success-message">
-                                <span class="lb-success-icon">✓</span>
-                                <span><?php _e('Link added successfully!', 'linkblog'); ?></span>
-                            </div>
+                            <div class="notice notice-success inline"><p><?php _e('Link added successfully!', 'linkblog'); ?></p></div>
                         <?php endif; ?>
-
-                        <form method="post" action="" class="lb-quick-form">
+                        <form method="post" action="">
                             <?php wp_nonce_field('linkblog_quick_add_link', 'linkblog_quick_nonce'); ?>
-
-                            <div class="lb-form-group">
-                                <label for="quick_title" class="lb-form-label"><?php _e('Title', 'linkblog'); ?> *</label>
-                                <input
-                                    type="text"
-                                    id="quick_title"
-                                    name="quick_title"
-                                    class="lb-form-input"
-                                    placeholder="<?php _e('Enter link title', 'linkblog'); ?>"
-                                    required
-                                >
-                            </div>
-
-                            <div class="lb-form-group">
-                                <label for="quick_url" class="lb-form-label"><?php _e('URL', 'linkblog'); ?></label>
-                                <input
-                                    type="url"
-                                    id="quick_url"
-                                    name="quick_url"
-                                    class="lb-form-input"
-                                    placeholder="https://example.com"
-                                >
-                            </div>
-
-                            <button type="submit" name="linkblog_quick_add" class="lb-btn lb-btn-primary">
-                                <?php _e('Add Link', 'linkblog'); ?>
-                            </button>
+                            <p>
+                                <label for="quick_title"><strong><?php _e('Title', 'linkblog'); ?> *</strong></label><br>
+                                <input type="text" id="quick_title" name="quick_title" class="regular-text"
+                                    placeholder="<?php esc_attr_e('Enter link title', 'linkblog'); ?>" required>
+                            </p>
+                            <p>
+                                <label for="quick_url"><strong><?php _e('URL', 'linkblog'); ?></strong></label><br>
+                                <input type="url" id="quick_url" name="quick_url" class="regular-text"
+                                    placeholder="https://example.com">
+                            </p>
+                            <p>
+                                <button type="submit" name="linkblog_quick_add" class="button button-primary"><?php _e('Add Link', 'linkblog'); ?></button>
+                            </p>
                         </form>
                     </div>
                 </div>
-            </div>
-        </div>
+
+            </div><!-- #postbox-container-2 -->
+        </div><!-- .metabox-holder -->
     </div>
 
     <script>
@@ -1752,7 +1694,7 @@ function linkblog_dashboard_page() {
             const timestamp = parseInt(element.dataset.timestamp);
             if (!timestamp) return;
             const date = new Date(timestamp * 1000);
-            element.textContent = '📅 ' + date.toLocaleString(navigator.language, {
+            element.textContent = date.toLocaleString(navigator.language, {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',
@@ -1764,30 +1706,52 @@ function linkblog_dashboard_page() {
     });
 
     document.addEventListener('click', async function(e) {
+        // Cancel inline confirm
+        if (e.target.closest('.lb-delete-cancel')) {
+            const li = e.target.closest('li');
+            li.querySelector('.lb-delete-confirm-row').remove();
+            li.querySelector('.lb-delete-btn').style.display = '';
+            return;
+        }
+
+        // Confirm delete
+        if (e.target.closest('.lb-delete-confirm-yes')) {
+            const btn = e.target.closest('.lb-delete-confirm-yes');
+            const li = btn.closest('li');
+            const linkId = li.dataset.linkId;
+            btn.disabled = true;
+            btn.textContent = '...';
+            try {
+                const res = await fetch('<?php echo esc_js(rest_url('linkblog/v1/links/')); ?>' + linkId, {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'X-WP-Nonce': '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>' }
+                });
+                if (res.ok || res.status === 204) {
+                    li.remove();
+                } else {
+                    li.querySelector('.lb-delete-confirm-row').remove();
+                    li.querySelector('.lb-delete-btn').style.display = '';
+                }
+            } catch (err) {
+                li.querySelector('.lb-delete-confirm-row').remove();
+                li.querySelector('.lb-delete-btn').style.display = '';
+            }
+            return;
+        }
+
+        // Show inline confirm
         const btn = e.target.closest('.lb-delete-btn');
         if (!btn) return;
-        const linkId = btn.dataset.linkId;
-        if (!confirm('<?php echo esc_js(__('Delete this link? This cannot be undone.', 'linkblog')); ?>')) return;
-        btn.disabled = true;
-        btn.style.opacity = '0.4';
-        try {
-            const res = await fetch('<?php echo esc_js(rest_url('linkblog/v1/links/')); ?>' + linkId, {
-                method: 'DELETE',
-                credentials: 'same-origin',
-                headers: { 'X-WP-Nonce': '<?php echo esc_js(wp_create_nonce('wp_rest')); ?>' }
-            });
-            if (res.ok || res.status === 204) {
-                btn.closest('li').remove();
-            } else {
-                alert('<?php echo esc_js(__('Failed to delete link.', 'linkblog')); ?>');
-                btn.disabled = false;
-                btn.style.opacity = '';
-            }
-        } catch (err) {
-            alert('<?php echo esc_js(__('Failed to delete link.', 'linkblog')); ?>');
-            btn.disabled = false;
-            btn.style.opacity = '';
-        }
+        const li = btn.closest('li');
+        if (li.querySelector('.lb-delete-confirm-row')) return;
+        btn.style.display = 'none';
+        const row = document.createElement('div');
+        row.className = 'lb-delete-confirm-row';
+        row.innerHTML = '<span class="lb-delete-confirm-label"><?php echo esc_js(__('Delete?', 'linkblog')); ?></span>'
+            + '<button class="lb-delete-confirm-yes"><?php echo esc_js(__('Yes', 'linkblog')); ?></button>'
+            + '<button class="lb-delete-cancel"><?php echo esc_js(__('Cancel', 'linkblog')); ?></button>';
+        btn.parentElement.appendChild(row);
     });
     </script>
     <?php
