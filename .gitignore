@@ -28,3 +28,18 @@ yarn-error.log*
 
 node_modules/
 build/
+
+# SonarCloud / SonarQube
+.sonar/
+.scannerwork/
+# Never commit tokens — use: export SONAR_TOKEN=...
+.sonarcloud.properties
+/sonar-project.properties
+/DASHBOARD.md
+/DESIGN_PREVIEW.md
+/.claude
+/.claude-dev-helper
+/docs
+/pcp.md
+/plan.md
+/plan1.md
