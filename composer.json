@@ -26,8 +26,8 @@
         }
     },
     "scripts": {
-        "test": "pest",
+        "test": "pest --testsuite=Unit",
         "test:unit": "pest --testsuite=Unit",
-        "test:integration": "pest --testsuite=Integration"
+        "test:integration": "pest --testsuite=Integration --bootstrap tests/bootstrap-integration.php"
     }
 }
