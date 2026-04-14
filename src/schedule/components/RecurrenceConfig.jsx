@@ -38,7 +38,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
           onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
-        <span>{value.interval !== 1 ? __('days', 'linkblog') : __('day', 'linkblog')}</span>
+        <span>{value.interval === 1 ? __('day', 'linkblog') : __('days', 'linkblog')}</span>
       </div>
     );
   }
@@ -54,7 +54,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
             onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
-          <span>{value.interval !== 1 ? __('weeks', 'linkblog') : __('week', 'linkblog')}</span>
+          <span>{value.interval === 1 ? __('week', 'linkblog') : __('weeks', 'linkblog')}</span>
         </div>
         <div className="linkblog-weekdays">
           {WEEKDAYS.map(d => (
@@ -99,7 +99,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
             onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
-          <span>{value.interval !== 1 ? __('months, on', 'linkblog') : __('month, on', 'linkblog')}</span>
+          <span>{value.interval === 1 ? __('month, on', 'linkblog') : __('months, on', 'linkblog')}</span>
         </div>
 
         <div className="linkblog-month-days">

@@ -32,9 +32,10 @@ export function describeSchedule({ type, interval = 1, weekdays = [], monthDays 
     const days = weekdays.length
       ? weekdays.map(d => DAY_NAMES[d]).join(', ')
       : 'selected days'
+    const suffix = interval > 1 ? 's' : ''
     return interval === 1 && !nthWeek
       ? `Every week on ${days}`
-      : `Every ${interval} week${interval > 1 ? 's' : ''} on ${days}`
+      : `Every ${interval} week${suffix} on ${days}`
   }
 
   if (type === 'monthly') {

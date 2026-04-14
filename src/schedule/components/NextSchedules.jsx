@@ -2,7 +2,7 @@ import { useMemo } from '@wordpress/element';
 import { RRule } from 'rrule';
 import { __ } from '@wordpress/i18n';
 
-const SCHEDULE_MODES = ['daily', 'weekly', 'monthly'];
+const SCHEDULE_MODES = new Set(['daily', 'weekly', 'monthly']);
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -11,7 +11,7 @@ function formatDate(d) {
 }
 
 export default function NextSchedules({ config, form }) {
-  const isSchedule = SCHEDULE_MODES.includes(form.mode);
+  const isSchedule = SCHEDULE_MODES.has(form.mode);
 
   const nextDates = useMemo(() => {
     if (!isSchedule || !config.rrule) return [];

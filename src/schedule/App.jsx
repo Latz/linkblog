@@ -9,7 +9,7 @@ import TriggerCondition from './components/TriggerCondition';
 import TimePicker from './components/TimePicker';
 import NextSchedules from './components/NextSchedules';
 
-const SCHEDULE_MODES = ['daily', 'weekly', 'monthly'];
+const SCHEDULE_MODES = new Set(['daily', 'weekly', 'monthly']);
 
 const DEFAULT_FORM = {
   mode: 'daily',
@@ -46,13 +46,13 @@ export default function App() {
     setForm(f => ({
       ...f,
       mode,
-      recurrence: SCHEDULE_MODES.includes(mode)
+      recurrence: SCHEDULE_MODES.has(mode)
         ? { interval: 1, weekdays: [], monthDays: [{ type: 'day', value: 1, nth: 1, weekday: 'MO' }], nthWeek: null }
         : f.recurrence,
     }));
   }
 
-  const isSchedule = SCHEDULE_MODES.includes(form.mode);
+  const isSchedule = SCHEDULE_MODES.has(form.mode);
   const isManual   = form.mode === 'manual';
 
   const config = useMemo(() => {
@@ -62,6 +62,28 @@ export default function App() {
   }, [form, isSchedule, isManual]);
 
   const section02Label = isSchedule ? __('Recurrence', 'linkblog') : __('Condition', 'linkblog');
+
+  function renderConditionSection() {
+    if (isSchedule) return (
+      <RecurrenceConfig
+        type={form.mode}
+        value={form.recurrence}
+        onChange={v => setForm(f => ({ ...f, recurrence: v }))}
+      />
+    );
+    if (isManual) return (
+      <p className="description">
+        {__('No automatic trigger — posts must be triggered manually.', 'linkblog')}
+      </p>
+    );
+    return (
+      <TriggerCondition
+        mode={form.mode}
+        value={form.trigger}
+        onChange={v => setForm(f => ({ ...f, trigger: v }))}
+      />
+    );
+  }
 
   return (
     <div className="linkblog-schedule-wrap">
@@ -78,23 +100,7 @@ export default function App() {
           </PanelBody>
 
           <PanelBody title={section02Label} initialOpen>
-            {isSchedule ? (
-              <RecurrenceConfig
-                type={form.mode}
-                value={form.recurrence}
-                onChange={v => setForm(f => ({ ...f, recurrence: v }))}
-              />
-            ) : isManual ? (
-              <p className="description">
-                {__('No automatic trigger — posts must be triggered manually.', 'linkblog')}
-              </p>
-            ) : (
-              <TriggerCondition
-                mode={form.mode}
-                value={form.trigger}
-                onChange={v => setForm(f => ({ ...f, trigger: v }))}
-              />
-            )}
+            {renderConditionSection()}
           </PanelBody>
 
           {!isManual && (

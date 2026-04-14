@@ -41,13 +41,8 @@ trait LinkBlog_Batch {
     }
 
     public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false): array {
-        if (!current_user_can('publish_posts')) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
-        }
-
-        if (empty($link_ids) || !is_array($link_ids)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'linkblog'), 'error_code' => 'no_links');
-        }
+        $guard = $this->validateRoundupRequest($link_ids);
+        if ($guard !== null) return $guard;
 
         if (empty($post_title)) {
             $post_title = sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'));
@@ -59,6 +54,20 @@ trait LinkBlog_Batch {
             return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'linkblog'), 'error_code' => 'no_valid_links');
         }
 
+        return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids);
+    }
+
+    private function validateRoundupRequest(mixed $link_ids): ?array {
+        if (!current_user_can('publish_posts')) {
+            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
+        }
+        if (empty($link_ids) || !is_array($link_ids)) {
+            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'linkblog'), 'error_code' => 'no_links');
+        }
+        return null;
+    }
+
+    private function executeRoundupInsertion(string $post_title, bool $as_draft, array $links_by_category, array $uncategorized_links, int $count, array $link_ids): array {
         $post_id = wp_insert_post(array(
             'post_title'   => $post_title,
             'post_content' => $this->buildRoundupContent($links_by_category, $uncategorized_links),
@@ -77,8 +86,8 @@ trait LinkBlog_Batch {
         return array(
             'success'    => true,
             'post_id'    => $post_id,
-            'link_count' => $published_count,
-            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'linkblog'), $published_count),
+            'link_count' => $count,
+            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'linkblog'), $count),
         );
     }
 

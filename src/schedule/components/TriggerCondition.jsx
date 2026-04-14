@@ -9,10 +9,10 @@ export default function TriggerCondition({ mode, value, onChange }) {
         <NumberControl
           value={String(value.count)}
           min={1}
-          onChange={v => onChange({ ...value, count: parseInt(v) || 1 })}
+          onChange={v => onChange({ ...value, count: Number.parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
-        <span>{value.count !== 1 ? __('links', 'linkblog') : __('link', 'linkblog')}</span>
+        <span>{value.count === 1 ? __('link', 'linkblog') : __('links', 'linkblog')}</span>
       </div>
     );
   }
@@ -24,10 +24,10 @@ export default function TriggerCondition({ mode, value, onChange }) {
         <NumberControl
           value={String(value.days ?? 1)}
           min={1}
-          onChange={v => onChange({ ...value, days: parseInt(v) || 1 })}
+          onChange={v => onChange({ ...value, days: Number.parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
-        <span>{(value.days ?? 1) !== 1 ? __('days', 'linkblog') : __('day', 'linkblog')}</span>
+        <span>{(value.days ?? 1) === 1 ? __('day', 'linkblog') : __('days', 'linkblog')}</span>
       </div>
     );
   }

@@ -154,36 +154,42 @@ trait LinkBlog_RestApi {
             update_post_meta($post_id, '_linkblog_url', $url);
         }
 
-        // Set categories
-        if (!empty($categories) && is_array($categories)) {
-            $category_ids = array();
-            foreach ($categories as $cat_name) {
-                $term = get_term_by('name', $cat_name, 'linkblog_category');
-                if (!$term) {
-                    $term = wp_insert_term($cat_name, 'linkblog_category');
-                    if (!is_wp_error($term)) {
-                        $category_ids[] = $term['term_id'];
-                    }
-                } else {
-                    $category_ids[] = $term->term_id;
-                }
-            }
-            if (!empty($category_ids)) {
-                wp_set_object_terms($post_id, $category_ids, 'linkblog_category');
-            }
-        }
-
-        // Set tags
-        if (!empty($tags)) {
-            $tag_names = array_map('trim', explode(',', $tags));
-            wp_set_object_terms($post_id, $tag_names, 'linkblog_tag');
-        }
+        $this->applyLinkTaxonomies($post_id, $categories, $tags);
 
         return rest_ensure_response(array(
             'success' => true,
             'post_id' => $post_id,
             'message' => __('Link added successfully!', 'linkblog'),
         ));
+    }
+
+    private function resolveOrCreateCategories(array $categories): array {
+        $ids = array();
+        foreach ($categories as $cat_name) {
+            $term = get_term_by('name', $cat_name, 'linkblog_category');
+            if (!$term) {
+                $result = wp_insert_term($cat_name, 'linkblog_category');
+                if (!is_wp_error($result)) {
+                    $ids[] = $result['term_id'];
+                }
+            } else {
+                $ids[] = $term->term_id;
+            }
+        }
+        return $ids;
+    }
+
+    private function applyLinkTaxonomies(int $post_id, mixed $categories, mixed $tags): void {
+        if (!empty($categories) && is_array($categories)) {
+            $ids = $this->resolveOrCreateCategories($categories);
+            if (!empty($ids)) {
+                wp_set_object_terms($post_id, $ids, 'linkblog_category');
+            }
+        }
+        if (!empty($tags)) {
+            $tag_names = array_map('trim', explode(',', $tags));
+            wp_set_object_terms($post_id, $tag_names, 'linkblog_tag');
+        }
     }
 
     public function restGetCategories(): mixed {
