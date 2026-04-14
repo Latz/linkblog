@@ -16,12 +16,13 @@ beforeEach(function (): void {
     Functions\when('__')->returnArg();
     Functions\when('get_the_terms')->justReturn(false);
     Functions\when('current_time')->justReturn('2026-04-13 10:00:00');
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
 });
 
 describe('LinkBlog::batchPublishLinks()', function (): void {
 
     it('returns zeros and a message when called with an empty array', function (): void {
-        $result = LinkBlog::batchPublishLinks([]);
+        $result = $this->plugin->batchPublishLinks([]);
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(0);
@@ -29,7 +30,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
     });
 
     it('returns zeros and a message when called with a non-array', function (): void {
-        $result = LinkBlog::batchPublishLinks('not-an-array');
+        $result = $this->plugin->batchPublishLinks('not-an-array');
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(0);
@@ -43,7 +44,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
         Functions\when('wp_insert_post')->justReturn(99);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = LinkBlog::batchPublishLinks([1, 2, 3]);
+        $result = $this->plugin->batchPublishLinks([1, 2, 3]);
 
         expect($result['success'])->toBe(3);
         expect($result['failed'])->toBe(0);
@@ -53,7 +54,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
         Functions\when('current_user_can')->justReturn(false);
         Functions\when('get_post')->alias(fn($id) => makePost($id, "Link $id"));
 
-        $result = LinkBlog::batchPublishLinks([1, 2]);
+        $result = $this->plugin->batchPublishLinks([1, 2]);
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(2);
@@ -73,7 +74,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
             });
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = LinkBlog::batchPublishLinks([1, 2, 3]);
+        $result = $this->plugin->batchPublishLinks([1, 2, 3]);
 
         expect($result['success'])->toBe(2);
         expect($result['failed'])->toBe(1);

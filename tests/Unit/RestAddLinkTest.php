@@ -13,6 +13,7 @@ beforeEach(function (): void {
     Functions\when('rest_ensure_response')->returnArg();
     Functions\when('sanitize_text_field')->returnArg();
     Functions\when('esc_url_raw')->returnArg();
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
 });
 
 describe('LinkBlog::restAddLink()', function (): void {
@@ -20,7 +21,7 @@ describe('LinkBlog::restAddLink()', function (): void {
     it('returns a WP_Error with status 400 when title is empty', function (): void {
         $request = makeRequest(['title' => '']);
 
-        $result = LinkBlog::restAddLink($request);
+        $result = $this->plugin->restAddLink($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('missing_title');
@@ -33,7 +34,7 @@ describe('LinkBlog::restAddLink()', function (): void {
 
         $request = makeRequest(['title' => 'Valid Title']);
 
-        $result = LinkBlog::restAddLink($request);
+        $result = $this->plugin->restAddLink($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('insert_failed');
@@ -45,7 +46,7 @@ describe('LinkBlog::restAddLink()', function (): void {
 
         $request = makeRequest(['title' => 'My Link', 'url' => 'https://example.com']);
 
-        $result = LinkBlog::restAddLink($request);
+        $result = $this->plugin->restAddLink($request);
 
         expect($result['success'])->toBeTrue();
         expect($result['post_id'])->toBe(42);
@@ -62,7 +63,7 @@ describe('LinkBlog::restAddLink()', function (): void {
             });
 
         $request = makeRequest(['title' => 'Link', 'url' => 'https://example.com']);
-        LinkBlog::restAddLink($request);
+        $this->plugin->restAddLink($request);
 
         expect($savedMeta['_linkblog_url'])->toBe('https://example.com');
     });
@@ -78,7 +79,7 @@ describe('LinkBlog::restAddLink()', function (): void {
             });
 
         $request = makeRequest(['title' => 'Link', 'url' => '']);
-        LinkBlog::restAddLink($request);
+        $this->plugin->restAddLink($request);
 
         expect($metaKeys)->not->toContain('_linkblog_url');
     });
@@ -98,7 +99,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         );
 
         $request = makeRequest(['title' => 'Link', 'categories' => ['Tech']]);
-        LinkBlog::restAddLink($request);
+        $this->plugin->restAddLink($request);
 
         expect($termsCall)->toBe([42, [99], 'linkblog_category']);
     });
@@ -118,7 +119,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         Functions\when('wp_set_object_terms')->justReturn([]);
 
         $request = makeRequest(['title' => 'Link', 'categories' => ['NewCat']]);
-        LinkBlog::restAddLink($request);
+        $this->plugin->restAddLink($request);
 
         expect($insertedTerm)->toBe(['NewCat', 'linkblog_category']);
     });
@@ -136,7 +137,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         );
 
         $request = makeRequest(['title' => 'Link', 'tags' => 'php, wordpress']);
-        LinkBlog::restAddLink($request);
+        $this->plugin->restAddLink($request);
 
         expect($tagsCall[0])->toBe(42);
         expect($tagsCall[1])->toBe(['php', 'wordpress']);

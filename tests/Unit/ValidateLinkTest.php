@@ -10,6 +10,10 @@ use Brain\Monkey\Functions;
  * Returns null on success, or an error array with 'error_code' on failure.
  */
 
+beforeEach(function (): void {
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+});
+
 describe('LinkBlog::validateLinkForPublish()', function (): void {
 
     it('returns null when every validation condition passes', function (): void {
@@ -17,7 +21,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('get_post')->justReturn(makePost(1, 'My Link'));
         Functions\when('get_post_meta')->justReturn(''); // no published_post_id
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         expect($result)->toBeNull();
     });
@@ -25,7 +29,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
     it('returns no_permission error when user cannot publish', function (): void {
         Functions\when('current_user_can')->justReturn(false);
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         expect($result)->not->toBeNull();
         expect($result['success'])->toBeFalse();
@@ -36,7 +40,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(null);
 
-        $result = LinkBlog::validateLinkForPublish(999);
+        $result = $this->plugin->validateLinkForPublish(999);
 
         expect($result['error_code'])->toBe('invalid_link');
     });
@@ -45,7 +49,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(makePost(1, 'Title', 'post'));
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('invalid_link');
     });
@@ -54,7 +58,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(makePost(1, ''));
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('missing_title');
     });
@@ -73,7 +77,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
             });
         Functions\when('get_post_meta')->justReturn(50); // _linkblog_published_post_id
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('already_published');
     });
@@ -86,7 +90,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
             });
         Functions\when('get_post_meta')->justReturn(50);
 
-        $result = LinkBlog::validateLinkForPublish(1);
+        $result = $this->plugin->validateLinkForPublish(1);
 
         // Should be null (valid) because the previously published post no longer exists
         expect($result)->toBeNull();

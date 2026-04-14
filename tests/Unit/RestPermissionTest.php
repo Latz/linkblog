@@ -12,6 +12,10 @@ use Brain\Monkey\Functions;
  *  2. Fallback: current_user_can('edit_posts')
  */
 
+beforeEach(function (): void {
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+});
+
 describe('LinkBlog::restPermissionCheck()', function (): void {
 
     it('grants access when a valid API key matches the stored key', function (): void {
@@ -22,7 +26,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => $key]);
 
-        $result = LinkBlog::restPermissionCheck($request);
+        $result = $this->plugin->restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -34,7 +38,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => 'wrong-key']);
 
-        $result = LinkBlog::restPermissionCheck($request);
+        $result = $this->plugin->restPermissionCheck($request);
 
         expect($result)->toBeFalse();
     });
@@ -45,7 +49,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
         $request = makeRequest(); // no API key header
 
-        $result = LinkBlog::restPermissionCheck($request);
+        $result = $this->plugin->restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -56,7 +60,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => 'any-key']);
 
-        $result = LinkBlog::restPermissionCheck($request);
+        $result = $this->plugin->restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -67,7 +71,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
         $request = makeRequest();
 
-        $result = LinkBlog::restPermissionCheck($request);
+        $result = $this->plugin->restPermissionCheck($request);
 
         expect($result)->toBeFalse();
     });

@@ -114,10 +114,10 @@ if (!class_exists('WP_REST_Response')) {
 // ---------------------------------------------------------------------------
 // Hook functions — pure no-ops; tests use Brain\Monkey\Actions/Filters to assert
 // ---------------------------------------------------------------------------
-if (!function_exists('add_action'))  { function add_action(string $hook, callable $cb, int $priority = 10, int $accepted_args = 1): void {} }
-if (!function_exists('add_filter'))  { function add_filter(string $hook, callable $cb, int $priority = 10, int $accepted_args = 1): void {} }
+if (!function_exists('add_action'))  { function add_action(string $hook, $cb, int $priority = 10, int $accepted_args = 1): void {} }
+if (!function_exists('add_filter'))  { function add_filter(string $hook, $cb, int $priority = 10, int $accepted_args = 1): void {} }
 if (!function_exists('do_action'))   { function do_action(string $hook_name, mixed ...$args): void {} }
-if (!function_exists('remove_action')) { function remove_action(string $hook, callable $cb, int $priority = 10): bool { return true; } }
+if (!function_exists('remove_action')) { function remove_action(string $hook, $cb, int $priority = 10): bool { return true; } }
 
 // ---------------------------------------------------------------------------
 // i18n — return text unchanged so assertions read naturally

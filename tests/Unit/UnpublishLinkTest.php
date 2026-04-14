@@ -10,6 +10,7 @@ use Brain\Monkey\Functions;
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg();
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
 });
 
 describe('LinkBlog::unpublishLink()', function (): void {
@@ -17,7 +18,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
     it('returns an error when the link has no published post id in meta', function (): void {
         Functions\when('get_post_meta')->justReturn(''); // no stored post ID
 
-        $result = LinkBlog::unpublishLink(1);
+        $result = $this->plugin->unpublishLink(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['message'])->toContain('not been published');
@@ -27,7 +28,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
         Functions\when('get_post_meta')->justReturn(50); // has published post ID
         Functions\when('wp_trash_post')->justReturn(false);
 
-        $result = LinkBlog::unpublishLink(1);
+        $result = $this->plugin->unpublishLink(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['message'])->toContain('Failed to unpublish');
@@ -44,7 +45,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
                 return true;
             });
 
-        $result = LinkBlog::unpublishLink(1);
+        $result = $this->plugin->unpublishLink(1);
 
         expect($result['success'])->toBeTrue();
         expect($deleted)->toContain('_linkblog_published_post_id');
@@ -64,7 +65,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
             }
         );
 
-        LinkBlog::unpublishLink(1);
+        $this->plugin->unpublishLink(1);
 
         expect($trashedId)->toBe(77);
     });

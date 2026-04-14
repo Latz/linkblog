@@ -8,12 +8,13 @@ use Brain\Monkey\Functions;
  * Tests for LinkBlog::restGetCategories() and LinkBlog::invalidateCategoriesCache()
  */
 
-describe('LinkBlog::restGetCategories()', function (): void {
+beforeEach(function (): void {
+    Functions\when('__')->returnArg();
+    Functions\when('rest_ensure_response')->returnArg();
+    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+});
 
-    beforeEach(function (): void {
-        Functions\when('__')->returnArg();
-        Functions\when('rest_ensure_response')->returnArg();
-    });
+describe('LinkBlog::restGetCategories()', function (): void {
 
     it('returns cached data and skips get_terms on a cache hit', function (): void {
         $cached = [['id' => 1, 'name' => 'Tech', 'slug' => 'tech']];
@@ -22,7 +23,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         // get_terms must NOT be called — stub it to return an unexpected value to catch misuse
         Functions\when('get_terms')->justReturn([new WP_Error('unexpected', 'Should not be called')]);
 
-        $result = LinkBlog::restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(makeRequest());
 
         expect($result)->toBe($cached);
     });
@@ -42,7 +43,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
             }
         );
 
-        $result = LinkBlog::restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(makeRequest());
 
         expect($transientKey)->toBe('linkblog_api_categories_list');
         expect($transientVal)->toBeArray();
@@ -61,7 +62,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_terms')->justReturn($terms);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = LinkBlog::restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(makeRequest());
 
         expect($result)->toHaveCount(2);
         expect(array_keys($result[0]))->toBe(['id', 'name', 'slug']);
@@ -72,7 +73,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_terms')->justReturn([]);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = LinkBlog::restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(makeRequest());
 
         expect($result)->toBe([]);
     });
@@ -81,7 +82,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_transient')->justReturn(false);
         Functions\when('get_terms')->justReturn(new WP_Error('db_error', 'DB fail'));
 
-        $result = LinkBlog::restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(makeRequest());
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('fetch_failed');
@@ -99,7 +100,7 @@ describe('LinkBlog::invalidateCategoriesCache()', function (): void {
             }
         );
 
-        LinkBlog::invalidateCategoriesCache();
+        $this->plugin->invalidateCategoriesCache();
 
         expect($deletedKey)->toBe('linkblog_api_categories_list');
     });
