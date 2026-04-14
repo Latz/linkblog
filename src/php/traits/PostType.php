@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 trait LinkBlog_PostType {
 
-    public static function registerPostType(): void {
+    public function registerPostType(): void {
         $labels = array(
             'name'                  => _x('Links', 'Post Type General Name', 'linkblog'),
             'singular_name'         => _x('Link', 'Post Type Singular Name', 'linkblog'),
@@ -60,7 +60,7 @@ trait LinkBlog_PostType {
         register_post_type('linkblog', $args);
     }
 
-    public static function registerTaxonomies(): void {
+    public function registerTaxonomies(): void {
         // Register Category taxonomy
         $category_labels = array(
             'name'                       => _x('Link Categories', 'Taxonomy General Name', 'linkblog'),

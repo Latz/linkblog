@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 trait LinkBlog_Queries {
 
-    public static function getPublishStatistics(): array {
+    public function getPublishStatistics(): array {
         $total_links = wp_count_posts('linkblog')->publish;
 
         // Count published links
@@ -47,7 +47,7 @@ trait LinkBlog_Queries {
         );
     }
 
-    public static function getLinksGroupedByCategory(): array {
+    public function getLinksGroupedByCategory(): array {
         // Get all categories
         $categories = get_terms(array(
             'taxonomy'   => 'linkblog_category',
@@ -100,7 +100,7 @@ trait LinkBlog_Queries {
         return $grouped_links;
     }
 
-    public static function unpublishLink(int $link_id): array {
+    public function unpublishLink(int $link_id): array {
         // Get published post ID
         $published_post_id = get_post_meta($link_id, '_linkblog_published_post_id', true);
 

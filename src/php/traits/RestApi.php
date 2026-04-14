@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 trait LinkBlog_RestApi {
 
-    public static function registerRestRoutes(): void {
+    public function registerRestRoutes(): void {
         register_rest_route(LINKBLOG_REST_NAMESPACE, '/add-link', array(
             'methods' => 'POST',
-            'callback' => [self::class, 'restAddLink'],
-            'permission_callback' => [self::class, 'restPermissionCheck'],
+            'callback' => [$this, 'restAddLink'],
+            'permission_callback' => [$this, 'restPermissionCheck'],
             'args' => array(
                 'title' => array(
                     'required' => true,
@@ -38,31 +38,31 @@ trait LinkBlog_RestApi {
 
         register_rest_route(LINKBLOG_REST_NAMESPACE, '/categories', array(
             'methods' => 'GET',
-            'callback' => [self::class, 'restGetCategories'],
-            'permission_callback' => [self::class, 'restPermissionCheck'],
+            'callback' => [$this, 'restGetCategories'],
+            'permission_callback' => [$this, 'restPermissionCheck'],
         ));
 
         register_rest_route(LINKBLOG_REST_NAMESPACE, '/links/(?P<id>\d+)', array(
             'methods'             => 'DELETE',
-            'callback'            => [self::class, 'restDeleteLink'],
+            'callback'            => [$this, 'restDeleteLink'],
             'permission_callback' => function() { return current_user_can('delete_posts'); },
         ));
 
         register_rest_route(LINKBLOG_REST_NAMESPACE, '/schedule', array(
             array(
                 'methods'             => 'GET',
-                'callback'            => [self::class, 'getSchedule'],
+                'callback'            => [$this, 'getSchedule'],
                 'permission_callback' => function() { return current_user_can('manage_options'); },
             ),
             array(
                 'methods'             => 'POST',
-                'callback'            => [self::class, 'saveSchedule'],
+                'callback'            => [$this, 'saveSchedule'],
                 'permission_callback' => function() { return current_user_can('manage_options'); },
             ),
         ));
     }
 
-    public static function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+    public function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
         $link_id = (int) $request['id'];
         if (get_post_type($link_id) !== 'linkblog') {
             return new \WP_Error('invalid_link', 'Link not found', array('status' => 404));
@@ -74,7 +74,7 @@ trait LinkBlog_RestApi {
         return new \WP_REST_Response(null, 204);
     }
 
-    public static function getSchedule(): mixed {
+    public function getSchedule(): mixed {
         $default = array(
             'mode'       => 'daily',
             'recurrence' => array(
@@ -90,7 +90,7 @@ trait LinkBlog_RestApi {
         return rest_ensure_response($config);
     }
 
-    public static function saveSchedule(\WP_REST_Request $request): mixed {
+    public function saveSchedule(\WP_REST_Request $request): mixed {
         $data = $request->get_json_params();
         if (empty($data) || !isset($data['mode'])) {
             return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
@@ -99,7 +99,7 @@ trait LinkBlog_RestApi {
         return rest_ensure_response(array('success' => true));
     }
 
-    public static function restPermissionCheck(\WP_REST_Request $request): bool {
+    public function restPermissionCheck(\WP_REST_Request $request): bool {
         // Check for API key in header
         $api_key = $request->get_header('X-LinkBlog-API-Key');
         $stored_key = get_option('linkblog_api_key');
@@ -112,7 +112,7 @@ trait LinkBlog_RestApi {
         return current_user_can('edit_posts');
     }
 
-    public static function restAddLink(\WP_REST_Request $request): mixed {
+    public function restAddLink(\WP_REST_Request $request): mixed {
         $title = $request->get_param('title');
         $url = $request->get_param('url');
         $content = $request->get_param('content');
@@ -174,7 +174,7 @@ trait LinkBlog_RestApi {
         ));
     }
 
-    public static function restGetCategories(\WP_REST_Request $request): mixed {
+    public function restGetCategories(\WP_REST_Request $request): mixed {
         $cache_key = 'linkblog_api_categories_list';
         $category_list = get_transient($cache_key);
 
@@ -201,11 +201,11 @@ trait LinkBlog_RestApi {
         return rest_ensure_response($category_list);
     }
 
-    public static function invalidateCategoriesCache(): void {
+    public function invalidateCategoriesCache(): void {
         delete_transient('linkblog_api_categories_list');
     }
 
-    public static function addCorsHeaders(): void {
+    public function addCorsHeaders(): void {
         // Get the origin from the request
         $origin = get_http_origin();
 
@@ -218,7 +218,7 @@ trait LinkBlog_RestApi {
         }
     }
 
-    public static function handlePreflight(): void {
+    public function handlePreflight(): void {
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             $origin = get_http_origin();
             if (strpos($origin, 'chrome-extension://') === 0) {

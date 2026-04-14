@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 trait LinkBlog_MetaBoxes {
 
-    public static function addMetaBoxes(): void {
+    public function addMetaBoxes(): void {
         add_meta_box(
             'linkblog_url',
             __('Link URL', 'linkblog'),
-            [self::class, 'urlMetaBoxCallback'],
+            [$this, 'urlMetaBoxCallback'],
             'linkblog',
             'normal',
             'high'
         );
     }
 
-    public static function urlMetaBoxCallback(\WP_Post $post): void {
+    public function urlMetaBoxCallback(\WP_Post $post): void {
         wp_nonce_field('linkblog_save_url', 'linkblog_url_nonce');
         $url = get_post_meta($post->ID, '_linkblog_url', true);
         ?>
@@ -26,7 +26,7 @@ trait LinkBlog_MetaBoxes {
         <?php
     }
 
-    public static function saveUrl(int $post_id): void {
+    public function saveUrl(int $post_id): void {
         // Check nonce
         if (!isset($_POST['linkblog_url_nonce']) || !wp_verify_nonce($_POST['linkblog_url_nonce'], 'linkblog_save_url')) {
             return;

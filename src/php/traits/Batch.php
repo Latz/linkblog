@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 trait LinkBlog_Batch {
 
-    public static function batchPublishLinks(mixed $link_ids, bool $as_draft = false): array {
+    public function batchPublishLinks(mixed $link_ids, bool $as_draft = false): array {
         $success_count = 0;
         $failed_count = 0;
         $messages = array();
@@ -18,7 +18,7 @@ trait LinkBlog_Batch {
         }
 
         foreach ($link_ids as $link_id) {
-            $result = self::createBlogPost($link_id, $as_draft);
+            $result = $this->createBlogPost($link_id, $as_draft);
 
             if ($result['success']) {
                 $success_count++;
@@ -40,7 +40,7 @@ trait LinkBlog_Batch {
         );
     }
 
-    public static function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false): array {
+    public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false): array {
         // Check permissions
         if (!current_user_can('publish_posts')) {
             return array(

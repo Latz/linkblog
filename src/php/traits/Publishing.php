@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 trait LinkBlog_Publishing {
 
-    public static function validateLinkForPublish(int $link_id): ?array {
+    public function validateLinkForPublish(int $link_id): ?array {
         if (!current_user_can('publish_posts')) {
             return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
         }
@@ -22,7 +22,7 @@ trait LinkBlog_Publishing {
         return null;
     }
 
-    public static function buildPostContent(string $title, int $link_id, string $url, string $description): string {
+    public function buildPostContent(string $title, int $link_id, string $url, string $description): string {
         $post_content = '<h2>' . esc_html($title) . '</h2>';
         if (!empty($description)) {
             $post_content .= "\n\n" . wp_kses_post($description);
@@ -33,7 +33,7 @@ trait LinkBlog_Publishing {
         return apply_filters('linkblog_blog_post_content', $post_content, $link_id, $url, $description);
     }
 
-    public static function mapTaxonomies(int $post_id, int $link_id): void {
+    public function mapTaxonomies(int $post_id, int $link_id): void {
         $linkblog_categories = get_the_terms($link_id, 'linkblog_category');
         if ($linkblog_categories && !is_wp_error($linkblog_categories)) {
             $category_ids = array();
@@ -59,15 +59,15 @@ trait LinkBlog_Publishing {
         }
     }
 
-    public static function createBlogPost(int $link_id, bool $as_draft = false): array {
-        $validation_error = self::validateLinkForPublish($link_id);
+    public function createBlogPost(int $link_id, bool $as_draft = false): array {
+        $validation_error = $this->validateLinkForPublish($link_id);
         if ($validation_error !== null) {
             return $validation_error;
         }
 
         $link = get_post($link_id);
         $url = get_post_meta($link_id, '_linkblog_url', true);
-        $post_content = self::buildPostContent($link->post_title, $link_id, $url, $link->post_content);
+        $post_content = $this->buildPostContent($link->post_title, $link_id, $url, $link->post_content);
 
         $post_id = wp_insert_post(array(
             'post_title'   => $link->post_title,
@@ -85,7 +85,7 @@ trait LinkBlog_Publishing {
             );
         }
 
-        self::mapTaxonomies($post_id, $link_id);
+        $this->mapTaxonomies($post_id, $link_id);
 
         update_post_meta($link_id, '_linkblog_published_post_id', $post_id);
         update_post_meta($link_id, '_linkblog_publish_status', $as_draft ? 'draft' : 'published');
