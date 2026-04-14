@@ -7,7 +7,8 @@ export function buildRRule({ type, interval = 1, weekdays = [], monthDays = [1],
 
   if (type === 'weekly' && weekdays.length > 0) {
     const prefix = nthWeek ? String(nthWeek) : ''
-    parts.push(`BYDAY=${weekdays.map(d => `${prefix}${d}`).join(',')}`)
+    const prefixedDay = d => `${prefix}${d}`
+    parts.push(`BYDAY=${weekdays.map(prefixedDay).join(',')}`)
   }
 
   if (type === 'monthly' && monthDays.length > 0) {
@@ -22,7 +23,6 @@ export function buildRRule({ type, interval = 1, weekdays = [], monthDays = [1],
 
 export function describeSchedule({ type, interval = 1, weekdays = [], monthDays = [1], nthWeek = null }) {
   const DAY_NAMES = { MO: 'Monday', TU: 'Tuesday', WE: 'Wednesday', TH: 'Thursday', FR: 'Friday', SA: 'Saturday', SU: 'Sunday' }
-  const NTH = ['', 'first', 'second', 'third', 'fourth']
 
   if (type === 'daily') {
     return interval === 1 ? 'Every day' : `Every ${interval} days`

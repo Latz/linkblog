@@ -186,7 +186,7 @@ trait LinkBlog_RestApi {
         ));
     }
 
-    public function restGetCategories(\WP_REST_Request $request): mixed {
+    public function restGetCategories(): mixed {
         $cache_key = 'linkblog_api_categories_list';
         $category_list = get_transient($cache_key);
 

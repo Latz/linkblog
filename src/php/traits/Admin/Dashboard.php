@@ -18,12 +18,12 @@ trait LinkBlog_Admin_Dashboard {
                 'relation' => 'OR',
                 array(
                     'key'     => '_linkblog_publish_status',
-                    'compare' => 'NOT EXISTS'
+                    'compare' => self::META_COMPARE_NOT_EXISTS,
                 ),
                 array(
                     'key'     => '_linkblog_publish_status',
                     'value'   => array('published', 'draft'),
-                    'compare' => 'NOT IN'
+                    'compare' => self::META_COMPARE_NOT_IN,
                 )
             )
         ));
@@ -81,8 +81,8 @@ trait LinkBlog_Admin_Dashboard {
             'fields'         => 'ids',
             'meta_query'     => array(
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => 'NOT EXISTS' ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'NOT IN' ),
+                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
     }
@@ -392,8 +392,8 @@ trait LinkBlog_Admin_Dashboard {
             'order'          => 'DESC',
             'meta_query'     => array(
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => 'NOT EXISTS' ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'NOT IN' ),
+                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
 

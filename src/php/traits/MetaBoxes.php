@@ -20,8 +20,8 @@ trait LinkBlog_MetaBoxes {
         $url = get_post_meta($post->ID, '_linkblog_url', true);
         ?>
         <p>
-            <label for="linkblog_url"><?php _e('URL:', 'linkblog'); ?></label><br>
-            <input type="url" id="linkblog_url" name="linkblog_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" style="width: 100%;">
+            <label for="linkblog_url_meta"><?php _e('URL:', 'linkblog'); ?></label><br>
+            <input type="url" id="linkblog_url_meta" name="linkblog_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" style="width: 100%;">
         </p>
         <?php
     }

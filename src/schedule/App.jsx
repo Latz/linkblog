@@ -55,14 +55,11 @@ export default function App() {
   const isSchedule = SCHEDULE_MODES.includes(form.mode);
   const isManual   = form.mode === 'manual';
 
-  const config = useMemo(() =>
-    isSchedule
-      ? { rrule: buildRRule({ type: form.mode, ...form.recurrence }), times: form.times, trigger: null }
-      : isManual
-      ? { rrule: null, times: [], trigger: { type: 'manual' } }
-      : { rrule: null, times: form.times, trigger: { type: form.mode, ...form.trigger } },
-    [form, isSchedule, isManual]
-  );
+  const config = useMemo(() => {
+    if (isSchedule) return { rrule: buildRRule({ type: form.mode, ...form.recurrence }), times: form.times, trigger: null };
+    if (isManual)   return { rrule: null, times: [], trigger: { type: 'manual' } };
+    return { rrule: null, times: form.times, trigger: { type: form.mode, ...form.trigger } };
+  }, [form, isSchedule, isManual]);
 
   const section02Label = isSchedule ? __('Recurrence', 'linkblog') : __('Condition', 'linkblog');
 

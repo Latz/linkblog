@@ -112,8 +112,8 @@ trait LinkBlog_Scheduler {
             'date_query'     => [['before' => $cutoff]],
             'meta_query'     => [
                 'relation' => 'OR',
-                ['key' => '_linkblog_publish_status', 'compare' => 'NOT EXISTS'],
-                ['key' => '_linkblog_publish_status', 'value' => ['published', 'draft'], 'compare' => 'NOT IN'],
+                ['key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
+                ['key' => '_linkblog_publish_status', 'value' => ['published', 'draft'], 'compare' => self::META_COMPARE_NOT_IN],
             ],
         ]);
         return !empty($found);

@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 class LinkBlog {
+
+    private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS';
+    private const META_COMPARE_NOT_IN     = 'NOT IN';
+
     use LinkBlog_PostType;
     use LinkBlog_MetaBoxes;
     use LinkBlog_Publishing;

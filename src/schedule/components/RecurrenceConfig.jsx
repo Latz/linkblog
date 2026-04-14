@@ -35,7 +35,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
         <NumberControl
           value={String(value.interval)}
           min={1} max={365}
-          onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
+          onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
         <span>{value.interval !== 1 ? __('days', 'linkblog') : __('day', 'linkblog')}</span>
@@ -51,7 +51,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
           <NumberControl
             value={String(value.interval)}
             min={1} max={52}
-            onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
+            onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
           <span>{value.interval !== 1 ? __('weeks', 'linkblog') : __('week', 'linkblog')}</span>
@@ -96,7 +96,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
           <NumberControl
             value={String(value.interval)}
             min={1} max={12}
-            onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
+            onChange={v => onChange({ ...value, interval: Number.parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
           <span>{value.interval !== 1 ? __('months, on', 'linkblog') : __('month, on', 'linkblog')}</span>
@@ -109,13 +109,16 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
               <div
                 className={`linkblog-opt ${entry.type === 'day' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => entry.type !== 'day' && updateEntry(i, { type: 'day' })}
+                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'day' && updateEntry(i, { type: 'day' })}
               >
                 <NumberControl
                   value={String(entry.value ?? 1)}
                   min={1} max={31}
                   autoFocus={i === 0 && entry.type === 'day'}
-                  onChange={v => updateEntry(i, { value: parseInt(v) || 1 })}
+                  onChange={v => updateEntry(i, { value: Number.parseInt(v) || 1 })}
                   style={{ width: '72px' }}
                 />
               </div>
@@ -124,12 +127,15 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
               <div
                 className={`linkblog-opt ${entry.type === 'nth' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
+                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
               >
                 <SelectControl
                   value={String(entry.nth ?? 1)}
                   options={NTH_OPTIONS}
-                  onChange={v => updateEntry(i, { nth: parseInt(v) })}
+                  onChange={v => updateEntry(i, { nth: Number.parseInt(v) })}
                   __nextHasNoMarginBottom
                 />
                 <SelectControl

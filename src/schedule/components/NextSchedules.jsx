@@ -35,7 +35,7 @@ export default function NextSchedules({ config, form }) {
         {nextDates.length > 0 ? (
           <ol className="linkblog-next-schedules">
             {nextDates.map((d, i) => (
-              <li key={i} className="linkblog-next-schedule-row">
+              <li key={d.toISOString()} className="linkblog-next-schedule-row">
                 <span className="linkblog-next-date">{formatDate(d)}</span>
                 {form.times.length > 0 && (
                   <span className="linkblog-next-time">{form.times.join(', ')}</span>
