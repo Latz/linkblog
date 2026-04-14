@@ -88,7 +88,7 @@ trait LinkBlog_Admin_Menu {
         return $parent_file;
     }
 
-    public function submenuFileFilter(string|null $submenu_file): string {
+    public function submenuFileFilter(?string $submenu_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
             $taxonomy = $_GET['taxonomy'] ?? '';
@@ -99,7 +99,7 @@ trait LinkBlog_Admin_Menu {
                 return 'edit-tags.php?taxonomy=linkblog_tag&post_type=linkblog';
             }
         }
-        return $submenu_file;
+        return $submenu_file ?? '';
     }
 
     public function settingsPage(): void {
