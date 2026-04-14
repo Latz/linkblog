@@ -1,0 +1,2 @@
+## Qwen Added Memories
+- Fixed: Changed `add_action` and `add_filter` stubs in tests/stubs/wp-stubs.php to remove `callable` type hint (changed to untyped `$cb`), fixing the bootstrap error. Remaining issues: Multiple unit tests calling instance methods statically (LinkBlog::restAddLink, LinkBlog::restPermissionCheck, LinkBlog::getSchedule, LinkBlog::saveSchedule, LinkBlog::unpublishLink, LinkBlog::validateLinkForPublish) - these tests need to instantiate LinkBlog or use $this->plugin reference.
