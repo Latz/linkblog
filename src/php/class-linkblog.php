@@ -9,6 +9,7 @@ class LinkBlog {
     use LinkBlog_Batch;
     use LinkBlog_Queries;
     use LinkBlog_RestApi;
+    use LinkBlog_Scheduler;
     use LinkBlog_Admin_Menu;
     use LinkBlog_Admin_Dashboard;
     use LinkBlog_Admin_LinksPage;
@@ -22,6 +23,9 @@ class LinkBlog {
         // Post type & taxonomies
         add_action('init', [$instance, 'registerPostType'], 0);
         add_action('init', [$instance, 'registerTaxonomies'], 0);
+
+        // Scheduler
+        add_action('init', [$instance, 'registerSchedulerHooks'], 0);
 
         // Preflight must fire early on init
         add_action('init', [$instance, 'handlePreflight'], 1);

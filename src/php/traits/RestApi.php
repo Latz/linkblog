@@ -60,6 +60,12 @@ trait LinkBlog_RestApi {
                 'permission_callback' => function() { return current_user_can('manage_options'); },
             ),
         ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/schedule/run', array(
+            'methods'             => 'POST',
+            'callback'            => [$this, 'runScheduleNow'],
+            'permission_callback' => function() { return current_user_can('manage_options'); },
+        ));
     }
 
     public function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
@@ -96,6 +102,12 @@ trait LinkBlog_RestApi {
             return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
         }
         update_option('linkblog_schedule', $data);
+        $this->scheduleNextEvent();
+        return rest_ensure_response(array('success' => true));
+    }
+
+    public function runScheduleNow(): \WP_REST_Response {
+        $this->executeSchedule();
         return rest_ensure_response(array('success' => true));
     }
 
