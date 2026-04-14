@@ -1,0 +1,258 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * Register REST API endpoints for LinkBlog
+ */
+function linkblog_register_rest_routes() {
+    register_rest_route(LINKBLOG_REST_NAMESPACE, '/add-link', array(
+        'methods' => 'POST',
+        'callback' => 'linkblog_rest_add_link',
+        'permission_callback' => 'linkblog_rest_permission_check',
+        'args' => array(
+            'title' => array(
+                'required' => true,
+                'type' => 'string',
+                'sanitize_callback' => 'sanitize_text_field',
+            ),
+            'url' => array(
+                'required' => false,
+                'type' => 'string',
+                'sanitize_callback' => 'esc_url_raw',
+            ),
+            'content' => array(
+                'required' => false,
+                'type' => 'string',
+                'sanitize_callback' => 'wp_kses_post',
+            ),
+            'categories' => array(
+                'required' => false,
+                'type' => 'array',
+            ),
+            'tags' => array(
+                'required' => false,
+                'type' => 'string',
+            ),
+        ),
+    ));
+
+    register_rest_route(LINKBLOG_REST_NAMESPACE, '/categories', array(
+        'methods' => 'GET',
+        'callback' => 'linkblog_rest_get_categories',
+        'permission_callback' => 'linkblog_rest_permission_check',
+    ));
+
+    register_rest_route(LINKBLOG_REST_NAMESPACE, '/links/(?P<id>\d+)', array(
+        'methods'             => 'DELETE',
+        'callback'            => 'linkblog_rest_delete_link',
+        'permission_callback' => function() { return current_user_can('delete_posts'); },
+    ));
+
+    register_rest_route(LINKBLOG_REST_NAMESPACE, '/schedule', array(
+        array(
+            'methods'             => 'GET',
+            'callback'            => 'linkblog_get_schedule',
+            'permission_callback' => function() { return current_user_can('manage_options'); },
+        ),
+        array(
+            'methods'             => 'POST',
+            'callback'            => 'linkblog_save_schedule',
+            'permission_callback' => function() { return current_user_can('manage_options'); },
+        ),
+    ));
+}
+add_action('rest_api_init', 'linkblog_register_rest_routes');
+
+function linkblog_rest_delete_link(WP_REST_Request $request) {
+    $link_id = (int) $request['id'];
+    if (get_post_type($link_id) !== 'linkblog') {
+        return new WP_Error('invalid_link', 'Link not found', array('status' => 404));
+    }
+    $result = wp_delete_post($link_id, true);
+    if (!$result) {
+        return new WP_Error('delete_failed', 'Could not delete link', array('status' => 500));
+    }
+    return new WP_REST_Response(null, 204);
+}
+
+function linkblog_get_schedule() {
+    $default = array(
+        'mode'       => 'daily',
+        'recurrence' => array(
+            'interval'  => 1,
+            'weekdays'  => array(),
+            'monthDays' => array(array('type' => 'day', 'value' => 1, 'nth' => 1, 'weekday' => 'MO')),
+            'nthWeek'   => null,
+        ),
+        'trigger' => array('count' => 10, 'tag_id' => null, 'days' => 7),
+        'times'   => array('09:00'),
+    );
+    $config = get_option('linkblog_schedule', $default);
+    return rest_ensure_response($config);
+}
+
+function linkblog_save_schedule(WP_REST_Request $request) {
+    $data = $request->get_json_params();
+    if (empty($data) || !isset($data['mode'])) {
+        return new WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
+    }
+    update_option('linkblog_schedule', $data);
+    return rest_ensure_response(array('success' => true));
+}
+
+/**
+ * Permission check for REST API endpoints
+ */
+function linkblog_rest_permission_check($request) {
+    // Check for API key in header
+    $api_key = $request->get_header('X-LinkBlog-API-Key');
+    $stored_key = get_option('linkblog_api_key');
+
+    if (!empty($api_key) && !empty($stored_key) && hash_equals($stored_key, $api_key)) {
+        return true;
+    }
+
+    // Fallback to WordPress authentication
+    return current_user_can('edit_posts');
+}
+
+/**
+ * REST API callback to add a link
+ */
+function linkblog_rest_add_link($request) {
+    $title = $request->get_param('title');
+    $url = $request->get_param('url');
+    $content = $request->get_param('content');
+    $categories = $request->get_param('categories');
+    $tags = $request->get_param('tags');
+
+    if (empty($title)) {
+        return new WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
+    }
+
+    // Create the post
+    $post_data = array(
+        'post_title'   => $title,
+        'post_content' => $content,
+        'post_type'    => 'linkblog',
+        'post_status'  => 'publish',
+    );
+
+    $post_id = wp_insert_post($post_data);
+
+    if (is_wp_error($post_id)) {
+        return new WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
+    }
+
+    // Save URL
+    if (!empty($url)) {
+        update_post_meta($post_id, '_linkblog_url', $url);
+    }
+
+    // Set categories
+    if (!empty($categories) && is_array($categories)) {
+        $category_ids = array();
+        foreach ($categories as $cat_name) {
+            $term = get_term_by('name', $cat_name, 'linkblog_category');
+            if (!$term) {
+                $term = wp_insert_term($cat_name, 'linkblog_category');
+                if (!is_wp_error($term)) {
+                    $category_ids[] = $term['term_id'];
+                }
+            } else {
+                $category_ids[] = $term->term_id;
+            }
+        }
+        if (!empty($category_ids)) {
+            wp_set_object_terms($post_id, $category_ids, 'linkblog_category');
+        }
+    }
+
+    // Set tags
+    if (!empty($tags)) {
+        $tag_names = array_map('trim', explode(',', $tags));
+        wp_set_object_terms($post_id, $tag_names, 'linkblog_tag');
+    }
+
+    return rest_ensure_response(array(
+        'success' => true,
+        'post_id' => $post_id,
+        'message' => __('Link added successfully!', 'linkblog'),
+    ));
+}
+
+/**
+ * REST API callback to get categories
+ */
+function linkblog_rest_get_categories($request) {
+    $cache_key = 'linkblog_api_categories_list';
+    $category_list = get_transient($cache_key);
+
+    if (false === $category_list) {
+        $categories = get_terms(array(
+            'taxonomy'   => 'linkblog_category',
+            'hide_empty' => false,
+        ));
+
+        if (is_wp_error($categories)) {
+            return new WP_Error('fetch_failed', __('Failed to fetch categories.', 'linkblog'), array('status' => 500));
+        }
+
+        $category_list = array();
+        foreach ($categories as $category) {
+            $category_list[] = array(
+                'id'   => $category->term_id,
+                'name' => $category->name,
+                'slug' => $category->slug,
+            );
+        }
+        set_transient($cache_key, $category_list, HOUR_IN_SECONDS);
+    }
+    return rest_ensure_response($category_list);
+}
+
+/**
+ * Invalidate the REST API categories cache when a term is modified.
+ */
+function linkblog_invalidate_categories_cache() {
+    delete_transient('linkblog_api_categories_list');
+}
+add_action('created_linkblog_category', 'linkblog_invalidate_categories_cache');
+add_action('edited_linkblog_category', 'linkblog_invalidate_categories_cache');
+add_action('delete_linkblog_category', 'linkblog_invalidate_categories_cache');
+
+/**
+ * Add CORS headers for REST API
+ */
+function linkblog_add_cors_headers() {
+    // Get the origin from the request
+    $origin = get_http_origin();
+
+    // Allow requests from Chrome extensions
+    if (strpos($origin, 'chrome-extension://') === 0) {
+        header('Access-Control-Allow-Origin: ' . $origin);
+        header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+    }
+}
+add_action('rest_api_init', 'linkblog_add_cors_headers');
+
+/**
+ * Handle preflight OPTIONS requests
+ */
+function linkblog_handle_preflight() {
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        $origin = get_http_origin();
+        if (strpos($origin, 'chrome-extension://') === 0) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+            header('Access-Control-Max-Age: 86400');
+            exit;
+        }
+    }
+}
+add_action('init', 'linkblog_handle_preflight', 1);
