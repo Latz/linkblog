@@ -5,7 +5,8 @@ declare(strict_types=1);
 trait LinkBlog_Queries {
 
     public function getPublishStatistics(): array {
-        $total_links = wp_count_posts('linkblog')->publish;
+        $counts = wp_count_posts('linkblog');
+        $total_links = (int) ($counts->publish ?? 0);
 
         // Count published links
         $published_args = array(
@@ -40,10 +41,10 @@ trait LinkBlog_Queries {
         $unpublished_links = $total_links - $published_links - $draft_links;
 
         return array(
-            'total_links'       => $total_links,
-            'published_links'   => $published_links,
-            'draft_links'       => $draft_links,
-            'unpublished_links' => $unpublished_links
+            'total_links'       => (int) $total_links,
+            'published_links'   => (int) $published_links,
+            'draft_links'       => (int) $draft_links,
+            'unpublished_links' => (int) $unpublished_links
         );
     }
 
