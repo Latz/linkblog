@@ -5,19 +5,19 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblog_unpublish_link()
+ * Tests for LinkBlog::unpublishLink()
  */
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg();
 });
 
-describe('linkblog_unpublish_link()', function (): void {
+describe('LinkBlog::unpublishLink()', function (): void {
 
     it('returns an error when the link has no published post id in meta', function (): void {
         Functions\when('get_post_meta')->justReturn(''); // no stored post ID
 
-        $result = linkblog_unpublish_link(1);
+        $result = LinkBlog::unpublishLink(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['message'])->toContain('not been published');
@@ -27,7 +27,7 @@ describe('linkblog_unpublish_link()', function (): void {
         Functions\when('get_post_meta')->justReturn(50); // has published post ID
         Functions\when('wp_trash_post')->justReturn(false);
 
-        $result = linkblog_unpublish_link(1);
+        $result = LinkBlog::unpublishLink(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['message'])->toContain('Failed to unpublish');
@@ -44,7 +44,7 @@ describe('linkblog_unpublish_link()', function (): void {
                 return true;
             });
 
-        $result = linkblog_unpublish_link(1);
+        $result = LinkBlog::unpublishLink(1);
 
         expect($result['success'])->toBeTrue();
         expect($deleted)->toContain('_linkblog_published_post_id');
@@ -64,7 +64,7 @@ describe('linkblog_unpublish_link()', function (): void {
             }
         );
 
-        linkblog_unpublish_link(1);
+        LinkBlog::unpublishLink(1);
 
         expect($trashedId)->toBe(77);
     });

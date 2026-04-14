@@ -5,7 +5,7 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblog_rest_add_link()
+ * Tests for LinkBlog::restAddLink()
  */
 
 beforeEach(function (): void {
@@ -15,12 +15,12 @@ beforeEach(function (): void {
     Functions\when('esc_url_raw')->returnArg();
 });
 
-describe('linkblog_rest_add_link()', function (): void {
+describe('LinkBlog::restAddLink()', function (): void {
 
     it('returns a WP_Error with status 400 when title is empty', function (): void {
         $request = makeRequest(['title' => '']);
 
-        $result = linkblog_rest_add_link($request);
+        $result = LinkBlog::restAddLink($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('missing_title');
@@ -33,7 +33,7 @@ describe('linkblog_rest_add_link()', function (): void {
 
         $request = makeRequest(['title' => 'Valid Title']);
 
-        $result = linkblog_rest_add_link($request);
+        $result = LinkBlog::restAddLink($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('insert_failed');
@@ -45,7 +45,7 @@ describe('linkblog_rest_add_link()', function (): void {
 
         $request = makeRequest(['title' => 'My Link', 'url' => 'https://example.com']);
 
-        $result = linkblog_rest_add_link($request);
+        $result = LinkBlog::restAddLink($request);
 
         expect($result['success'])->toBeTrue();
         expect($result['post_id'])->toBe(42);
@@ -62,7 +62,7 @@ describe('linkblog_rest_add_link()', function (): void {
             });
 
         $request = makeRequest(['title' => 'Link', 'url' => 'https://example.com']);
-        linkblog_rest_add_link($request);
+        LinkBlog::restAddLink($request);
 
         expect($savedMeta['_linkblog_url'])->toBe('https://example.com');
     });
@@ -78,7 +78,7 @@ describe('linkblog_rest_add_link()', function (): void {
             });
 
         $request = makeRequest(['title' => 'Link', 'url' => '']);
-        linkblog_rest_add_link($request);
+        LinkBlog::restAddLink($request);
 
         expect($metaKeys)->not->toContain('_linkblog_url');
     });
@@ -98,7 +98,7 @@ describe('linkblog_rest_add_link()', function (): void {
         );
 
         $request = makeRequest(['title' => 'Link', 'categories' => ['Tech']]);
-        linkblog_rest_add_link($request);
+        LinkBlog::restAddLink($request);
 
         expect($termsCall)->toBe([42, [99], 'linkblog_category']);
     });
@@ -118,7 +118,7 @@ describe('linkblog_rest_add_link()', function (): void {
         Functions\when('wp_set_object_terms')->justReturn([]);
 
         $request = makeRequest(['title' => 'Link', 'categories' => ['NewCat']]);
-        linkblog_rest_add_link($request);
+        LinkBlog::restAddLink($request);
 
         expect($insertedTerm)->toBe(['NewCat', 'linkblog_category']);
     });
@@ -136,7 +136,7 @@ describe('linkblog_rest_add_link()', function (): void {
         );
 
         $request = makeRequest(['title' => 'Link', 'tags' => 'php, wordpress']);
-        linkblog_rest_add_link($request);
+        LinkBlog::restAddLink($request);
 
         expect($tagsCall[0])->toBe(42);
         expect($tagsCall[1])->toBe(['php', 'wordpress']);

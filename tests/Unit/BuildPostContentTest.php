@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblogBuildPostContent()
+ * Tests for LinkBlog::buildPostContent()
  *
  * The function signature:
- *   linkblogBuildPostContent(string $title, int $link_id, string $url, string $description): string
+ *   LinkBlog::buildPostContent(string $title, int $link_id, string $url, string $description): string
  */
 
 beforeEach(function (): void {
@@ -20,23 +20,23 @@ beforeEach(function (): void {
     Functions\when('apply_filters')->returnArg(2);
 });
 
-describe('linkblogBuildPostContent()', function (): void {
+describe('LinkBlog::buildPostContent()', function (): void {
 
     it('wraps title in an <h2> tag', function (): void {
-        $result = linkblogBuildPostContent('My Title', 1, '', '');
+        $result = LinkBlog::buildPostContent('My Title', 1, '', '');
 
         expect($result)->toContain('<h2>My Title</h2>');
     });
 
     it('does not include a URL link when url is empty', function (): void {
-        $result = linkblogBuildPostContent('Title', 1, '', '');
+        $result = LinkBlog::buildPostContent('Title', 1, '', '');
 
         expect($result)->not->toContain('<a href');
         expect($result)->not->toContain('Read more');
     });
 
     it('appends a read-more link when url is provided', function (): void {
-        $result = linkblogBuildPostContent('Title', 1, 'https://example.com', '');
+        $result = LinkBlog::buildPostContent('Title', 1, 'https://example.com', '');
 
         expect($result)
             ->toContain('<a href="https://example.com">')
@@ -44,20 +44,20 @@ describe('linkblogBuildPostContent()', function (): void {
     });
 
     it('does not include description markup when description is empty', function (): void {
-        $result = linkblogBuildPostContent('Title', 1, '', '');
+        $result = LinkBlog::buildPostContent('Title', 1, '', '');
 
         // The only content should be the h2
         expect(trim($result))->toBe('<h2>Title</h2>');
     });
 
     it('appends description when provided', function (): void {
-        $result = linkblogBuildPostContent('Title', 1, '', 'Some description text.');
+        $result = LinkBlog::buildPostContent('Title', 1, '', 'Some description text.');
 
         expect($result)->toContain('Some description text.');
     });
 
     it('includes both description and read-more link when both are provided', function (): void {
-        $result = linkblogBuildPostContent('Title', 1, 'https://example.com', 'Desc.');
+        $result = LinkBlog::buildPostContent('Title', 1, 'https://example.com', 'Desc.');
 
         expect($result)
             ->toContain('Desc.')
@@ -74,7 +74,7 @@ describe('linkblogBuildPostContent()', function (): void {
             }
         );
 
-        linkblogBuildPostContent('Title', 42, 'https://x.com', 'Desc');
+        LinkBlog::buildPostContent('Title', 42, 'https://x.com', 'Desc');
 
         expect($capturedHook)->toBe('linkblog_blog_post_content');
     });
@@ -88,7 +88,7 @@ describe('linkblogBuildPostContent()', function (): void {
             }
         );
 
-        linkblogBuildPostContent('<script>alert(1)</script>', 1, '', '');
+        LinkBlog::buildPostContent('<script>alert(1)</script>', 1, '', '');
 
         expect($capturedTitle)->toBe('<script>alert(1)</script>');
     });

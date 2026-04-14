@@ -10,14 +10,14 @@ use Brain\Monkey\Functions;
  * Returns null on success, or an error array with 'error_code' on failure.
  */
 
-describe('linkblogValidateLinkForPublish()', function (): void {
+describe('LinkBlog::validateLinkForPublish()', function (): void {
 
     it('returns null when every validation condition passes', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(makePost(1, 'My Link'));
         Functions\when('get_post_meta')->justReturn(''); // no published_post_id
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         expect($result)->toBeNull();
     });
@@ -25,7 +25,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
     it('returns no_permission error when user cannot publish', function (): void {
         Functions\when('current_user_can')->justReturn(false);
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         expect($result)->not->toBeNull();
         expect($result['success'])->toBeFalse();
@@ -36,7 +36,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(null);
 
-        $result = linkblogValidateLinkForPublish(999);
+        $result = LinkBlog::validateLinkForPublish(999);
 
         expect($result['error_code'])->toBe('invalid_link');
     });
@@ -45,7 +45,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(makePost(1, 'Title', 'post'));
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('invalid_link');
     });
@@ -54,7 +54,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')->justReturn(makePost(1, ''));
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('missing_title');
     });
@@ -73,7 +73,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
             });
         Functions\when('get_post_meta')->justReturn(50); // _linkblog_published_post_id
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         expect($result['error_code'])->toBe('already_published');
     });
@@ -86,7 +86,7 @@ describe('linkblogValidateLinkForPublish()', function (): void {
             });
         Functions\when('get_post_meta')->justReturn(50);
 
-        $result = linkblogValidateLinkForPublish(1);
+        $result = LinkBlog::validateLinkForPublish(1);
 
         // Should be null (valid) because the previously published post no longer exists
         expect($result)->toBeNull();

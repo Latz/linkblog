@@ -30,13 +30,17 @@ unset($_linkblog_constants);
 
 define('LINKBLOG_PLUGIN_FILE', __FILE__);
 
-require_once __DIR__ . '/src/php/post-type.php';
-require_once __DIR__ . '/src/php/meta-boxes.php';
-require_once __DIR__ . '/src/php/publishing.php';
-require_once __DIR__ . '/src/php/batch.php';
-require_once __DIR__ . '/src/php/queries.php';
-require_once __DIR__ . '/src/php/rest-api.php';
-require_once __DIR__ . '/src/php/admin/menu.php';
-require_once __DIR__ . '/src/php/admin/dashboard.php';
-require_once __DIR__ . '/src/php/admin/links-page.php';
-require_once __DIR__ . '/src/php/admin/add-link.php';
+// Traits (must be required before the class)
+require_once __DIR__ . '/src/php/traits/PostType.php';
+require_once __DIR__ . '/src/php/traits/MetaBoxes.php';
+require_once __DIR__ . '/src/php/traits/Publishing.php';
+require_once __DIR__ . '/src/php/traits/Batch.php';
+require_once __DIR__ . '/src/php/traits/Queries.php';
+require_once __DIR__ . '/src/php/traits/RestApi.php';
+require_once __DIR__ . '/src/php/traits/Admin/Menu.php';
+require_once __DIR__ . '/src/php/traits/Admin/Dashboard.php';
+require_once __DIR__ . '/src/php/traits/Admin/LinksPage.php';
+require_once __DIR__ . '/src/php/traits/Admin/AddLink.php';
+require_once __DIR__ . '/src/php/class-linkblog.php';
+
+LinkBlog::register();

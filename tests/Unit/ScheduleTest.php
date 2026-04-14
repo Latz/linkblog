@@ -8,7 +8,7 @@ use Brain\Monkey\Functions;
  * Tests for linkblog_get_schedule() and linkblog_save_schedule()
  */
 
-describe('linkblog_get_schedule()', function (): void {
+describe('LinkBlog::getSchedule()', function (): void {
 
     beforeEach(function (): void {
         Functions\when('rest_ensure_response')->returnArg();
@@ -18,7 +18,7 @@ describe('linkblog_get_schedule()', function (): void {
         $stored = ['mode' => 'weekly', 'times' => ['08:00']];
         Functions\when('get_option')->justReturn($stored);
 
-        $result = linkblog_get_schedule();
+        $result = LinkBlog::getSchedule();
 
         expect($result['mode'])->toBe('weekly');
         expect($result['times'])->toBe(['08:00']);
@@ -28,7 +28,7 @@ describe('linkblog_get_schedule()', function (): void {
         Functions\when('get_option')
             ->alias(fn($key, $default) => $default);
 
-        $result = linkblog_get_schedule();
+        $result = LinkBlog::getSchedule();
 
         expect($result)->toHaveKey('mode');
         expect($result['mode'])->toBe('daily');
@@ -37,7 +37,7 @@ describe('linkblog_get_schedule()', function (): void {
     });
 });
 
-describe('linkblog_save_schedule()', function (): void {
+describe('LinkBlog::saveSchedule()', function (): void {
 
     beforeEach(function (): void {
         Functions\when('__')->returnArg();
@@ -47,7 +47,7 @@ describe('linkblog_save_schedule()', function (): void {
     it('returns a 400 WP_Error when the request body is empty', function (): void {
         $request = makeRequest(); // no JSON body
 
-        $result = linkblog_save_schedule($request);
+        $result = LinkBlog::saveSchedule($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('invalid_data');
@@ -57,7 +57,7 @@ describe('linkblog_save_schedule()', function (): void {
     it('returns a 400 WP_Error when mode key is missing', function (): void {
         $request = makeRequest(['recurrence' => []]);
 
-        $result = linkblog_save_schedule($request);
+        $result = LinkBlog::saveSchedule($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('invalid_data');
@@ -77,7 +77,7 @@ describe('linkblog_save_schedule()', function (): void {
             }
         );
 
-        $result = linkblog_save_schedule($request);
+        $result = LinkBlog::saveSchedule($request);
 
         expect($result['success'])->toBeTrue();
         expect($savedKey)->toBe('linkblog_schedule');

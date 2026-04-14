@@ -5,10 +5,10 @@ declare(strict_types=1);
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblog_rest_get_categories() and linkblog_invalidate_categories_cache()
+ * Tests for LinkBlog::restGetCategories() and LinkBlog::invalidateCategoriesCache()
  */
 
-describe('linkblog_rest_get_categories()', function (): void {
+describe('LinkBlog::restGetCategories()', function (): void {
 
     beforeEach(function (): void {
         Functions\when('__')->returnArg();
@@ -22,7 +22,7 @@ describe('linkblog_rest_get_categories()', function (): void {
         // get_terms must NOT be called — stub it to return an unexpected value to catch misuse
         Functions\when('get_terms')->justReturn([new WP_Error('unexpected', 'Should not be called')]);
 
-        $result = linkblog_rest_get_categories(makeRequest());
+        $result = LinkBlog::restGetCategories(makeRequest());
 
         expect($result)->toBe($cached);
     });
@@ -42,7 +42,7 @@ describe('linkblog_rest_get_categories()', function (): void {
             }
         );
 
-        $result = linkblog_rest_get_categories(makeRequest());
+        $result = LinkBlog::restGetCategories(makeRequest());
 
         expect($transientKey)->toBe('linkblog_api_categories_list');
         expect($transientVal)->toBeArray();
@@ -61,7 +61,7 @@ describe('linkblog_rest_get_categories()', function (): void {
         Functions\when('get_terms')->justReturn($terms);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = linkblog_rest_get_categories(makeRequest());
+        $result = LinkBlog::restGetCategories(makeRequest());
 
         expect($result)->toHaveCount(2);
         expect(array_keys($result[0]))->toBe(['id', 'name', 'slug']);
@@ -72,7 +72,7 @@ describe('linkblog_rest_get_categories()', function (): void {
         Functions\when('get_terms')->justReturn([]);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = linkblog_rest_get_categories(makeRequest());
+        $result = LinkBlog::restGetCategories(makeRequest());
 
         expect($result)->toBe([]);
     });
@@ -81,14 +81,14 @@ describe('linkblog_rest_get_categories()', function (): void {
         Functions\when('get_transient')->justReturn(false);
         Functions\when('get_terms')->justReturn(new WP_Error('db_error', 'DB fail'));
 
-        $result = linkblog_rest_get_categories(makeRequest());
+        $result = LinkBlog::restGetCategories(makeRequest());
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('fetch_failed');
     });
 });
 
-describe('linkblog_invalidate_categories_cache()', function (): void {
+describe('LinkBlog::invalidateCategoriesCache()', function (): void {
 
     it('deletes the correct transient key', function (): void {
         $deletedKey = null;
@@ -99,7 +99,7 @@ describe('linkblog_invalidate_categories_cache()', function (): void {
             }
         );
 
-        linkblog_invalidate_categories_cache();
+        LinkBlog::invalidateCategoriesCache();
 
         expect($deletedKey)->toBe('linkblog_api_categories_list');
     });

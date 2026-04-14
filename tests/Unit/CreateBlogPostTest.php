@@ -19,13 +19,13 @@ beforeEach(function (): void {
     Functions\when('current_time')->justReturn('2026-04-13 10:00:00');
 });
 
-describe('linkblogCreateBlogPost()', function (): void {
+describe('LinkBlog::createBlogPost()', function (): void {
 
     it('returns the validation error array when validate fails', function (): void {
         // Simulate no permission
         Functions\when('current_user_can')->justReturn(false);
 
-        $result = linkblogCreateBlogPost(1);
+        $result = LinkBlog::createBlogPost(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['error_code'])->toBe('no_permission');
@@ -39,7 +39,7 @@ describe('linkblogCreateBlogPost()', function (): void {
         Functions\when('wp_insert_post')->justReturn(99);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = linkblogCreateBlogPost(1, false);
+        $result = LinkBlog::createBlogPost(1, false);
 
         expect($result['success'])->toBeTrue();
         expect($result['post_id'])->toBe(99);
@@ -53,7 +53,7 @@ describe('linkblogCreateBlogPost()', function (): void {
         Functions\when('wp_insert_post')->justReturn(100);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = linkblogCreateBlogPost(1, true);
+        $result = LinkBlog::createBlogPost(1, true);
 
         expect($result['success'])->toBeTrue();
         expect($result['message'])->toContain('draft');
@@ -74,7 +74,7 @@ describe('linkblogCreateBlogPost()', function (): void {
             }
         );
 
-        linkblogCreateBlogPost(1, false);
+        LinkBlog::createBlogPost(1, false);
 
         expect($capturedStatus)->toBe('publish');
     });
@@ -94,7 +94,7 @@ describe('linkblogCreateBlogPost()', function (): void {
             }
         );
 
-        linkblogCreateBlogPost(1, true);
+        LinkBlog::createBlogPost(1, true);
 
         expect($capturedStatus)->toBe('draft');
     });
@@ -106,7 +106,7 @@ describe('linkblogCreateBlogPost()', function (): void {
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(0);
 
-        $result = linkblogCreateBlogPost(1);
+        $result = LinkBlog::createBlogPost(1);
 
         expect($result['success'])->toBeFalse();
         expect($result['error_code'])->toBe('insert_failed');
@@ -129,7 +129,7 @@ describe('linkblogCreateBlogPost()', function (): void {
             }
         );
 
-        linkblogCreateBlogPost(1, false);
+        LinkBlog::createBlogPost(1, false);
 
         expect($actionArgs)->toBe([1, 55, false]);
     });
@@ -148,7 +148,7 @@ describe('linkblogCreateBlogPost()', function (): void {
                 return true;
             });
 
-        linkblogCreateBlogPost(1, false);
+        LinkBlog::createBlogPost(1, false);
 
         expect($calls)->toHaveKey('_linkblog_published_post_id')
             ->and($calls['_linkblog_published_post_id'])->toBe(66);

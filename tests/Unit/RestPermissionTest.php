@@ -12,7 +12,7 @@ use Brain\Monkey\Functions;
  *  2. Fallback: current_user_can('edit_posts')
  */
 
-describe('linkblog_rest_permission_check()', function (): void {
+describe('LinkBlog::restPermissionCheck()', function (): void {
 
     it('grants access when a valid API key matches the stored key', function (): void {
         $key = 'super-secret-key-abc123';
@@ -22,7 +22,7 @@ describe('linkblog_rest_permission_check()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => $key]);
 
-        $result = linkblog_rest_permission_check($request);
+        $result = LinkBlog::restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -34,7 +34,7 @@ describe('linkblog_rest_permission_check()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => 'wrong-key']);
 
-        $result = linkblog_rest_permission_check($request);
+        $result = LinkBlog::restPermissionCheck($request);
 
         expect($result)->toBeFalse();
     });
@@ -45,7 +45,7 @@ describe('linkblog_rest_permission_check()', function (): void {
 
         $request = makeRequest(); // no API key header
 
-        $result = linkblog_rest_permission_check($request);
+        $result = LinkBlog::restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -56,7 +56,7 @@ describe('linkblog_rest_permission_check()', function (): void {
 
         $request = makeRequest([], ['X-LinkBlog-API-Key' => 'any-key']);
 
-        $result = linkblog_rest_permission_check($request);
+        $result = LinkBlog::restPermissionCheck($request);
 
         expect($result)->toBeTrue();
     });
@@ -67,7 +67,7 @@ describe('linkblog_rest_permission_check()', function (): void {
 
         $request = makeRequest();
 
-        $result = linkblog_rest_permission_check($request);
+        $result = LinkBlog::restPermissionCheck($request);
 
         expect($result)->toBeFalse();
     });

@@ -18,10 +18,10 @@ beforeEach(function (): void {
     Functions\when('current_time')->justReturn('2026-04-13 10:00:00');
 });
 
-describe('linkblogBatchPublishLinks()', function (): void {
+describe('LinkBlog::batchPublishLinks()', function (): void {
 
     it('returns zeros and a message when called with an empty array', function (): void {
-        $result = linkblogBatchPublishLinks([]);
+        $result = LinkBlog::batchPublishLinks([]);
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(0);
@@ -29,7 +29,7 @@ describe('linkblogBatchPublishLinks()', function (): void {
     });
 
     it('returns zeros and a message when called with a non-array', function (): void {
-        $result = linkblogBatchPublishLinks('not-an-array');
+        $result = LinkBlog::batchPublishLinks('not-an-array');
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(0);
@@ -43,7 +43,7 @@ describe('linkblogBatchPublishLinks()', function (): void {
         Functions\when('wp_insert_post')->justReturn(99);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = linkblogBatchPublishLinks([1, 2, 3]);
+        $result = LinkBlog::batchPublishLinks([1, 2, 3]);
 
         expect($result['success'])->toBe(3);
         expect($result['failed'])->toBe(0);
@@ -53,7 +53,7 @@ describe('linkblogBatchPublishLinks()', function (): void {
         Functions\when('current_user_can')->justReturn(false);
         Functions\when('get_post')->alias(fn($id) => makePost($id, "Link $id"));
 
-        $result = linkblogBatchPublishLinks([1, 2]);
+        $result = LinkBlog::batchPublishLinks([1, 2]);
 
         expect($result['success'])->toBe(0);
         expect($result['failed'])->toBe(2);
@@ -73,7 +73,7 @@ describe('linkblogBatchPublishLinks()', function (): void {
             });
         Functions\when('update_post_meta')->justReturn(true);
 
-        $result = linkblogBatchPublishLinks([1, 2, 3]);
+        $result = LinkBlog::batchPublishLinks([1, 2, 3]);
 
         expect($result['success'])->toBe(2);
         expect($result['failed'])->toBe(1);
