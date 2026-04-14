@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 trait LinkBlog_Admin_LinksPage {
 
-    public static function showLinksPage(): void {
+    public function showLinksPage(): void {
         $action_message = '';
         $action_error = '';
 
         // Handle publish action
         if (isset($_GET['action']) && $_GET['action'] === 'publish_link' && isset($_GET['link_id']) && isset($_GET['_wpnonce'])) {
             if (wp_verify_nonce($_GET['_wpnonce'], 'publish_link_' . $_GET['link_id'])) {
-                $result = self::createBlogPost($_GET['link_id'], false);
+                $result = $this->createBlogPost($_GET['link_id'], false);
                 if ($result['success']) {
                     $action_message = $result['message'] . ' <a href="' . get_permalink($result['post_id']) . '" target="_blank">' . __('View Post', 'linkblog') . '</a>';
                 } else {
@@ -23,7 +23,7 @@ trait LinkBlog_Admin_LinksPage {
         // Handle draft action
         if (isset($_GET['action']) && $_GET['action'] === 'draft_link' && isset($_GET['link_id']) && isset($_GET['_wpnonce'])) {
             if (wp_verify_nonce($_GET['_wpnonce'], 'draft_link_' . $_GET['link_id'])) {
-                $result = self::createBlogPost($_GET['link_id'], true);
+                $result = $this->createBlogPost($_GET['link_id'], true);
                 if ($result['success']) {
                     $action_message = $result['message'] . ' <a href="' . get_edit_post_link($result['post_id']) . '" target="_blank">' . __('Edit Draft', 'linkblog') . '</a>';
                 } else {
@@ -35,7 +35,7 @@ trait LinkBlog_Admin_LinksPage {
         // Handle unpublish action
         if (isset($_GET['action']) && $_GET['action'] === 'unpublish_link' && isset($_GET['link_id']) && isset($_GET['_wpnonce'])) {
             if (wp_verify_nonce($_GET['_wpnonce'], 'unpublish_link_' . $_GET['link_id'])) {
-                $result = self::unpublishLink($_GET['link_id']);
+                $result = $this->unpublishLink($_GET['link_id']);
                 if ($result['success']) {
                     $action_message = $result['message'];
                 } else {
@@ -53,7 +53,7 @@ trait LinkBlog_Admin_LinksPage {
         }
 
         // Get links grouped by category
-        $grouped_links = self::getLinksGroupedByCategory();
+        $grouped_links = $this->getLinksGroupedByCategory();
         $has_links = false;
         foreach ($grouped_links as $category_links) {
             if (!empty($category_links)) {

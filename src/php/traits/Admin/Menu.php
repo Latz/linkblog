@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 trait LinkBlog_Admin_Menu {
 
-    public static function adminMenu(): void {
+    public function adminMenu(): void {
         add_menu_page(
             __('LinkBlog', 'linkblog'),
             __('LinkBlog', 'linkblog'),
             'read',
             'linkblog-dashboard',
-            [self::class, 'dashboardPage'],
+            [$this->class, 'dashboardPage'],
             plugins_url('assets/icon-20x20.png', LINKBLOG_PLUGIN_FILE),
             6
         );
@@ -21,7 +21,7 @@ trait LinkBlog_Admin_Menu {
             __('Dashboard', 'linkblog'),
             'read',
             'linkblog-dashboard',
-            [self::class, 'dashboardPage']
+            [$this->class, 'dashboardPage']
         );
 
         add_submenu_page(
@@ -30,7 +30,7 @@ trait LinkBlog_Admin_Menu {
             __('All Links', 'linkblog'),
             'read',
             'linkblog-admin',
-            [self::class, 'showLinksPage']
+            [$this->class, 'showLinksPage']
         );
 
         add_submenu_page(
@@ -39,7 +39,7 @@ trait LinkBlog_Admin_Menu {
             __('Add Link', 'linkblog'),
             'read',
             'linkblog-add',
-            [self::class, 'addLinkPage']
+            [$this->class, 'addLinkPage']
         );
 
         add_submenu_page(
@@ -64,7 +64,7 @@ trait LinkBlog_Admin_Menu {
             __('Settings', 'linkblog'),
             'manage_options',
             'linkblog-settings',
-            [self::class, 'settingsPage']
+            [$this->class, 'settingsPage']
         );
 
         add_submenu_page(
@@ -73,11 +73,11 @@ trait LinkBlog_Admin_Menu {
             __('Schedule', 'linkblog'),
             'manage_options',
             'linkblog-schedule',
-            [self::class, 'schedulePage']
+            [$this->class, 'schedulePage']
         );
     }
 
-    public static function parentFileFilter(string $parent_file): string {
+    public function parentFileFilter(string $parent_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
             $taxonomy = $_GET['taxonomy'] ?? '';
@@ -88,7 +88,7 @@ trait LinkBlog_Admin_Menu {
         return $parent_file;
     }
 
-    public static function submenuFileFilter(string $submenu_file): string {
+    public function submenuFileFilter(string $submenu_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
             $taxonomy = $_GET['taxonomy'] ?? '';
@@ -102,7 +102,7 @@ trait LinkBlog_Admin_Menu {
         return $submenu_file;
     }
 
-    public static function settingsPage(): void {
+    public function settingsPage(): void {
         // Handle API key generation
         if (isset($_POST['linkblog_generate_api_key']) && wp_verify_nonce($_POST['linkblog_settings_nonce'], 'linkblog_settings')) {
             $api_key = wp_generate_password(32, false);
@@ -224,7 +224,7 @@ trait LinkBlog_Admin_Menu {
         <?php
     }
 
-    public static function schedulePage(): void {
+    public function schedulePage(): void {
         ?>
         <div class="wrap">
             <h1><?php _e('Schedule Configuration', 'linkblog'); ?></h1>
@@ -233,7 +233,7 @@ trait LinkBlog_Admin_Menu {
         <?php
     }
 
-    public static function enqueueAdminAssets(string $hook): void {
+    public function enqueueAdminAssets(string $hook): void {
         if (strpos($hook, 'linkblog') === false) {
             return;
         }
@@ -271,11 +271,11 @@ trait LinkBlog_Admin_Menu {
         }
     }
 
-    public static function addDashboardWidget(): void {
+    public function addDashboardWidget(): void {
         wp_add_dashboard_widget(
             'linkblog_dashboard_widget',
             __('LinkBlog Summary', 'linkblog'),
-            [self::class, 'dashboardWidgetContent']
+            [$this->class, 'dashboardWidgetContent']
         );
     }
 }

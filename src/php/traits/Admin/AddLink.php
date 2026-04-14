@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 trait LinkBlog_Admin_AddLink {
 
-    public static function addLinkPage(): void {
+    public function addLinkPage(): void {
         $message = '';
         $error = '';
 

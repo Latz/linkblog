@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 trait LinkBlog_Admin_Dashboard {
 
-    public static function dashboardWidgetContent(): void {
+    public function dashboardWidgetContent(): void {
         // Get statistics
-        $stats = self::getPublishStatistics();
+        $stats = $this->getPublishStatistics();
 
         // Get recent unpublished links
         $recent_unpublished = get_posts(array(
@@ -74,7 +74,7 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function getUnpublishedLinkIds(): array {
+    public function getUnpublishedLinkIds(): array {
         return get_posts( array(
             'post_type'      => 'linkblog',
             'posts_per_page' => -1,
@@ -87,24 +87,24 @@ trait LinkBlog_Admin_Dashboard {
         ) );
     }
 
-    public static function handleBatchPublishRequest(): ?array {
+    public function handleBatchPublishRequest(): ?array {
         if ( ! isset( $_POST['linkblog_batch_publish'] ) || ! wp_verify_nonce( $_POST['linkblog_batch_nonce'], 'linkblog_batch_publish' ) ) {
             return null;
         }
         $as_draft = isset( $_POST['publish_as_draft'] ) && $_POST['publish_as_draft'] === '1';
-        return self::batchPublishLinks( self::getUnpublishedLinkIds(), $as_draft );
+        return $this->batchPublishLinks( $this->getUnpublishedLinkIds(), $as_draft );
     }
 
-    public static function handleRoundupRequest(): ?array {
+    public function handleRoundupRequest(): ?array {
         if ( ! isset( $_POST['linkblog_create_roundup'] ) || ! wp_verify_nonce( $_POST['linkblog_roundup_nonce'], 'linkblog_create_roundup' ) ) {
             return null;
         }
         $roundup_title = sanitize_text_field( $_POST['roundup_title'] );
         $as_draft      = isset( $_POST['roundup_as_draft'] ) && $_POST['roundup_as_draft'] === '1';
-        return self::createRoundupPost( self::getUnpublishedLinkIds(), $roundup_title, $as_draft );
+        return $this->createRoundupPost( $this->getUnpublishedLinkIds(), $roundup_title, $as_draft );
     }
 
-    public static function handleQuickAddRequest(): bool {
+    public function handleQuickAddRequest(): bool {
         if ( ! isset( $_POST['linkblog_quick_add'] ) || ! wp_verify_nonce( $_POST['linkblog_quick_nonce'], 'linkblog_quick_add_link' ) ) {
             return false;
         }
@@ -124,7 +124,7 @@ trait LinkBlog_Admin_Dashboard {
         return (bool) $post_id;
     }
 
-    public static function renderDashboardNotices( ?array $batch_result, ?array $roundup_result ): void {
+    public function renderDashboardNotices( ?array $batch_result, ?array $roundup_result ): void {
         if ( $batch_result !== null ) {
             if ( $batch_result['success'] > 0 ) {
                 $failed_msg = $batch_result['failed'] > 0 ? sprintf( __( '%d failed.', 'linkblog' ), $batch_result['failed'] ) : '';
@@ -146,7 +146,7 @@ trait LinkBlog_Admin_Dashboard {
         }
     }
 
-    public static function renderUnpublishedLinksBox( array $recent_links ): void {
+    public function renderUnpublishedLinksBox( array $recent_links ): void {
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -194,7 +194,7 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function renderRecentlyPublishedBox( array $recently_published ): void {
+    public function renderRecentlyPublishedBox( array $recently_published ): void {
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -244,7 +244,7 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function renderPublishBox( int $unpublished_count ): void {
+    public function renderPublishBox( int $unpublished_count ): void {
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -275,7 +275,7 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function renderQuickAddBox( bool $quick_add_success ): void {
+    public function renderQuickAddBox( bool $quick_add_success ): void {
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -306,7 +306,7 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function renderDashboardJs(): void {
+    public function renderDashboardJs(): void {
         $rest_url     = esc_js( rest_url( 'linkblog/v1/links/' ) );
         $nonce        = esc_js( wp_create_nonce( 'wp_rest' ) );
         $lbl_delete   = esc_js( __( 'Delete?', 'linkblog' ) );
@@ -374,12 +374,12 @@ trait LinkBlog_Admin_Dashboard {
         <?php
     }
 
-    public static function dashboardPage(): void {
-        $batch_result      = self::handleBatchPublishRequest();
-        $roundup_result    = self::handleRoundupRequest();
-        $quick_add_success = self::handleQuickAddRequest();
+    public function dashboardPage(): void {
+        $batch_result      = $this->handleBatchPublishRequest();
+        $roundup_result    = $this->handleRoundupRequest();
+        $quick_add_success = $this->handleQuickAddRequest();
 
-        $publish_stats     = self::getPublishStatistics();
+        $publish_stats     = $this->getPublishStatistics();
         $total_links       = $publish_stats['total_links'];
         $published_links   = $publish_stats['published_links'];
         $unpublished_links = $publish_stats['unpublished_links'];
@@ -412,7 +412,7 @@ trait LinkBlog_Admin_Dashboard {
         <div class="wrap">
             <h1><?php _e( 'LinkBlog', 'linkblog' ); ?></h1>
 
-            <?php self::renderDashboardNotices( $batch_result, $roundup_result ); ?>
+            <?php $this->renderDashboardNotices( $batch_result, $roundup_result ); ?>
 
             <!-- Statistics -->
             <div class="lb-stats-grid">
@@ -442,21 +442,21 @@ trait LinkBlog_Admin_Dashboard {
             <div class="metabox-holder">
                 <div id="postbox-container-1" class="postbox-container">
                     <?php
-                    self::renderUnpublishedLinksBox( $recent_links );
-                    self::renderRecentlyPublishedBox( $recently_published );
+                    $this->renderUnpublishedLinksBox( $recent_links );
+                    $this->renderRecentlyPublishedBox( $recently_published );
                     ?>
                 </div><!-- #postbox-container-1 -->
 
                 <div id="postbox-container-2" class="postbox-container">
                     <?php
-                    self::renderPublishBox( $unpublished_links );
-                    self::renderQuickAddBox( $quick_add_success );
+                    $this->renderPublishBox( $unpublished_links );
+                    $this->renderQuickAddBox( $quick_add_success );
                     ?>
                 </div><!-- #postbox-container-2 -->
             </div><!-- .metabox-holder -->
         </div>
 
-        <?php self::renderDashboardJs(); ?>
+        <?php $this->renderDashboardJs(); ?>
         <?php
     }
 }
