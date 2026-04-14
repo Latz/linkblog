@@ -10,7 +10,7 @@ trait LinkBlog_Admin_Menu {
             __('LinkBlog', 'linkblog'),
             'read',
             'linkblog-dashboard',
-            [$this->class, 'dashboardPage'],
+            [$this, 'dashboardPage'],
             plugins_url('assets/icon-20x20.png', LINKBLOG_PLUGIN_FILE),
             6
         );
@@ -21,7 +21,7 @@ trait LinkBlog_Admin_Menu {
             __('Dashboard', 'linkblog'),
             'read',
             'linkblog-dashboard',
-            [$this->class, 'dashboardPage']
+            [$this, 'dashboardPage']
         );
 
         add_submenu_page(
@@ -30,7 +30,7 @@ trait LinkBlog_Admin_Menu {
             __('All Links', 'linkblog'),
             'read',
             'linkblog-admin',
-            [$this->class, 'showLinksPage']
+            [$this, 'showLinksPage']
         );
 
         add_submenu_page(
@@ -39,7 +39,7 @@ trait LinkBlog_Admin_Menu {
             __('Add Link', 'linkblog'),
             'read',
             'linkblog-add',
-            [$this->class, 'addLinkPage']
+            [$this, 'addLinkPage']
         );
 
         add_submenu_page(
@@ -64,7 +64,7 @@ trait LinkBlog_Admin_Menu {
             __('Settings', 'linkblog'),
             'manage_options',
             'linkblog-settings',
-            [$this->class, 'settingsPage']
+            [$this, 'settingsPage']
         );
 
         add_submenu_page(
@@ -73,7 +73,7 @@ trait LinkBlog_Admin_Menu {
             __('Schedule', 'linkblog'),
             'manage_options',
             'linkblog-schedule',
-            [$this->class, 'schedulePage']
+            [$this, 'schedulePage']
         );
     }
 
@@ -88,7 +88,7 @@ trait LinkBlog_Admin_Menu {
         return $parent_file;
     }
 
-    public function submenuFileFilter(string $submenu_file): string {
+    public function submenuFileFilter(string|null $submenu_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
             $taxonomy = $_GET['taxonomy'] ?? '';
@@ -275,7 +275,7 @@ trait LinkBlog_Admin_Menu {
         wp_add_dashboard_widget(
             'linkblog_dashboard_widget',
             __('LinkBlog Summary', 'linkblog'),
-            [$this->class, 'dashboardWidgetContent']
+            [$this, 'dashboardWidgetContent']
         );
     }
 }
