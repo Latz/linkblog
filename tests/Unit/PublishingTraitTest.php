@@ -49,7 +49,6 @@ describe('LinkBlog_Publishing Trait', function () {
             Functions\when('current_user_can')->justReturn(true);
 
             // Mock that a published post ID exists in meta
-            $callCount = 0;
             Functions\when('get_post_meta')->justReturn(456);
 
             Functions\when('get_post')->alias(function ($id) {

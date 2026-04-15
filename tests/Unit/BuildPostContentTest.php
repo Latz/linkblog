@@ -37,7 +37,7 @@ describe('LinkBlog::buildPostContent()', function (): void {
     });
 
     it('appends a read-more link when url is provided', function (): void {
-        $result = $this->plugin->buildPostContent('Title', 1, 'https://example.com', '');
+        $result = $this->plugin->buildPostContent('Title', 1, URL_EXAMPLE, '');
 
         expect($result)
             ->toContain('<a href="https://example.com">')
@@ -58,11 +58,11 @@ describe('LinkBlog::buildPostContent()', function (): void {
     });
 
     it('includes both description and read-more link when both are provided', function (): void {
-        $result = $this->plugin->buildPostContent('Title', 1, 'https://example.com', 'Desc.');
+        $result = $this->plugin->buildPostContent('Title', 1, URL_EXAMPLE, 'Desc.');
 
         expect($result)
             ->toContain('Desc.')
-            ->toContain('https://example.com');
+            ->toContain(URL_EXAMPLE);
     });
 
     it('passes content through apply_filters with the correct hook name', function (): void {

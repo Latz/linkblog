@@ -1,10 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
-
-declare(strict_types=1);
 
 trait LinkBlog_Scheduler {
 
@@ -83,29 +83,32 @@ trait LinkBlog_Scheduler {
         if (in_array($mode, ['daily', 'count', 'age'], true)) {
             return true;
         }
+        return match ($mode) {
+            'weekly'  => $this->matchesWeeklySchedule($date, $rec),
+            'monthly' => $this->matchesMonthlySchedule($date, $rec),
+            default   => true,
+        };
+    }
 
-        if ($mode === 'weekly') {
-            $map = ['MO' => 1, 'TU' => 2, 'WE' => 3, 'TH' => 4, 'FR' => 5, 'SA' => 6, 'SU' => 7];
-            $dow = (int) $date->format('N');
-            foreach ($rec['weekdays'] ?? [] as $wd) {
-                if (($map[$wd] ?? 0) === $dow) {
-                    return true;
-                }
+    private function matchesWeeklySchedule(\DateTime $date, array $rec): bool {
+        $map = ['MO' => 1, 'TU' => 2, 'WE' => 3, 'TH' => 4, 'FR' => 5, 'SA' => 6, 'SU' => 7];
+        $dow = (int) $date->format('N');
+        foreach ($rec['weekdays'] ?? [] as $wd) {
+            if (($map[$wd] ?? 0) === $dow) {
+                return true;
             }
-            return false;
         }
+        return false;
+    }
 
-        if ($mode === 'monthly') {
-            $dom = (int) $date->format('j');
-            foreach ($rec['monthDays'] ?? [] as $md) {
-                if (($md['type'] ?? '') === 'day' && (int) ($md['value'] ?? 0) === $dom) {
-                    return true;
-                }
+    private function matchesMonthlySchedule(\DateTime $date, array $rec): bool {
+        $dom = (int) $date->format('j');
+        foreach ($rec['monthDays'] ?? [] as $md) {
+            if (($md['type'] ?? '') === 'day' && (int) ($md['value'] ?? 0) === $dom) {
+                return true;
             }
-            return false;
         }
-
-        return true;
+        return false;
     }
 
     private function hasUnpublishedLinkOlderThan(int $days): bool {

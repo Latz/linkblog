@@ -18,7 +18,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
 
     it('returns null when every validation condition passes', function (): void {
         Functions\when('current_user_can')->justReturn(true);
-        Functions\when('get_post')->justReturn(makePost(1, 'My Link'));
+        Functions\when('get_post')->justReturn(makePost(1, TITLE_MY_LINK));
         Functions\when('get_post_meta')->justReturn(''); // no published_post_id
 
         $result = $this->plugin->validateLinkForPublish(1);
@@ -70,7 +70,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('get_post')
             ->alias(function (int $id) use ($publishedPost): ?WP_Post {
                 return match ($id) {
-                    1  => makePost(1, 'My Link'),  // the link
+                    1  => makePost(1, TITLE_MY_LINK),  // the link
                     50 => $publishedPost,           // the published blog post
                     default => null,
                 };
@@ -86,7 +86,7 @@ describe('LinkBlog::validateLinkForPublish()', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
             ->alias(function (int $id): ?WP_Post {
-                return $id === 1 ? makePost(1, 'My Link') : null; // published post 50 is gone
+                return $id === 1 ? makePost(1, TITLE_MY_LINK) : null; // published post 50 is gone
             });
         Functions\when('get_post_meta')->justReturn(50);
 

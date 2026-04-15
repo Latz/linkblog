@@ -5,7 +5,7 @@
  * No WordPress or Docker needed.
  */
 
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const { REST_NAMESPACE, ROUTES } = require('../../constants.json');
 
@@ -14,7 +14,7 @@ const { REST_NAMESPACE, ROUTES } = require('../../constants.json');
 // move to src/js/rest.js and import when you have more callers).
 // ---------------------------------------------------------------------------
 function buildRestUrl(baseUrl, namespace, route) {
-    const clean = (s) => s.replace(/^\/+|\/+$/g, '');
+    const clean = (s) => s.replaceAll(/^\/+|\/+$/g, '');
     return `${clean(baseUrl)}/wp-json/${clean(namespace)}${route}`;
 }
 

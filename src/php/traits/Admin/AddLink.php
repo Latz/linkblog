@@ -122,9 +122,18 @@ trait LinkBlog_Admin_AddLink {
             return ['', ''];
         }
 
+        $input = $this->validateAddLinkInput();
+        if ($input['error'] !== '') {
+            return ['', $input['error']];
+        }
+
+        return $this->insertNewLink($input);
+    }
+
+    private function validateAddLinkInput(): array {
         $nonce = isset($_POST['linkblog_add_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkblog_add_nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'linkblog_add_link')) {
-            return ['', ''];
+            return ['title' => '', 'url' => '', 'content' => '', 'categories' => [], 'tags' => '', 'error' => ''];
         }
 
         $title      = isset($_POST['linkblog_title'])   ? sanitize_text_field(wp_unslash($_POST['linkblog_title']))   : '';
@@ -133,13 +142,14 @@ trait LinkBlog_Admin_AddLink {
         $categories = isset($_POST['linkblog_categories']) ? array_map('intval', $_POST['linkblog_categories']) : array();
         $tags       = isset($_POST['linkblog_tags'])    ? sanitize_text_field(wp_unslash($_POST['linkblog_tags']))    : '';
 
-        if (empty($title)) {
-            return ['', __('Title is required.', 'LinkBlog')];
-        }
+        $error = empty($title) ? __('Title is required.', 'LinkBlog') : '';
+        return compact('title', 'url', 'content', 'categories', 'tags', 'error');
+    }
 
+    private function insertNewLink(array $input): array {
         $post_id = wp_insert_post(array(
-            'post_title'   => $title,
-            'post_content' => $content,
+            'post_title'   => $input['title'],
+            'post_content' => $input['content'],
             'post_type'    => 'linkblog',
             'post_status'  => 'publish',
         ));
@@ -148,14 +158,14 @@ trait LinkBlog_Admin_AddLink {
             return ['', __('Failed to add link.', 'LinkBlog')];
         }
 
-        if (!empty($url)) {
-            update_post_meta($post_id, '_linkblog_url', $url);
+        if (!empty($input['url'])) {
+            update_post_meta($post_id, '_linkblog_url', $input['url']);
         }
-        if (!empty($categories)) {
-            wp_set_object_terms($post_id, $categories, 'linkblog_category');
+        if (!empty($input['categories'])) {
+            wp_set_object_terms($post_id, $input['categories'], 'linkblog_category');
         }
-        if (!empty($tags)) {
-            wp_set_object_terms($post_id, array_map('trim', explode(',', $tags)), 'linkblog_tag');
+        if (!empty($input['tags'])) {
+            wp_set_object_terms($post_id, array_map('trim', explode(',', $input['tags'])), 'linkblog_tag');
         }
 
         $_POST = array();

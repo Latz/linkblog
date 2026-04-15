@@ -42,7 +42,9 @@ trait LinkBlog_Batch {
 
     public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false): array {
         $guard = $this->validateRoundupRequest($link_ids);
-        if ($guard !== null) return $guard;
+        if ($guard !== null) {
+            return $guard;
+        }
 
         if (empty($post_title)) {
             $post_title = sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'));
@@ -152,17 +154,7 @@ trait LinkBlog_Batch {
     }
 
     private function assignRoundupCategories(int $post_id, array $links_by_category): void {
-        $all_cats = array();
-        foreach ($links_by_category as $group) {
-            foreach ($group['links'] as $link_id) {
-                $cats = get_the_terms($link_id, 'linkblog_category');
-                if ($cats && !is_wp_error($cats)) {
-                    foreach ($cats as $cat) {
-                        $all_cats[] = $cat;
-                    }
-                }
-            }
-        }
+        $all_cats = $this->collectCategoryTerms($links_by_category);
 
         if (empty($all_cats)) {
             return;
@@ -184,6 +176,21 @@ trait LinkBlog_Batch {
         if (!empty($wp_cat_ids)) {
             wp_set_post_categories($post_id, array_values($wp_cat_ids));
         }
+    }
+
+    private function collectCategoryTerms(array $links_by_category): array {
+        $all_cats = array();
+        foreach ($links_by_category as $group) {
+            foreach ($group['links'] as $link_id) {
+                $cats = get_the_terms($link_id, 'linkblog_category');
+                if ($cats && !is_wp_error($cats)) {
+                    foreach ($cats as $cat) {
+                        $all_cats[] = $cat;
+                    }
+                }
+            }
+        }
+        return $all_cats;
     }
 
     private function assignRoundupTags(int $post_id, array $link_ids): void {

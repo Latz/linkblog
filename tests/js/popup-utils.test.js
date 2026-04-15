@@ -16,19 +16,19 @@ import {
 // extractPageDescription()
 // ---------------------------------------------------------------------------
 
-describe('extractPageDescription()', () => {
-    function makeDoc(metaTags) {
-        const doc = document.implementation.createHTMLDocument('test');
-        for (const attrs of metaTags) {
-            const meta = doc.createElement('meta');
-            for (const [k, v] of Object.entries(attrs)) {
-                meta.setAttribute(k, v);
-            }
-            doc.head.appendChild(meta);
+function makeDoc(metaTags) {
+    const doc = document.implementation.createHTMLDocument('test');
+    for (const attrs of metaTags) {
+        const meta = doc.createElement('meta');
+        for (const [k, v] of Object.entries(attrs)) {
+            meta.setAttribute(k, v);
         }
-        return doc;
+        doc.head.appendChild(meta);
     }
+    return doc;
+}
 
+describe('extractPageDescription()', () => {
     it('returns empty string when there are no meta tags', () => {
         const doc = document.implementation.createHTMLDocument('empty');
         expect(extractPageDescription(doc)).toBe('');

@@ -36,7 +36,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         $transientKey = null;
         $transientVal = null;
         Functions\when('set_transient')->alias(
-            function (string $key, mixed $val, int $ttl) use (&$transientKey, &$transientVal): bool {
+            function (string $key, mixed $val, int $_ttl) use (&$transientKey, &$transientVal): bool {
                 $transientKey = $key;
                 $transientVal = $val;
                 return true;

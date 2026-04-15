@@ -20,7 +20,7 @@ beforeEach(function (): void {
     $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
 });
 
-describe('LinkBlog::createBlogPost()', function (): void {
+describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognitive complexity acceptable in test suite
 
     it('returns the validation error array when validate fails', function (): void {
         // Simulate no permission
@@ -144,7 +144,7 @@ describe('LinkBlog::createBlogPost()', function (): void {
 
         $calls = [];
         Functions\when('update_post_meta')
-            ->alias(function (int $id, string $key, mixed $value) use (&$calls): bool {
+            ->alias(function (int $_id, string $key, mixed $value) use (&$calls): bool {
                 $calls[$key] = $value;
                 return true;
             });

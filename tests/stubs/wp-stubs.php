@@ -272,3 +272,20 @@ if (!function_exists('current_time')) {
         return $type === 'timestamp' ? time() : date('Y-m-d H:i:s');
     }
 }
+if (!function_exists('wp_timezone')) {
+    function wp_timezone(): \DateTimeZone { return new \DateTimeZone('UTC'); }
+}
+if (!function_exists('wp_date')) {
+    function wp_date(string $format, ?int $timestamp = null, ?\DateTimeZone $timezone = null): string|false {
+        return date($format, $timestamp ?? time());
+    }
+}
+if (!function_exists('wp_schedule_single_event')) {
+    function wp_schedule_single_event(int $timestamp, string $hook, array $args = [], bool $wp_error = false): bool { return true; }
+}
+if (!function_exists('register_deactivation_hook')) {
+    function register_deactivation_hook(string $file, callable $callback): void {}
+}
+if (!function_exists('wp_clear_scheduled_hook')) {
+    function wp_clear_scheduled_hook(string $hook, array $args = []): int|false { return 0; }
+}

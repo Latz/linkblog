@@ -9,14 +9,17 @@ declare(strict_types=1);
  * WP_Post and WP_REST_Request are already defined.
  */
 
+const URL_EXAMPLE   = 'https://example.com';
+const TITLE_MY_LINK = 'My Link';
+
 /**
  * Build a concrete WP_REST_Request stub with preset params and headers.
  */
 function makeRequest(array $params = [], array $headers = []): WP_REST_Request
 {
     $request = new WP_REST_Request();
-    foreach ($params  as $k => $v) $request[$k] = $v;
-    foreach ($headers as $k => $v) $request->set_header($k, $v);
+    foreach ($params  as $k => $v) { $request[$k] = $v; }
+    foreach ($headers as $k => $v) { $request->set_header($k, $v); }
     return $request;
 }
 

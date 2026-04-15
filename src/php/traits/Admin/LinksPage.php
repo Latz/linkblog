@@ -52,7 +52,6 @@ trait LinkBlog_Admin_LinksPage {
                                     $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
                                     $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
                                     $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
-
                                     if (empty($publish_status)) {
                                         $publish_status = 'unpublished';
                                     }
@@ -66,15 +65,7 @@ trait LinkBlog_Admin_LinksPage {
                                                 -
                                             <?php endif; ?>
                                         </td>
-                                        <td>
-                                            <?php if ($publish_status === 'published') : ?>
-                                                <span class="lb-status-badge lb-status-published">✓ <?php esc_html_e('Published', 'LinkBlog'); ?></span>
-                                            <?php elseif ($publish_status === 'draft') : ?>
-                                                <span class="lb-status-badge lb-status-draft">📝 <?php esc_html_e('Draft', 'LinkBlog'); ?></span>
-                                            <?php else : ?>
-                                                <span class="lb-status-badge lb-status-unpublished"><?php esc_html_e('Unpublished', 'LinkBlog'); ?></span>
-                                            <?php endif; ?>
-                                        </td>
+                                        <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
                                         <td>
                                             <?php if ($published_date) : ?>
                                                 <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
@@ -83,21 +74,7 @@ trait LinkBlog_Admin_LinksPage {
                                             <?php endif; ?>
                                         </td>
                                         <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
-                                        <td>
-                                            <?php if ($publish_status === 'unpublished') : ?>
-                                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID)); ?>"><?php esc_html_e('Publish', 'LinkBlog'); ?></a> |
-                                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID)); ?>"><?php esc_html_e('Save as Draft', 'LinkBlog'); ?></a> |
-                                            <?php elseif ($publish_status === 'published') : ?>
-                                                <a href="<?php echo esc_url(get_permalink($published_post_id)); ?>" target="_blank"><?php esc_html_e('View Post', 'LinkBlog'); ?></a> |
-                                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID)); ?>" onclick="return confirm('<?php esc_attr_e('Are you sure you want to unpublish this link?', 'LinkBlog'); ?>');"><?php esc_html_e('Unpublish', 'LinkBlog'); ?></a> |
-                                            <?php elseif ($publish_status === 'draft') : ?>
-                                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID)); ?>"><?php esc_html_e('Publish', 'LinkBlog'); ?></a> |
-                                                <a href="<?php echo esc_url(get_edit_post_link($published_post_id)); ?>" target="_blank"><?php esc_html_e('View Draft', 'LinkBlog'); ?></a> |
-                                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID)); ?>" onclick="return confirm('<?php esc_attr_e('Are you sure you want to unpublish this link?', 'LinkBlog'); ?>');"><?php esc_html_e('Unpublish', 'LinkBlog'); ?></a> |
-                                            <?php endif; ?>
-                                            <a href="<?php echo esc_url(get_edit_post_link($link->ID)); ?>"><?php esc_html_e('Edit', 'LinkBlog'); ?></a> |
-                                            <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)); ?>" onclick="return confirm('<?php esc_attr_e('Are you sure you want to delete this link?', 'LinkBlog'); ?>');"><?php esc_html_e('Delete', 'LinkBlog'); ?></a>
-                                        </td>
+                                        <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -126,31 +103,67 @@ trait LinkBlog_Admin_LinksPage {
         $nonce   = sanitize_text_field(wp_unslash($_GET['_wpnonce']));
 
         if ($action === 'publish_link' && wp_verify_nonce($nonce, 'publish_link_' . $link_id)) {
-            $result = $this->createBlogPost($link_id, false);
-            if ($result['success']) {
-                $message = $result['message'] . ' <a href="' . esc_url(get_permalink($result['post_id'])) . '" target="_blank">' . esc_html__('View Post', 'LinkBlog') . '</a>';
-            } else {
-                $error = $result['message'];
-            }
+            [$message, $error] = $this->executePublishAction($link_id, false);
         } elseif ($action === 'draft_link' && wp_verify_nonce($nonce, 'draft_link_' . $link_id)) {
-            $result = $this->createBlogPost($link_id, true);
-            if ($result['success']) {
-                $message = $result['message'] . ' <a href="' . esc_url(get_edit_post_link($result['post_id'])) . '" target="_blank">' . esc_html__('Edit Draft', 'LinkBlog') . '</a>';
-            } else {
-                $error = $result['message'];
-            }
+            [$message, $error] = $this->executePublishAction($link_id, true);
         } elseif ($action === 'unpublish_link' && wp_verify_nonce($nonce, 'unpublish_link_' . $link_id)) {
-            $result = $this->unpublishLink($link_id);
-            if ($result['success']) {
-                $message = $result['message'];
-            } else {
-                $error = $result['message'];
-            }
+            [$message, $error] = $this->executeUnpublishAction($link_id);
         } elseif ($action === 'delete' && wp_verify_nonce($nonce, 'delete_link_' . $link_id)) {
             wp_delete_post($link_id, true);
             $message = __('Link deleted successfully.', 'LinkBlog');
         }
 
         return [$message, $error];
+    }
+
+    private function executePublishAction(int $link_id, bool $as_draft): array {
+        $result = $this->createBlogPost($link_id, $as_draft);
+        if (!$result['success']) {
+            return ['', $result['message']];
+        }
+        if ($as_draft) {
+            return [$result['message'] . ' <a href="' . esc_url(get_edit_post_link($result['post_id'])) . '" target="_blank">' . esc_html__('Edit Draft', 'LinkBlog') . '</a>', ''];
+        }
+        return [$result['message'] . ' <a href="' . esc_url(get_permalink($result['post_id'])) . '" target="_blank">' . esc_html__('View Post', 'LinkBlog') . '</a>', ''];
+    }
+
+    private function executeUnpublishAction(int $link_id): array {
+        $result = $this->unpublishLink($link_id);
+        if ($result['success']) {
+            return [$result['message'], ''];
+        }
+        return ['', $result['message']];
+    }
+
+    private function renderLinkStatusBadge(string $publish_status): void {
+        if ($publish_status === 'published') {
+            echo '<span class="lb-status-badge lb-status-published">✓ ' . esc_html__('Published', 'LinkBlog') . '</span>';
+        } elseif ($publish_status === 'draft') {
+            echo '<span class="lb-status-badge lb-status-draft">📝 ' . esc_html__('Draft', 'LinkBlog') . '</span>';
+        } else {
+            echo '<span class="lb-status-badge lb-status-unpublished">' . esc_html__('Unpublished', 'LinkBlog') . '</span>';
+        }
+    }
+
+    private function renderLinkActions(\WP_Post $link, string $publish_status, mixed $published_post_id): void {
+        $confirm_unpublish = "return confirm('" . esc_js(__('Are you sure you want to unpublish this link?', 'LinkBlog')) . "');";
+        $confirm_delete    = "return confirm('" . esc_js(__('Are you sure you want to delete this link?', 'LinkBlog')) . "');";
+        $publish_url       = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID));
+        $unpublish_url     = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID));
+
+        if ($publish_status === 'unpublished') {
+            $draft_url = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
+            echo '<a href="' . $publish_url . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . $draft_url . '">' . esc_html__('Save as Draft', 'LinkBlog') . '</a> | ';
+        } elseif ($publish_status === 'published') {
+            echo '<a href="' . esc_url(get_permalink($published_post_id)) . '" target="_blank">' . esc_html__('View Post', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . $unpublish_url . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
+        } elseif ($publish_status === 'draft') {
+            echo '<a href="' . $publish_url . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . esc_url(get_edit_post_link($published_post_id)) . '" target="_blank">' . esc_html__('View Draft', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . $unpublish_url . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
+        }
+        echo '<a href="' . esc_url(get_edit_post_link($link->ID)) . '">' . esc_html__('Edit', 'LinkBlog') . '</a> | ';
+        echo '<a href="' . esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)) . '" onclick="' . $confirm_delete . '">' . esc_html__('Delete', 'LinkBlog') . '</a>';
     }
 }

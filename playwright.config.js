@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { createRequire } from 'module';
+import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { WP_ENV } = require('./constants.json');

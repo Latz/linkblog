@@ -44,7 +44,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         Functions\when('wp_insert_post')->justReturn(42);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $request = makeRequest(['title' => 'My Link', 'url' => 'https://example.com']);
+        $request = makeRequest(['title' => 'My Link', 'url' => URL_EXAMPLE]);
 
         $result = $this->plugin->restAddLink($request);
 
@@ -57,15 +57,15 @@ describe('LinkBlog::restAddLink()', function (): void {
 
         $savedMeta = [];
         Functions\when('update_post_meta')
-            ->alias(function (int $id, string $key, mixed $value) use (&$savedMeta): bool {
+            ->alias(function (int $_id, string $key, mixed $value) use (&$savedMeta): bool {
                 $savedMeta[$key] = $value;
                 return true;
             });
 
-        $request = makeRequest(['title' => 'Link', 'url' => 'https://example.com']);
+        $request = makeRequest(['title' => 'Link', 'url' => URL_EXAMPLE]);
         $this->plugin->restAddLink($request);
 
-        expect($savedMeta['_linkblog_url'])->toBe('https://example.com');
+        expect($savedMeta['_linkblog_url'])->toBe(URL_EXAMPLE);
     });
 
     it('does not call update_post_meta for url when url is empty', function (): void {
@@ -73,7 +73,7 @@ describe('LinkBlog::restAddLink()', function (): void {
 
         $metaKeys = [];
         Functions\when('update_post_meta')
-            ->alias(function (int $id, string $key) use (&$metaKeys): bool {
+            ->alias(function (int $_id, string $key) use (&$metaKeys): bool {
                 $metaKeys[] = $key;
                 return true;
             });

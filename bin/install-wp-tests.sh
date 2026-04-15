@@ -33,6 +33,7 @@ download_wp() {
     fi
     tar --strip-components=1 -zxmf /tmp/wordpress.tar.gz -C "$WP_CORE_DIR"
     rm /tmp/wordpress.tar.gz
+    return 0
 }
 
 # ---------------------------------------------------------------------------
@@ -77,6 +78,7 @@ create_db() {
         -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;" 2>/dev/null && \
     echo "Database '${DB_NAME}' ready." || \
     echo "WARN: Could not create database. It may already exist."
+    return 0
 }
 
 mkdir -p "$WP_CORE_DIR"

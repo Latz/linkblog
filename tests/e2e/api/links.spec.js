@@ -10,7 +10,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createRequire }  from 'module';
+import { createRequire }  from 'node:module';
 const require = createRequire(import.meta.url);
 const { REST_NAMESPACE, ROUTES } = require('../../../constants.json');
 

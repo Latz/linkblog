@@ -40,7 +40,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
 
         $deleted = [];
         Functions\when('delete_post_meta')
-            ->alias(function (int $id, string $key) use (&$deleted): bool {
+            ->alias(function (int $_id, string $key) use (&$deleted): bool {
                 $deleted[] = $key;
                 return true;
             });

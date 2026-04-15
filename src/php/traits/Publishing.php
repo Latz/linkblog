@@ -12,6 +12,10 @@ trait LinkBlog_Publishing {
         if (!$link || $link->post_type !== 'linkblog') {
             return array('success' => false, 'post_id' => 0, 'message' => __('Invalid link ID.', 'linkblog'), 'error_code' => 'invalid_link');
         }
+        return $this->validateLinkState($link, $link_id);
+    }
+
+    private function validateLinkState(\WP_Post $link, int $link_id): ?array {
         if (empty($link->post_title)) {
             return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'linkblog'), 'error_code' => 'missing_title');
         }
@@ -36,18 +40,7 @@ trait LinkBlog_Publishing {
     public function mapTaxonomies(int $post_id, int $link_id): void {
         $linkblog_categories = get_the_terms($link_id, 'linkblog_category');
         if ($linkblog_categories && !is_wp_error($linkblog_categories)) {
-            $category_ids = array();
-            foreach ($linkblog_categories as $linkblog_cat) {
-                $existing_cat = get_category_by_slug($linkblog_cat->slug);
-                if ($existing_cat) {
-                    $category_ids[] = $existing_cat->term_id;
-                } else {
-                    $new_cat = wp_insert_term($linkblog_cat->name, 'category');
-                    if (!is_wp_error($new_cat)) {
-                        $category_ids[] = $new_cat['term_id'];
-                    }
-                }
-            }
+            $category_ids = $this->resolveWpCategoryIds($linkblog_categories);
             if (!empty($category_ids)) {
                 wp_set_post_categories($post_id, $category_ids);
             }
@@ -57,6 +50,22 @@ trait LinkBlog_Publishing {
         if ($linkblog_tags && !is_wp_error($linkblog_tags)) {
             wp_set_post_tags($post_id, wp_list_pluck($linkblog_tags, 'name'));
         }
+    }
+
+    private function resolveWpCategoryIds(array $linkblog_categories): array {
+        $category_ids = array();
+        foreach ($linkblog_categories as $linkblog_cat) {
+            $existing_cat = get_category_by_slug($linkblog_cat->slug);
+            if ($existing_cat) {
+                $category_ids[] = $existing_cat->term_id;
+            } else {
+                $new_cat = wp_insert_term($linkblog_cat->name, 'category');
+                if (!is_wp_error($new_cat)) {
+                    $category_ids[] = $new_cat['term_id'];
+                }
+            }
+        }
+        return $category_ids;
     }
 
     public function createBlogPost(int $link_id, bool $as_draft = false): array {

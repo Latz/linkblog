@@ -25,15 +25,17 @@ mkdir -p "$REPORT_DIR"
 
 # Run analysis
 echo "Running SonarCloud analysis..."
+SCANNER_EXIT=0
 sonar-scanner \
   -Dsonar.token="$SONAR_TOKEN" \
   -Dsonar.projectKey="$PROJECT_KEY" \
   -Dsonar.organization="$ORGANIZATION" \
   -Dsonar.host.url="https://sonarcloud.io" \
-  -Dsonar.qualitygate.wait=true
+  -Dsonar.qualitygate.wait=true \
+  || SCANNER_EXIT=$?
 
-# Download report if requested
-if [ "$DOWNLOAD" = true ]; then
+# Download report if requested (always runs, even when quality gate fails)
+if [[ "$DOWNLOAD" = true ]]; then
   echo ""
   echo "Downloading report to $OUTPUT_FILE..."
   curl -s -u "${SONAR_TOKEN}:" \
@@ -53,7 +55,7 @@ if [ "$DOWNLOAD" = true ]; then
     echo "_Generated: $DATE — $TOTAL open issue(s)_"
     echo ""
 
-    if [ "$TOTAL" -eq 0 ]; then
+    if [[ "$TOTAL" -eq 0 ]]; then
       echo "No open issues found."
     else
       jq -r '
@@ -73,3 +75,5 @@ fi
 
 echo ""
 echo "Done. View results at https://sonarcloud.io/dashboard?id=${PROJECT_KEY}"
+
+exit "${SCANNER_EXIT:-0}"

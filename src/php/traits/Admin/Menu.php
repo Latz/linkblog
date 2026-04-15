@@ -124,7 +124,7 @@ trait LinkBlog_Admin_Menu {
                 <p><?php esc_html_e('Use these credentials to connect the LinkBlog Chrome extension to your WordPress site.', 'LinkBlog'); ?></p>
 
                 <div style="margin: 20px 0;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                    <label for="linkblog-api-endpoint" style="display: block; margin-bottom: 8px; font-weight: 600;">
                         <?php esc_html_e('API Endpoint:', 'LinkBlog'); ?>
                     </label>
                     <div style="display: flex; gap: 8px; align-items: center;">
@@ -150,7 +150,7 @@ trait LinkBlog_Admin_Menu {
 
                 <?php if ($api_key) : ?>
                     <div style="margin: 20px 0;">
-                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                        <label for="linkblog-api-key" style="display: block; margin-bottom: 8px; font-weight: 600;">
                             <?php esc_html_e('API Key:', 'LinkBlog'); ?>
                         </label>
                         <div style="display: flex; gap: 8px; align-items: center;">
@@ -252,7 +252,7 @@ trait LinkBlog_Admin_Menu {
         if (strpos($hook, 'linkblog-schedule') !== false) {
             $asset_file = plugin_dir_path(LINKBLOG_PLUGIN_FILE) . 'build/schedule.asset.php';
             $asset = file_exists($asset_file)
-                ? require($asset_file)
+                ? require_once $asset_file
                 : array('dependencies' => array(), 'version' => '1.0.0');
 
             wp_enqueue_script(
