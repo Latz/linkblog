@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 declare(strict_types=1);
 
 trait LinkBlog_Scheduler {
@@ -33,7 +37,8 @@ trait LinkBlog_Scheduler {
         };
 
         if ($should_publish && !empty($link_ids)) {
-            $title = sprintf(__('Links: %s', 'linkblog'), wp_date('F j, Y'));
+            /* translators: %s is the formatted date (e.g. "April 15, 2026") */
+            $title = sprintf(__('Links: %s', 'LinkBlog'), wp_date('F j, Y'));
             $this->createRoundupPost($link_ids, $title);
         }
 
@@ -104,13 +109,13 @@ trait LinkBlog_Scheduler {
     }
 
     private function hasUnpublishedLinkOlderThan(int $days): bool {
-        $cutoff = date('Y-m-d H:i:s', strtotime("-{$days} days"));
+        $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
         $found  = get_posts([
             'post_type'      => 'linkblog',
             'posts_per_page' => 1,
             'fields'         => 'ids',
             'date_query'     => [['before' => $cutoff]],
-            'meta_query'     => [
+            'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
                 ['key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
                 ['key' => '_linkblog_publish_status', 'value' => ['published', 'draft'], 'compare' => self::META_COMPARE_NOT_IN],

@@ -13,7 +13,7 @@ trait LinkBlog_Queries {
             'post_type'      => 'linkblog',
             'posts_per_page' => -1,
             'fields'         => 'ids',
-            'meta_query'     => array(
+            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
                     'key'     => '_linkblog_publish_status',
                     'value'   => 'published',
@@ -28,7 +28,7 @@ trait LinkBlog_Queries {
             'post_type'      => 'linkblog',
             'posts_per_page' => -1,
             'fields'         => 'ids',
-            'meta_query'     => array(
+            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
                     'key'     => '_linkblog_publish_status',
                     'value'   => 'draft',
@@ -65,7 +65,7 @@ trait LinkBlog_Queries {
                     'posts_per_page' => -1,
                     'orderby'        => 'date',
                     'order'          => 'DESC',
-                    'tax_query'      => array(
+                    'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                         array(
                             'taxonomy' => 'linkblog_category',
                             'field'    => 'term_id',
@@ -86,7 +86,7 @@ trait LinkBlog_Queries {
             'posts_per_page' => -1,
             'orderby'        => 'date',
             'order'          => 'DESC',
-            'tax_query'      => array(
+            'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                 array(
                     'taxonomy' => 'linkblog_category',
                     'operator' => 'NOT EXISTS',
@@ -95,7 +95,7 @@ trait LinkBlog_Queries {
         ));
 
         if (!empty($uncategorized_links)) {
-            $grouped_links[__('Uncategorized', 'linkblog')] = $uncategorized_links;
+            $grouped_links[__('Uncategorized', 'LinkBlog')] = $uncategorized_links;
         }
 
         return $grouped_links;
@@ -108,7 +108,7 @@ trait LinkBlog_Queries {
         if (!$published_post_id) {
             return array(
                 'success' => false,
-                'message' => __('This link has not been published.', 'linkblog')
+                'message' => __('This link has not been published.', 'LinkBlog')
             );
         }
 
@@ -118,7 +118,7 @@ trait LinkBlog_Queries {
         if (!$trashed) {
             return array(
                 'success' => false,
-                'message' => __('Failed to unpublish link.', 'linkblog')
+                'message' => __('Failed to unpublish link.', 'LinkBlog')
             );
         }
 
@@ -129,7 +129,7 @@ trait LinkBlog_Queries {
 
         return array(
             'success' => true,
-            'message' => __('Link unpublished successfully.', 'linkblog')
+            'message' => __('Link unpublished successfully.', 'LinkBlog')
         );
     }
 }
