@@ -34,3 +34,6 @@ linkblog-linkblog-php-*.md
 linkblog-linkblog-php-*.json
 test-results/
 dist/
+.sync_8cb9c76aa208.db
+DEPLOYMENT.md
+plugincheck.md.md

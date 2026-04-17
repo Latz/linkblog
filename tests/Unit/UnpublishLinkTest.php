@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -36,7 +40,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
 
     it('returns success and removes all three meta keys on success', function (): void {
         Functions\when('get_post_meta')->justReturn(50);
-        Functions\when('wp_trash_post')->justReturn(makePost(50, 'Blog Post', 'post'));
+        Functions\when('wp_trash_post')->justReturn(linkblog_make_post(50, 'Blog Post', 'post'));
 
         $deleted = [];
         Functions\when('delete_post_meta')
@@ -61,7 +65,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
         Functions\when('wp_trash_post')->alias(
             function (int $id) use (&$trashedId): WP_Post|false|null {
                 $trashedId = $id;
-                return makePost($id, 'Post', 'post');
+                return linkblog_make_post($id, 'Post', 'post');
             }
         );
 

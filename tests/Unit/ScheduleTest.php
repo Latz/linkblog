@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -45,7 +49,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
     });
 
     it('returns a 400 WP_Error when the request body is empty', function (): void {
-        $request = makeRequest(); // no JSON body
+        $request = linkblog_make_request(); // no JSON body
 
         $result = $this->plugin->saveSchedule($request);
 
@@ -55,7 +59,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
     });
 
     it('returns a 400 WP_Error when mode key is missing', function (): void {
-        $request = makeRequest(['recurrence' => []]);
+        $request = linkblog_make_request(['recurrence' => []]);
 
         $result = $this->plugin->saveSchedule($request);
 
@@ -65,7 +69,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
 
     it('saves valid schedule data and returns success', function (): void {
         $data    = ['mode' => 'daily', 'times' => ['09:00']];
-        $request = makeRequest($data);
+        $request = linkblog_make_request($data);
 
         $savedKey = null;
         $savedVal = null;

@@ -38,7 +38,7 @@ trait LinkBlog_Scheduler {
 
         if ($should_publish && !empty($link_ids)) {
             /* translators: %s is the formatted date (e.g. "April 15, 2026") */
-            $title = sprintf(__('Links: %s', 'LinkBlog'), wp_date('F j, Y'));
+            $title = sprintf(__('Links: %s', 'linkblog'), wp_date('F j, Y'));
 
             // WP-Cron runs unauthenticated; elevate to an admin so createRoundupPost()
             // passes its current_user_can('publish_posts') guard.

@@ -7,7 +7,7 @@ trait LinkBlog_MetaBoxes {
     public function addMetaBoxes(): void {
         add_meta_box(
             'linkblog_url',
-            __('Link URL', 'LinkBlog'),
+            __('Link URL', 'linkblog'),
             [$this, 'urlMetaBoxCallback'],
             'linkblog',
             'normal',
@@ -20,7 +20,7 @@ trait LinkBlog_MetaBoxes {
         $url = get_post_meta($post->ID, '_linkblog_url', true);
         ?>
         <p>
-            <label for="linkblog_url_meta"><?php esc_html_e('URL:', 'LinkBlog'); ?></label><br>
+            <label for="linkblog_url_meta"><?php esc_html_e('URL:', 'linkblog'); ?></label><br>
             <input type="url" id="linkblog_url_meta" name="linkblog_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" style="width: 100%;">
         </p>
         <?php

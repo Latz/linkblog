@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -39,7 +43,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
     it('counts successes correctly when all links publish', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => makePost($id, "Link $id"));
+            ->alias(fn($id) => linkblog_make_post($id, "Link $id"));
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(99);
         Functions\when('update_post_meta')->justReturn(true);
@@ -52,7 +56,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
 
     it('counts failures when links have no permission', function (): void {
         Functions\when('current_user_can')->justReturn(false);
-        Functions\when('get_post')->alias(fn($id) => makePost($id, "Link $id"));
+        Functions\when('get_post')->alias(fn($id) => linkblog_make_post($id, "Link $id"));
 
         $result = $this->plugin->batchPublishLinks([1, 2]);
 
@@ -65,7 +69,7 @@ describe('LinkBlog::batchPublishLinks()', function (): void {
         $calls = 0;
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => makePost($id, "Link $id"));
+            ->alias(fn($id) => linkblog_make_post($id, "Link $id"));
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')
             ->alias(function () use (&$calls): int {

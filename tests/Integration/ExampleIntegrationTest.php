@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Example Integration test.
  *
@@ -28,5 +32,6 @@ it('creates a link post and retrieves it', function (): void {
     expect($postId)->toBeInt()->toBeGreaterThan(0);
 
     $url = get_post_meta($postId, '_linkblog_url', true);
+
     expect($url)->toBe('https://example.com');
 });

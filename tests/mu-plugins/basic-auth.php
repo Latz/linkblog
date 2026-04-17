@@ -1,4 +1,9 @@
 <?php
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Allow plain username:password Basic Auth for E2E tests in wp-env.
  *
@@ -17,8 +22,8 @@
  * Returns user ID from Basic Auth headers, or null if unavailable.
  */
 function linkblog_basic_auth_user_id(): ?int {
-    $username = $_SERVER['PHP_AUTH_USER'] ?? null;
-    $password = $_SERVER['PHP_AUTH_PW'] ?? null;
+    $username = isset($_SERVER['PHP_AUTH_USER']) ? sanitize_text_field(wp_unslash($_SERVER['PHP_AUTH_USER'])) : null;
+    $password = isset($_SERVER['PHP_AUTH_PW']) ? sanitize_text_field(wp_unslash($_SERVER['PHP_AUTH_PW'])) : null;
 
     if ( empty( $username ) || empty( $password ) ) {
         return null;

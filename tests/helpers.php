@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * Shared test helpers — available in every Unit test closure.
  *
@@ -9,13 +13,13 @@ declare(strict_types=1);
  * WP_Post and WP_REST_Request are already defined.
  */
 
-const URL_EXAMPLE   = 'https://example.com';
-const TITLE_MY_LINK = 'My Link';
+const LINKBLOG_URL_EXAMPLE   = 'https://example.com';
+const LINKBLOG_TITLE_MY_LINK = 'My Link';
 
 /**
  * Build a concrete WP_REST_Request stub with preset params and headers.
  */
-function makeRequest(array $params = [], array $headers = []): WP_REST_Request
+function linkblog_make_request(array $params = [], array $headers = []): WP_REST_Request
 {
     $request = new WP_REST_Request();
     foreach ($params  as $k => $v) { $request[$k] = $v; }
@@ -26,7 +30,7 @@ function makeRequest(array $params = [], array $headers = []): WP_REST_Request
 /**
  * Build a minimal WP_Post object.
  */
-function makePost(int $id, string $title, string $type = 'linkblog', string $content = ''): WP_Post
+function linkblog_make_post(int $id, string $title, string $type = 'linkblog', string $content = ''): WP_Post
 {
     $post               = new WP_Post();
     $post->ID           = $id;

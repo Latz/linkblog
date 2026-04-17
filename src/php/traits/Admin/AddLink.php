@@ -26,7 +26,7 @@ trait LinkBlog_Admin_AddLink {
         ));
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Add New Link', 'LinkBlog'); ?></h1>
+            <h1><?php esc_html_e('Add New Link', 'linkblog'); ?></h1>
 
             <?php if ($message) : ?>
                 <div class="notice notice-success is-dismissible">
@@ -46,7 +46,7 @@ trait LinkBlog_Admin_AddLink {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="linkblog_title"><?php esc_html_e('Title', 'LinkBlog'); ?> <span class="required">*</span></label>
+                            <label for="linkblog_title"><?php esc_html_e('Title', 'linkblog'); ?> <span class="required">*</span></label>
                         </th>
                         <td>
                             <input type="text" name="linkblog_title" id="linkblog_title" class="regular-text" value="<?php echo esc_attr($current_title); ?>" required>
@@ -55,7 +55,7 @@ trait LinkBlog_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label for="linkblog_url"><?php esc_html_e('URL', 'LinkBlog'); ?></label>
+                            <label for="linkblog_url"><?php esc_html_e('URL', 'linkblog'); ?></label>
                         </th>
                         <td>
                             <input type="url" name="linkblog_url" id="linkblog_url" class="regular-text" value="<?php echo esc_attr($current_url); ?>" placeholder="https://example.com">
@@ -64,7 +64,7 @@ trait LinkBlog_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label for="linkblog_content"><?php esc_html_e('Text/Description', 'LinkBlog'); ?></label>
+                            <label for="linkblog_content"><?php esc_html_e('Text/Description', 'linkblog'); ?></label>
                         </th>
                         <td>
                             <?php
@@ -79,7 +79,7 @@ trait LinkBlog_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <span><?php esc_html_e('Categories', 'LinkBlog'); ?></span>
+                            <span><?php esc_html_e('Categories', 'linkblog'); ?></span>
                         </th>
                         <td>
                             <?php if (!empty($all_categories)) : ?>
@@ -92,25 +92,25 @@ trait LinkBlog_Admin_AddLink {
                                     <?php endforeach; ?>
                                 </div>
                             <?php else : ?>
-                                <p><?php esc_html_e('No categories available. Create categories first in LinkBlog > Categories.', 'LinkBlog'); ?></p>
+                                <p><?php esc_html_e('No categories available. Create categories first in LinkBlog > Categories.', 'linkblog'); ?></p>
                             <?php endif; ?>
                         </td>
                     </tr>
 
                     <tr>
                         <th scope="row">
-                            <label for="linkblog_tags"><?php esc_html_e('Tags', 'LinkBlog'); ?></label>
+                            <label for="linkblog_tags"><?php esc_html_e('Tags', 'linkblog'); ?></label>
                         </th>
                         <td>
-                            <input type="text" name="linkblog_tags" id="linkblog_tags" class="regular-text" value="<?php echo esc_attr($current_tags); ?>" placeholder="<?php esc_attr_e('Separate tags with commas', 'LinkBlog'); ?>">
-                            <p class="description"><?php esc_html_e('Separate multiple tags with commas (e.g., tag1, tag2, tag3)', 'LinkBlog'); ?></p>
+                            <input type="text" name="linkblog_tags" id="linkblog_tags" class="regular-text" value="<?php echo esc_attr($current_tags); ?>" placeholder="<?php esc_attr_e('Separate tags with commas', 'linkblog'); ?>">
+                            <p class="description"><?php esc_html_e('Separate multiple tags with commas (e.g., tag1, tag2, tag3)', 'linkblog'); ?></p>
                         </td>
                     </tr>
                 </table>
 
                 <p class="submit">
-                    <input type="submit" name="linkblog_add_submit" id="submit" class="button button-primary" value="<?php esc_attr_e('Add Link', 'LinkBlog'); ?>">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-admin')); ?>" class="button"><?php esc_html_e('Cancel', 'LinkBlog'); ?></a>
+                    <input type="submit" name="linkblog_add_submit" id="submit" class="button button-primary" value="<?php esc_attr_e('Add Link', 'linkblog'); ?>">
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-admin')); ?>" class="button"><?php esc_html_e('Cancel', 'linkblog'); ?></a>
                 </p>
             </form>
         </div>
@@ -120,6 +120,11 @@ trait LinkBlog_Admin_AddLink {
     private function processAddLinkSubmission(): array {
         if (!isset($_POST['linkblog_add_submit'])) {
             return ['', ''];
+        }
+
+        $nonce = isset($_POST['linkblog_add_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkblog_add_nonce'])) : '';
+        if (!wp_verify_nonce($nonce, 'linkblog_add_link')) {
+            return ['', __('Security check failed.', 'linkblog')];
         }
 
         $input = $this->validateAddLinkInput();
@@ -142,7 +147,7 @@ trait LinkBlog_Admin_AddLink {
         $categories = isset($_POST['linkblog_categories']) ? array_map('intval', $_POST['linkblog_categories']) : array();
         $tags       = isset($_POST['linkblog_tags'])    ? sanitize_text_field(wp_unslash($_POST['linkblog_tags']))    : '';
 
-        $error = empty($title) ? __('Title is required.', 'LinkBlog') : '';
+        $error = empty($title) ? __('Title is required.', 'linkblog') : '';
         return compact('title', 'url', 'content', 'categories', 'tags', 'error');
     }
 
@@ -155,7 +160,7 @@ trait LinkBlog_Admin_AddLink {
         ));
 
         if (!$post_id) {
-            return ['', __('Failed to add link.', 'LinkBlog')];
+            return ['', __('Failed to add link.', 'linkblog')];
         }
 
         if (!empty($input['url'])) {
@@ -169,6 +174,6 @@ trait LinkBlog_Admin_AddLink {
         }
 
         $_POST = array();
-        return [__('Link added successfully!', 'LinkBlog'), ''];
+        return [__('Link added successfully!', 'linkblog'), ''];
     }
 }

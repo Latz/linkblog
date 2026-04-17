@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__DIR__, 2) . '/');
+}
+
 /**
  * Bootstrap for Integration tests.
  *
@@ -16,18 +22,18 @@
  *   vendor/bin/pest --testsuite=Integration
  */
 
-declare(strict_types=1);
+$linkblog_wp_tests_dir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
 
-$wpTestsDir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
-
-if (! is_dir($wpTestsDir)) {
-    echo "\nERROR: WP test suite not found at {$wpTestsDir}.\n";
+if (! is_dir($linkblog_wp_tests_dir)) {
+    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    echo "\nERROR: WP test suite not found at {$linkblog_wp_tests_dir}.\n";
     echo "Run bin/install-wp-tests.sh or set WP_TESTS_DIR.\n\n";
     exit(1);
 }
 
 // Load the plugin under test before WP boots.
 define('LINKBLOG_TESTS_DIR', dirname(__DIR__));
+require_once $linkblog_wp_tests_dir . '/includes/functions.php';
 
 // WP test suite bootstrap — this loads WordPress and creates the test DB.
 require_once $wpTestsDir . '/includes/functions.php';

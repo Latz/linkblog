@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -37,7 +41,7 @@ describe('LinkBlog::buildPostContent()', function (): void {
     });
 
     it('appends a read-more link when url is provided', function (): void {
-        $result = $this->plugin->buildPostContent('Title', 1, URL_EXAMPLE, '');
+        $result = $this->plugin->buildPostContent('Title', 1, LINKBLOG_URL_EXAMPLE, '');
 
         expect($result)
             ->toContain('<a href="https://example.com">')
@@ -58,11 +62,11 @@ describe('LinkBlog::buildPostContent()', function (): void {
     });
 
     it('includes both description and read-more link when both are provided', function (): void {
-        $result = $this->plugin->buildPostContent('Title', 1, URL_EXAMPLE, 'Desc.');
+        $result = $this->plugin->buildPostContent('Title', 1, LINKBLOG_URL_EXAMPLE, 'Desc.');
 
         expect($result)
             ->toContain('Desc.')
-            ->toContain(URL_EXAMPLE);
+            ->toContain(LINKBLOG_URL_EXAMPLE);
     });
 
     it('passes content through apply_filters with the correct hook name', function (): void {

@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -23,7 +27,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         // get_terms must NOT be called — stub it to return an unexpected value to catch misuse
         Functions\when('get_terms')->justReturn([new WP_Error('unexpected', 'Should not be called')]);
 
-        $result = $this->plugin->restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(linkblog_make_request());
 
         expect($result)->toBe($cached);
     });
@@ -43,7 +47,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
             }
         );
 
-        $result = $this->plugin->restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(linkblog_make_request());
 
         expect($transientKey)->toBe('linkblog_api_categories_list');
         expect($transientVal)->toBeArray();
@@ -62,7 +66,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_terms')->justReturn($terms);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = $this->plugin->restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(linkblog_make_request());
 
         expect($result)->toHaveCount(2);
         expect(array_keys($result[0]))->toBe(['id', 'name', 'slug']);
@@ -73,7 +77,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_terms')->justReturn([]);
         Functions\when('set_transient')->justReturn(true);
 
-        $result = $this->plugin->restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(linkblog_make_request());
 
         expect($result)->toBe([]);
     });
@@ -82,7 +86,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
         Functions\when('get_transient')->justReturn(false);
         Functions\when('get_terms')->justReturn(new WP_Error('db_error', 'DB fail'));
 
-        $result = $this->plugin->restGetCategories(makeRequest());
+        $result = $this->plugin->restGetCategories(linkblog_make_request());
 
         expect($result)->toBeInstanceOf(WP_Error::class);
         expect($result->get_error_code())->toBe('fetch_failed');

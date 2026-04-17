@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 
 /**
@@ -24,7 +28,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')
             ->alias(fn($opt) => $opt === 'linkblog_api_key' ? $key : false);
 
-        $request = makeRequest([], ['X-LinkBlog-API-Key' => $key]);
+        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => $key]);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -36,7 +40,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
             ->alias(fn($opt) => $opt === 'linkblog_api_key' ? 'correct-key' : false);
         Functions\when('current_user_can')->justReturn(false);
 
-        $request = makeRequest([], ['X-LinkBlog-API-Key' => 'wrong-key']);
+        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => 'wrong-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -47,7 +51,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn('some-stored-key');
         Functions\when('current_user_can')->justReturn(true);
 
-        $request = makeRequest(); // no API key header
+        $request = linkblog_make_request(); // no API key header
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -58,7 +62,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn(''); // empty stored key
         Functions\when('current_user_can')->justReturn(true);
 
-        $request = makeRequest([], ['X-LinkBlog-API-Key' => 'any-key']);
+        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => 'any-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -69,7 +73,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn('');
         Functions\when('current_user_can')->justReturn(false);
 
-        $request = makeRequest();
+        $request = linkblog_make_request();
 
         $result = $this->plugin->restPermissionCheck($request);
 

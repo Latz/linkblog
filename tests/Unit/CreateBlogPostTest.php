@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (!defined("ABSPATH")) {
+    exit;
+}
+
 use Brain\Monkey\Functions;
 use Brain\Monkey\Actions;
 
@@ -35,7 +39,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('creates a published post when as_draft is false', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'My Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'My Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(99);
         Functions\when('update_post_meta')->justReturn(true);
@@ -49,7 +53,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('creates a draft post when as_draft is true', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Draft Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Draft Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(100);
         Functions\when('update_post_meta')->justReturn(true);
@@ -63,7 +67,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('passes post_status=publish to wp_insert_post when as_draft is false', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('update_post_meta')->justReturn(true);
 
@@ -83,7 +87,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('passes post_status=draft to wp_insert_post when as_draft is true', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('update_post_meta')->justReturn(true);
 
@@ -103,7 +107,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('returns insert_failed error when wp_insert_post returns 0', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(0);
 
@@ -116,7 +120,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('fires the linkblog_after_publish action on success', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(55);
         Functions\when('update_post_meta')->justReturn(true);
@@ -138,7 +142,7 @@ describe('LinkBlog::createBlogPost()', function (): void { // NOSONAR — cognit
     it('saves the published post id and publish status in meta', function (): void {
         Functions\when('current_user_can')->justReturn(true);
         Functions\when('get_post')
-            ->alias(fn($id) => $id === 1 ? makePost(1, 'Link') : null);
+            ->alias(fn($id) => $id === 1 ? linkblog_make_post(1, 'Link') : null);
         Functions\when('get_post_meta')->justReturn('');
         Functions\when('wp_insert_post')->justReturn(66);
 

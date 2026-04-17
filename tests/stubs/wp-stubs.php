@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 /**
  * WordPress stub definitions for unit tests.
  *
@@ -7,12 +13,11 @@
  * any of them per-test when you call Functions\expect() or Functions\when().
  */
 
-declare(strict_types=1);
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
 
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
-defined('ABSPATH')          || define('ABSPATH',          '/tmp/fake-wp/');
 defined('HOUR_IN_SECONDS')  || define('HOUR_IN_SECONDS',  3600);
 defined('DAY_IN_SECONDS')   || define('DAY_IN_SECONDS',   86400);
 defined('WEEK_IN_SECONDS')  || define('WEEK_IN_SECONDS',  604800);
@@ -123,7 +128,7 @@ if (!function_exists('remove_action')) { function remove_action(string $hook, $c
 // i18n — return text unchanged so assertions read naturally
 // ---------------------------------------------------------------------------
 if (!function_exists('__'))         { function __(string $t, string $d = 'default'): string { return $t; } }
-if (!function_exists('_e'))         { function _e(string $t, string $d = 'default'): void   { echo $t; } }
+if (!function_exists('_e'))         { function _e(string $t, string $d = 'default'): void   { echo esc_html($t); } }
 if (!function_exists('_x'))         { function _x(string $t, string $c, string $d = 'default'): string { return $t; } }
 if (!function_exists('esc_html__')) { function esc_html__(string $t, string $d = 'default'): string { return htmlspecialchars($t); } }
 if (!function_exists('sprintf'))    { /* built-in */ }
@@ -138,7 +143,10 @@ if (!function_exists('esc_url_raw'))  { function esc_url_raw(string $u): string 
 if (!function_exists('esc_js'))       { function esc_js(string $t): string       { return addslashes($t); } }
 if (!function_exists('wp_kses_post')) { function wp_kses_post(string $d): string { return $d; } }
 if (!function_exists('sanitize_text_field')) {
-    function sanitize_text_field(string $s): string { return trim(strip_tags($s)); }
+    function sanitize_text_field(string $s): string { return trim(wp_strip_all_tags($s)); }
+}
+if (!function_exists('wp_strip_all_tags')) {
+    function wp_strip_all_tags(string $s): string { return strip_tags($s); }
 }
 
 // ---------------------------------------------------------------------------
@@ -269,7 +277,7 @@ if (!function_exists('rest_url')) {
 }
 if (!function_exists('current_time')) {
     function current_time(string $type, bool $gmt = false): int|string {
-        return $type === 'timestamp' ? time() : date('Y-m-d H:i:s');
+        return $type === 'timestamp' ? time() : gmdate('Y-m-d H:i:s');
     }
 }
 if (!function_exists('wp_timezone')) {
@@ -277,7 +285,7 @@ if (!function_exists('wp_timezone')) {
 }
 if (!function_exists('wp_date')) {
     function wp_date(string $format, ?int $timestamp = null, ?\DateTimeZone $timezone = null): string|false {
-        return date($format, $timestamp ?? time());
+        return gmdate($format, $timestamp ?? time());
     }
 }
 if (!function_exists('wp_schedule_single_event')) {

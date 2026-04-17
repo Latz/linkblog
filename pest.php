@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__DIR__) . '/');
+}
+
 /**
  * Pest configuration for LinkBlog plugin.
  *

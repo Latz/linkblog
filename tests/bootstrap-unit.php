@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+if (!defined('ABSPATH')) {
+    define('ABSPATH', dirname(__DIR__, 2) . '/');
+}
+
 /**
  * Bootstrap for the Unit test suite.
  *
@@ -14,8 +20,6 @@
  *
  * Per-test setUp/tearDown is handled by the pest.php beforeEach/afterEach hooks.
  */
-
-declare(strict_types=1);
 
 // 1. Patchwork FIRST — before any other file is parsed.
 require_once dirname(__DIR__) . '/vendor/antecedent/patchwork/Patchwork.php';
