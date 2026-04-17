@@ -99,7 +99,7 @@ trait LinkBlog_RestApi {
     public function saveSchedule(\WP_REST_Request $request): mixed {
         $data = $request->get_json_params();
         if (empty($data) || !isset($data['mode'])) {
-            return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
+            return new \WP_Error('invalid_data', __('Invalid schedule data', 'LinkBlog'), array('status' => 400));
         }
         update_option('linkblog_schedule', $data);
         $this->scheduleNextEvent();
@@ -127,12 +127,12 @@ trait LinkBlog_RestApi {
     public function restAddLink(\WP_REST_Request $request): mixed {
         $title = $request->get_param('title');
         $url = $request->get_param('url');
-        $content = $request->get_param('content');
+        $content = $request->get_param('content') ?? '';
         $categories = $request->get_param('categories');
         $tags = $request->get_param('tags');
 
         if (empty($title)) {
-            return new \WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
+            return new \WP_Error('missing_title', __('Title is required.', 'LinkBlog'), array('status' => 400));
         }
 
         // Create the post
@@ -146,7 +146,7 @@ trait LinkBlog_RestApi {
         $post_id = wp_insert_post($post_data);
 
         if (is_wp_error($post_id)) {
-            return new \WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
+            return new \WP_Error('insert_failed', __('Failed to create link.', 'LinkBlog'), array('status' => 500));
         }
 
         // Save URL
@@ -159,7 +159,7 @@ trait LinkBlog_RestApi {
         return rest_ensure_response(array(
             'success' => true,
             'post_id' => $post_id,
-            'message' => __('Link added successfully!', 'linkblog'),
+            'message' => __('Link added successfully!', 'LinkBlog'),
         ));
     }
 
@@ -203,7 +203,7 @@ trait LinkBlog_RestApi {
             ));
 
             if (is_wp_error($categories)) {
-                return new \WP_Error('fetch_failed', __('Failed to fetch categories.', 'linkblog'), array('status' => 500));
+                return new \WP_Error('fetch_failed', __('Failed to fetch categories.', 'LinkBlog'), array('status' => 500));
             }
 
             $category_list = array();

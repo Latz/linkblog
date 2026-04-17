@@ -7,12 +7,12 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createRequire }  from 'node:module';
-const require = createRequire(import.meta.url);
-const { WP_ENV } = require('../../../constants.json');
+import constants from '../../../constants.json' assert { type: 'json' };
+
+const { WP_ENV } = constants;
 
 const ADMIN_URL     = `${WP_ENV.BASE_URL}/wp-admin`;
-const DASHBOARD_URL = `${ADMIN_URL}/admin.php?page=linkblog`;
+const DASHBOARD_URL = `${ADMIN_URL}/admin.php?page=linkblog-dashboard`;
 
 // Shared login helper — reused across tests.
 async function wpLogin(page) {
@@ -41,15 +41,14 @@ test.describe('LinkBlog dashboard', () => {
     test('stats header is visible', async ({ page }) => {
         await page.goto(DASHBOARD_URL);
         // The compact stats header added during the dashboard redesign.
-        await expect(page.locator('.linkblog-stats, #linkblog-stats')).toBeVisible();
+        await expect(page.locator('.lb-stats-grid')).toBeVisible();
     });
 
     test('link list renders in the page', async ({ page }) => {
         await page.goto(DASHBOARD_URL);
-        // The links table or empty-state message should be present.
-        await expect(
-            page.locator('.linkblog-links-table, .linkblog-empty-state')
-        ).toBeVisible();
+        // The unpublished links section is always present; the list itself only
+        // renders when links exist, so check the containing postbox.
+        await expect(page.locator('#postbox-container-1 .postbox').first()).toBeVisible();
     });
 });
 
@@ -60,7 +59,7 @@ test('clicking trash shows inline confirmation, not browser dialog', async ({ pa
     await wpLogin(page);
     await page.goto(DASHBOARD_URL);
 
-    const trashBtn = page.locator('[data-action="trash"], .linkblog-trash').first();
+    const trashBtn = page.locator('.lb-delete-btn').first();
 
     // Only run if there is at least one link to trash.
     if (await trashBtn.count() === 0) {
@@ -75,5 +74,5 @@ test('clicking trash shows inline confirmation, not browser dialog', async ({ pa
     await trashBtn.click();
 
     // Inline confirm UI should appear instead.
-    await expect(page.locator('[data-role="delete-confirm"], .linkblog-confirm')).toBeVisible();
+    await expect(page.locator('.lb-delete-confirm-row')).toBeVisible();
 });

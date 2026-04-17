@@ -10,9 +10,9 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { createRequire }  from 'node:module';
-const require = createRequire(import.meta.url);
-const { REST_NAMESPACE, ROUTES } = require('../../../constants.json');
+import constants from '../../../constants.json' assert { type: 'json' };
+
+const { REST_NAMESPACE, ROUTES } = constants;
 
 const api = (route) => `/wp-json/${REST_NAMESPACE}${route}`;
 
@@ -38,9 +38,9 @@ test.describe('Link CRUD', () => {
     test('POST /add-link creates a link and returns its ID', async ({ request }) => {
         const res = await request.post(api(ROUTES.ADD_LINK), {
             data: {
-                url:      'https://example.com/test',
-                title:    'Playwright Test Link',
-                category: 'Uncategorized',
+                url:        'https://example.com/test',
+                title:      'Playwright Test Link',
+                categories: ['Uncategorized'],
             },
         });
 
@@ -48,9 +48,9 @@ test.describe('Link CRUD', () => {
         expect([200, 201]).toContain(res.status());
 
         const body = await res.json();
-        expect(body).toHaveProperty('id');
-        expect(typeof body.id).toBe('number');
-        createdId = body.id;
+        expect(body).toHaveProperty('post_id');
+        expect(typeof body.post_id).toBe('number');
+        createdId = body.post_id;
     });
 
     test('DELETE /links/{id} removes the link', async ({ request }) => {
