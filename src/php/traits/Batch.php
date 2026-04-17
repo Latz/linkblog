@@ -13,7 +13,7 @@ trait LinkBlog_Batch {
             return array(
                 'success' => 0,
                 'failed' => 0,
-                'messages' => array(__('No links to publish.', 'linkblog'))
+                'messages' => array(__('No links to publish.', 'LinkBlog'))
             );
         }
 
@@ -26,7 +26,7 @@ trait LinkBlog_Batch {
                 $failed_count++;
                 $link = get_post($link_id);
                 $messages[] = sprintf(
-                    __('Failed to publish "%s": %s', 'linkblog'),
+                    __('Failed to publish "%s": %s', 'LinkBlog'),
                     $link ? $link->post_title : '#' . $link_id,
                     $result['message']
                 );
@@ -47,13 +47,14 @@ trait LinkBlog_Batch {
         }
 
         if (empty($post_title)) {
-            $post_title = sprintf(__('Links Roundup - %s', 'linkblog'), date('F j, Y'));
+            /* translators: %s: formatted date, e.g. "April 15, 2026" */
+            $post_title = sprintf(__('Links Roundup - %s', 'LinkBlog'), gmdate('F j, Y'));
         }
 
         [$links_by_category, $uncategorized_links, $published_count] = $this->groupLinksByCategory($link_ids);
 
         if ($published_count === 0) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'linkblog'), 'error_code' => 'no_valid_links');
+            return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'LinkBlog'), 'error_code' => 'no_valid_links');
         }
 
         return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids);
@@ -61,10 +62,10 @@ trait LinkBlog_Batch {
 
     private function validateRoundupRequest(mixed $link_ids): ?array {
         if (!current_user_can('publish_posts')) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
+            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'LinkBlog'), 'error_code' => 'no_permission');
         }
         if (empty($link_ids) || !is_array($link_ids)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'linkblog'), 'error_code' => 'no_links');
+            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'LinkBlog'), 'error_code' => 'no_links');
         }
         return null;
     }
@@ -78,7 +79,7 @@ trait LinkBlog_Batch {
         ));
 
         if (is_wp_error($post_id) || !$post_id) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Failed to create roundup post.', 'linkblog'), 'error_code' => 'insert_failed');
+            return array('success' => false, 'post_id' => 0, 'message' => __('Failed to create roundup post.', 'LinkBlog'), 'error_code' => 'insert_failed');
         }
 
         $this->assignRoundupCategories($post_id, $links_by_category);
@@ -89,7 +90,7 @@ trait LinkBlog_Batch {
             'success'    => true,
             'post_id'    => $post_id,
             'link_count' => $count,
-            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'linkblog'), $count),
+            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'LinkBlog'), $count),
         );
     }
 
@@ -146,7 +147,7 @@ trait LinkBlog_Batch {
         }
 
         if (!empty($uncategorized_links)) {
-            $content .= '<h2>' . __('Other', 'linkblog') . "</h2>\n\n";
+            $content .= '<h2>' . esc_html__('Other', 'LinkBlog') . "</h2>\n\n";
             $render_list($uncategorized_links);
         }
 

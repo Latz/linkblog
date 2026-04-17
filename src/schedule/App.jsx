@@ -56,8 +56,12 @@ export default function App() {
   const isManual   = form.mode === 'manual';
 
   const config = useMemo(() => {
-    if (isSchedule) return { rrule: buildRRule({ type: form.mode, ...form.recurrence }), times: form.times, trigger: null };
-    if (isManual)   return { rrule: null, times: [], trigger: { type: 'manual' } };
+    if (isSchedule) {
+      return { rrule: buildRRule({ type: form.mode, ...form.recurrence }), times: form.times, trigger: null };
+    }
+    if (isManual) {
+      return { rrule: null, times: [], trigger: { type: 'manual' } };
+    }
     return { rrule: null, times: form.times, trigger: { type: form.mode, ...form.trigger } };
   }, [form, isSchedule, isManual]);
 

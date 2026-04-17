@@ -362,10 +362,10 @@ trait LinkBlog_Admin_Dashboard {
                 btn.disabled = true;
                 btn.textContent = '...';
                 try {
-                    const res = await fetch('<?php echo $rest_url; ?>' + li.dataset.linkId, {
+                    const res = await fetch('<?php echo $rest_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>' + li.dataset.linkId, {
                         method: 'DELETE',
                         credentials: 'same-origin',
-                        headers: { 'X-WP-Nonce': '<?php echo $nonce; ?>' }
+                        headers: { 'X-WP-Nonce': '<?php echo $nonce; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>' }
                     });
                     if (res.ok || res.status === 204) {
                         li.remove();
@@ -387,9 +387,9 @@ trait LinkBlog_Admin_Dashboard {
             btn.style.display = 'none';
             const row = document.createElement('div');
             row.className = 'lb-delete-confirm-row';
-            row.innerHTML = '<span class="lb-delete-confirm-label"><?php echo $lbl_delete; ?></span>'
-                + '<button class="lb-delete-confirm-yes"><?php echo $lbl_yes; ?></button>'
-                + '<button class="lb-delete-cancel"><?php echo $lbl_cancel; ?></button>';
+            row.innerHTML = '<span class="lb-delete-confirm-label"><?php echo $lbl_delete; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>'
+                + '<button class="lb-delete-confirm-yes"><?php echo $lbl_yes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>'
+                + '<button class="lb-delete-cancel"><?php echo $lbl_cancel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>';
             btn.parentElement.appendChild(row);
         });
         </script>

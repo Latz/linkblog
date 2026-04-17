@@ -39,7 +39,23 @@ trait LinkBlog_Scheduler {
         if ($should_publish && !empty($link_ids)) {
             /* translators: %s is the formatted date (e.g. "April 15, 2026") */
             $title = sprintf(__('Links: %s', 'LinkBlog'), wp_date('F j, Y'));
+
+            // WP-Cron runs unauthenticated; elevate to an admin so createRoundupPost()
+            // passes its current_user_can('publish_posts') guard.
+            $prev_user_id = get_current_user_id();
+            if (empty($prev_user_id)) {
+                $admin_ids = get_users(array('role' => 'administrator', 'number' => 1, 'fields' => 'ids'));
+                if (!empty($admin_ids)) {
+                    wp_set_current_user((int) $admin_ids[0]);
+                }
+            }
+
             $this->createRoundupPost($link_ids, $title);
+
+            // Restore previous user context.
+            if (empty($prev_user_id)) {
+                wp_set_current_user(0);
+            }
         }
 
         $this->scheduleNextEvent();

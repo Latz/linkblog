@@ -153,17 +153,20 @@ trait LinkBlog_Admin_LinksPage {
 
         if ($publish_status === 'unpublished') {
             $draft_url = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
-            echo '<a href="' . $publish_url . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
-            echo '<a href="' . $draft_url . '">' . esc_html__('Save as Draft', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . esc_url($draft_url) . '">' . esc_html__('Save as Draft', 'LinkBlog') . '</a> | ';
         } elseif ($publish_status === 'published') {
             echo '<a href="' . esc_url(get_permalink($published_post_id)) . '" target="_blank">' . esc_html__('View Post', 'LinkBlog') . '</a> | ';
-            echo '<a href="' . $unpublish_url . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
+            echo '<a href="' . esc_url($unpublish_url) . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
         } elseif ($publish_status === 'draft') {
-            echo '<a href="' . $publish_url . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
+            echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'LinkBlog') . '</a> | ';
             echo '<a href="' . esc_url(get_edit_post_link($published_post_id)) . '" target="_blank">' . esc_html__('View Draft', 'LinkBlog') . '</a> | ';
-            echo '<a href="' . $unpublish_url . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
+            echo '<a href="' . esc_url($unpublish_url) . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'LinkBlog') . '</a> | ';
         }
         echo '<a href="' . esc_url(get_edit_post_link($link->ID)) . '">' . esc_html__('Edit', 'LinkBlog') . '</a> | ';
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_delete uses esc_js() internally
         echo '<a href="' . esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)) . '" onclick="' . $confirm_delete . '">' . esc_html__('Delete', 'LinkBlog') . '</a>';
     }
 }

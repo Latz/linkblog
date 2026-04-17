@@ -109,6 +109,8 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
               <div
                 className={`linkblog-opt ${entry.type === 'day' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => entry.type !== 'day' && updateEntry(i, { type: 'day' })}
                 onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'day' && updateEntry(i, { type: 'day' })}
               >
@@ -125,6 +127,8 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
               <div
                 className={`linkblog-opt ${entry.type === 'nth' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                role="button"
+                tabIndex={0}
                 onClick={() => entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
                 onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
               >

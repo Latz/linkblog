@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 class LinkBlog {
 
     private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS'; // NOSONAR — used in traits via self::
