@@ -33,10 +33,13 @@ reports/
 .qwen/
 CLAUDE.local.md
 
+# Environment variables
+/.env
+
 # SonarCloud / SonarQube
 .sonar/
 .scannerwork/
-# Never commit tokens — use: export SONAR_TOKEN=...
+# Never commit tokens — use: .env file
 .sonarcloud.properties
 /sonar-project.properties
 

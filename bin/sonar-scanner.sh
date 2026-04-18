@@ -3,10 +3,19 @@ set -euo pipefail
 
 # Read config from sonar-project.properties
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WHITESPACE_CHARS='[:space:]'
 PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 SONAR_HOST=$(grep 'sonar.host.url=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+
+# Load .env file if it exists (for local development)
+if [[ -f "$PROJECT_ROOT/.env" ]]; then
+  set +u
+  # shellcheck disable=SC1090
+  source "$PROJECT_ROOT/.env"
+  set -u
+fi
 
 # Token is read from SONAR_TOKEN environment variable (not stored in file for security)
 
