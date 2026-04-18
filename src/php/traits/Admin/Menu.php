@@ -217,9 +217,7 @@ trait LinkBlog_Admin_Menu {
                         setTimeout(function() {
                             $('.linkblog-copy-btn').html(originalHtml);
                         }, 2000);
-                    } catch (err) {
-                        console.error('Failed to copy:', err);
-                    }
+                    } catch (err) { /* copy failed — ignore */ }
                 }
             });
         });
