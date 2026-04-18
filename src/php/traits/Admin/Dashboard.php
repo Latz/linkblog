@@ -216,47 +216,42 @@ trait LinkBlog_Admin_Dashboard {
                     <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkblog' ); ?></p>
                 <?php else : ?>
                     <ul class="lb-recent-links">
-                        <?php foreach ( $recently_published as $link ) : ?>
-                            <?php $this->renderRecentLinkItem( $link ); ?>
+                        <?php foreach ( $recently_published as $link ) :
+                            $published_post_id = get_post_meta( $link->ID, '_linkblog_published_post_id', true );
+                            $publish_status    = get_post_meta( $link->ID, '_linkblog_publish_status', true );
+                            $published_date    = get_post_meta( $link->ID, '_linkblog_published_date', true );
+                            $categories_list   = get_the_terms( $link->ID, 'linkblog_category' );
+                            $category_name     = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
+                            $is_draft          = $publish_status === 'draft';
+                        ?>
+                            <li class="lb-link-item">
+                                <div class="lb-link-item-header">
+                                    <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
+                                    <?php if ( $publish_status === 'published' ) : ?>
+                                        <span class="lb-status-badge lb-status-published"><?php esc_html_e( 'Published', 'linkblog' ); ?></span>
+                                    <?php elseif ( $is_draft ) : ?>
+                                        <span class="lb-status-badge lb-status-draft"><?php esc_html_e( 'Draft', 'linkblog' ); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ( $published_post_id ) : ?>
+                                    <a href="<?php echo esc_url( $is_draft ? get_edit_post_link( $published_post_id ) : get_permalink( $published_post_id ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                                        <?php echo $is_draft ? esc_html__( 'View Draft', 'linkblog' ) : esc_html__( 'View Post', 'linkblog' ); ?> ↗
+                                    </a>
+                                <?php endif; ?>
+                                <div class="lb-link-meta">
+                                    <?php if ( $category_name ) : ?>
+                                        <span><?php echo esc_html( $category_name ); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ( $published_date ) : ?>
+                                        <span><?php echo esc_html( mysql2date( 'M j, Y', $published_date ) ); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </li>
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
             </div>
         </div>
-        <?php
-    }
-
-    private function renderRecentLinkItem( \WP_Post $link ): void {
-        $published_post_id = get_post_meta( $link->ID, '_linkblog_published_post_id', true );
-        $publish_status    = get_post_meta( $link->ID, '_linkblog_publish_status', true );
-        $published_date    = get_post_meta( $link->ID, '_linkblog_published_date', true );
-        $categories_list   = get_the_terms( $link->ID, 'linkblog_category' );
-        $category_name     = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
-        $is_draft          = $publish_status === 'draft';
-        ?>
-        <li class="lb-link-item">
-            <div class="lb-link-item-header">
-                <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                <?php if ( $publish_status === 'published' ) : ?>
-                    <span class="lb-status-badge lb-status-published"><?php esc_html_e( 'Published', 'linkblog' ); ?></span>
-                <?php elseif ( $is_draft ) : ?>
-                    <span class="lb-status-badge lb-status-draft"><?php esc_html_e( 'Draft', 'linkblog' ); ?></span>
-                <?php endif; ?>
-            </div>
-            <?php if ( $published_post_id ) : ?>
-                <a href="<?php echo esc_url( $is_draft ? get_edit_post_link( $published_post_id ) : get_permalink( $published_post_id ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                    <?php echo $is_draft ? esc_html__( 'View Draft', 'linkblog' ) : esc_html__( 'View Post', 'linkblog' ); ?> ↗
-                </a>
-            <?php endif; ?>
-            <div class="lb-link-meta">
-                <?php if ( $category_name ) : ?>
-                    <span><?php echo esc_html( $category_name ); ?></span>
-                <?php endif; ?>
-                <?php if ( $published_date ) : ?>
-                    <span><?php echo esc_html( mysql2date( 'M j, Y', $published_date ) ); ?></span>
-                <?php endif; ?>
-            </div>
-        </li>
         <?php
     }
 

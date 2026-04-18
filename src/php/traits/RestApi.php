@@ -131,11 +131,41 @@ trait LinkBlog_RestApi {
         $categories = $request->get_param('categories');
         $tags = $request->get_param('tags');
 
+        $validation = $this->validateRestLink($title, $url);
+        if (is_wp_error($validation)) {
+            return $validation;
+        }
+
+        $post_data = array(
+            'post_title'   => $title,
+            'post_content' => $content,
+            'post_type'    => 'linkblog',
+            'post_status'  => 'publish',
+        );
+
+        $post_id = wp_insert_post($post_data);
+        if (is_wp_error($post_id)) {
+            return new \WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
+        }
+
+        if (!empty($url)) {
+            update_post_meta($post_id, '_linkblog_url', $url);
+        }
+
+        $this->applyLinkTaxonomies($post_id, $categories, $tags);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'post_id' => $post_id,
+            'message' => __('Link added successfully!', 'linkblog'),
+        ));
+    }
+
+    private function validateRestLink(string $title, string $url): bool|\WP_Error {
         if (empty($title)) {
             return new \WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
         }
 
-        // Reject duplicate URLs
         if (!empty($url)) {
             $existing = get_posts(array(
                 'post_type'   => 'linkblog',
@@ -150,32 +180,7 @@ trait LinkBlog_RestApi {
             }
         }
 
-        // Create the post
-        $post_data = array(
-            'post_title'   => $title,
-            'post_content' => $content,
-            'post_type'    => 'linkblog',
-            'post_status'  => 'publish',
-        );
-
-        $post_id = wp_insert_post($post_data);
-
-        if (is_wp_error($post_id)) {
-            return new \WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
-        }
-
-        // Save URL
-        if (!empty($url)) {
-            update_post_meta($post_id, '_linkblog_url', $url);
-        }
-
-        $this->applyLinkTaxonomies($post_id, $categories, $tags);
-
-        return rest_ensure_response(array(
-            'success' => true,
-            'post_id' => $post_id,
-            'message' => __('Link added successfully!', 'linkblog'),
-        ));
+        return true;
     }
 
     private function resolveOrCreateCategories(array $categories): array {

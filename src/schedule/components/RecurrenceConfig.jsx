@@ -107,12 +107,10 @@ export default function RecurrenceConfig({ type, value, onChange }) {
             <div key={entry.id ?? i} className="linkblog-month-day-row">
               <span className="linkblog-day-index">{String(i + 1).padStart(2, '0')}</span>
 
-              <div
+              <button
                 className={`linkblog-opt ${entry.type === 'day' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
-                role="button"
-                tabIndex={0}
                 onClick={() => entry.type !== 'day' && updateEntry(i, { type: 'day' })}
-                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'day' && updateEntry(i, { type: 'day' })}
+                aria-pressed={entry.type === 'day'}
               >
                 <NumberControl
                   value={String(entry.value ?? 1)}
@@ -121,16 +119,14 @@ export default function RecurrenceConfig({ type, value, onChange }) {
                   onChange={v => updateEntry(i, { value: Number.parseInt(v) || 1 })}
                   style={{ width: '72px' }}
                 />
-              </div>
+              </button>
 
               <span className="linkblog-opt-sep">{__('or', 'linkblog')}</span>
 
-              <div
+              <button
                 className={`linkblog-opt ${entry.type === 'nth' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
-                role="button"
-                tabIndex={0}
                 onClick={() => entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
-                onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
+                aria-pressed={entry.type === 'nth'}
               >
                 <SelectControl
                   value={String(entry.nth ?? 1)}
@@ -144,7 +140,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
                   onChange={v => updateEntry(i, { weekday: v })}
                   __nextHasNoMarginBottom
                 />
-              </div>
+              </button>
 
               {monthDays.length > 1 && (
                 <Button

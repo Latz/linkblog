@@ -79,7 +79,7 @@ trait LinkBlog_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label><?php esc_html_e('Categories', 'linkblog'); ?></label>
+                            <span><?php esc_html_e('Categories', 'linkblog'); ?></span>
                         </th>
                         <td>
                             <fieldset>
@@ -131,11 +131,7 @@ trait LinkBlog_Admin_AddLink {
         }
 
         $input = $this->validateAddLinkInput();
-        if ($input['error'] !== '') {
-            return ['', $input['error']];
-        }
-
-        return $this->insertNewLink($input);
+        return ($input['error'] !== '') ? ['', $input['error']] : $this->insertNewLink($input);
     }
 
     private function validateAddLinkInput(): array {
