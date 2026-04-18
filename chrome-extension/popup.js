@@ -201,17 +201,12 @@ async function handleSubmit(e) {
             throw new Error(result.message || 'Failed to save link');
         }
 
-        showMessage(result.message || 'Link saved successfully!', 'success');
-
-        // Clear form except title and URL (in case user wants to add another)
-        document.getElementById('content').value = '';
-        if (tagify) {
-            tagify.removeAllTags();
-        } else {
-            document.getElementById('tags').value = '';
-        }
-        const checked = document.querySelector('.category-checkbox:checked');
-        if (checked) checked.checked = false;
+        chrome.notifications.create({
+            type: 'basic',
+            iconUrl: 'icon48.png',
+            title: 'Link saved',
+            message: formData.title || 'Link saved successfully!'
+        }, () => window.close());
 
     } catch (error) {
         console.error('Error saving link:', error);
