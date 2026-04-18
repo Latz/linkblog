@@ -3,9 +3,11 @@ set -euo pipefail
 
 # Read config from sonar-project.properties
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SONAR_TOKEN=$(grep 'sonar.token=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
-PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
-ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
+WHITESPACE_CHARS='[:space:]'
+SONAR_TOKEN=$(grep 'sonar.token=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+SONAR_HOST=$(grep 'sonar.host.url=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 
 REPORT_DIR="$SCRIPT_DIR/reports"
 OUTPUT_FILE="$REPORT_DIR/sonar-report.json"
@@ -30,7 +32,7 @@ sonar-scanner \
   -Dsonar.token="$SONAR_TOKEN" \
   -Dsonar.projectKey="$PROJECT_KEY" \
   -Dsonar.organization="$ORGANIZATION" \
-  -Dsonar.host.url="https://sonarcloud.io" \
+  -Dsonar.host.url="$SONAR_HOST" \
   -Dsonar.qualitygate.wait=true \
   || SCANNER_EXIT=$?
 
@@ -39,7 +41,7 @@ if [[ "$DOWNLOAD" = true ]]; then
   echo ""
   echo "Downloading report to $OUTPUT_FILE..."
   curl -s -u "${SONAR_TOKEN}:" \
-    "https://sonarcloud.io/api/issues/search?componentKeys=${PROJECT_KEY}&resolved=false&ps=500&organization=${ORGANIZATION}" \
+    "$SONAR_HOST/api/issues/search?componentKeys=${PROJECT_KEY}&resolved=false&ps=500&organization=${ORGANIZATION}" \
     -o "$OUTPUT_FILE"
   echo "Report saved to $OUTPUT_FILE"
 
@@ -74,6 +76,6 @@ if [[ "$DOWNLOAD" = true ]]; then
 fi
 
 echo ""
-echo "Done. View results at https://sonarcloud.io/dashboard?id=${PROJECT_KEY}"
+echo "Done. View results at $SONAR_HOST/dashboard?id=${PROJECT_KEY}"
 
 exit "${SCANNER_EXIT:-0}"
