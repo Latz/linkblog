@@ -8,7 +8,7 @@ trait LinkBlog_PostType {
         $labels = array(
             'name'                  => _x('Links', 'Post Type General Name', 'linkblog'),
             'singular_name'         => _x('Link', 'Post Type Singular Name', 'linkblog'),
-            'menu_name'             => __('linkblog', 'linkblog'),
+            'menu_name'             => __('LinkBlog', 'linkblog'),
             'name_admin_bar'        => __('Link', 'linkblog'),
             'archives'              => __('Link Archives', 'linkblog'),
             'attributes'            => __('Link Attributes', 'linkblog'),

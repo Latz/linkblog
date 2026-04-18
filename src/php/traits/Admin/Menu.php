@@ -6,8 +6,8 @@ trait LinkBlog_Admin_Menu {
 
     public function adminMenu(): void {
         add_menu_page(
-            __('linkblog', 'linkblog'),
-            __('linkblog', 'linkblog'),
+            __('LinkBlog', 'linkblog'),
+            __('LinkBlog', 'linkblog'),
             'read',
             'linkblog-dashboard',
             [$this, 'dashboardPage'],
