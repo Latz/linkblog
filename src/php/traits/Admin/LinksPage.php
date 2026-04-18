@@ -7,13 +7,7 @@ trait LinkBlog_Admin_LinksPage {
     public function showLinksPage(): void {
         [$action_message, $action_error] = $this->processLinksPageAction();
         $grouped_links = $this->getLinksGroupedByCategory();
-        $has_links = false;
-        foreach ($grouped_links as $category_links) {
-            if (!empty($category_links)) {
-                $has_links = true;
-                break;
-            }
-        }
+        $has_links = $this->hasLinks($grouped_links);
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e('LinkBlog - All Links', 'linkblog'); ?></h1>
@@ -31,59 +25,72 @@ trait LinkBlog_Admin_LinksPage {
             <?php if (!$has_links) : ?>
                 <p><?php esc_html_e('No links found. Add your first link!', 'linkblog'); ?></p>
             <?php else : ?>
-                <?php foreach ($grouped_links as $category_name => $category_links) : ?>
-                    <div class="lb-category-section">
-                        <h2 class="lb-category-heading"><?php echo esc_html($category_name); ?></h2>
-
-                        <table class="wp-list-table widefat fixed striped">
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%;"><?php esc_html_e('Title', 'linkblog'); ?></th>
-                                    <th style="width: 25%;"><?php esc_html_e('URL', 'linkblog'); ?></th>
-                                    <th style="width: 10%;"><?php esc_html_e('Status', 'linkblog'); ?></th>
-                                    <th style="width: 10%;"><?php esc_html_e('Published Date', 'linkblog'); ?></th>
-                                    <th style="width: 10%;"><?php esc_html_e('Date', 'linkblog'); ?></th>
-                                    <th style="width: 20%;"><?php esc_html_e('Actions', 'linkblog'); ?></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($category_links as $link) :
-                                    $url = get_post_meta($link->ID, '_linkblog_url', true);
-                                    $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
-                                    $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
-                                    $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
-                                    if (empty($publish_status)) {
-                                        $publish_status = 'unpublished';
-                                    }
-                                ?>
-                                    <tr>
-                                        <td><strong><?php echo esc_html($link->post_title); ?></strong></td>
-                                        <td>
-                                            <?php if ($url) : ?>
-                                                <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
-                                        <td>
-                                            <?php if ($published_date) : ?>
-                                                <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
-                                            <?php else : ?>
-                                                -
-                                            <?php endif; ?>
-                                        </td>
-                                        <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
-                                        <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                <?php endforeach; ?>
+                <?php $this->renderCategoryLinks($grouped_links); ?>
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    private function hasLinks(array $grouped_links): bool {
+        foreach ($grouped_links as $category_links) {
+            if (!empty($category_links)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function renderCategoryLinks(array $grouped_links): void {
+        foreach ($grouped_links as $category_name => $category_links) : ?>
+            <div class="lb-category-section">
+                <h2 class="lb-category-heading"><?php echo esc_html($category_name); ?></h2>
+
+                <table class="wp-list-table widefat fixed striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;"><?php esc_html_e('Title', 'linkblog'); ?></th>
+                            <th style="width: 25%;"><?php esc_html_e('URL', 'linkblog'); ?></th>
+                            <th style="width: 10%;"><?php esc_html_e('Status', 'linkblog'); ?></th>
+                            <th style="width: 10%;"><?php esc_html_e('Published Date', 'linkblog'); ?></th>
+                            <th style="width: 10%;"><?php esc_html_e('Date', 'linkblog'); ?></th>
+                            <th style="width: 20%;"><?php esc_html_e('Actions', 'linkblog'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($category_links as $link) :
+                            $url = get_post_meta($link->ID, '_linkblog_url', true);
+                            $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
+                            $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
+                            $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
+                            if (empty($publish_status)) {
+                                $publish_status = 'unpublished';
+                            }
+                        ?>
+                            <tr>
+                                <td><strong><?php echo esc_html($link->post_title); ?></strong></td>
+                                <td>
+                                    <?php if ($url) : ?>
+                                        <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
+                                    <?php else : ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
+                                <td>
+                                    <?php if ($published_date) : ?>
+                                        <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
+                                    <?php else : ?>
+                                        -
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
+                                <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endforeach;
     }
 
     private function processLinksPageAction(): array {
@@ -150,6 +157,8 @@ trait LinkBlog_Admin_LinksPage {
         $confirm_delete    = "return confirm('" . esc_js(__('Are you sure you want to delete this link?', 'linkblog')) . "');";
         $publish_url       = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID));
         $unpublish_url     = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID));
+        $delete_url        = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID));
+        $onclick_attr      = ' onclick="';
 
         if ($publish_status === 'unpublished') {
             $draft_url = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
@@ -158,15 +167,15 @@ trait LinkBlog_Admin_LinksPage {
         } elseif ($publish_status === 'published') {
             echo '<a href="' . esc_url(get_permalink($published_post_id)) . '" target="_blank">' . esc_html__('View Post', 'linkblog') . '</a> | ';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
-            echo '<a href="' . esc_url($unpublish_url) . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkblog') . '</a> | ';
+            echo '<a href="' . esc_url($unpublish_url) . '"' . $onclick_attr . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkblog') . '</a> | ';
         } elseif ($publish_status === 'draft') {
             echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'linkblog') . '</a> | ';
             echo '<a href="' . esc_url(get_edit_post_link($published_post_id)) . '" target="_blank">' . esc_html__('View Draft', 'linkblog') . '</a> | ';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
-            echo '<a href="' . esc_url($unpublish_url) . '" onclick="' . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkblog') . '</a> | ';
+            echo '<a href="' . esc_url($unpublish_url) . '"' . $onclick_attr . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkblog') . '</a> | ';
         }
         echo '<a href="' . esc_url(get_edit_post_link($link->ID)) . '">' . esc_html__('Edit', 'linkblog') . '</a> | ';
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_delete uses esc_js() internally
-        echo '<a href="' . esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)) . '" onclick="' . $confirm_delete . '">' . esc_html__('Delete', 'linkblog') . '</a>';
+        echo '<a href="' . esc_url($delete_url) . '"' . $onclick_attr . $confirm_delete . '">' . esc_html__('Delete', 'linkblog') . '</a>';
     }
 }
