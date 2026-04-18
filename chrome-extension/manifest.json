@@ -7,8 +7,12 @@
     "activeTab",
     "scripting",
     "storage",
-    "notifications"
+    "notifications",
+    "contextMenus"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "host_permissions": [
     "http://*/*",
     "https://*/*"
