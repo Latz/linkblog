@@ -4,10 +4,11 @@ set -euo pipefail
 # Read config from sonar-project.properties
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WHITESPACE_CHARS='[:space:]'
-SONAR_TOKEN=$(grep 'sonar.token=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
 SONAR_HOST=$(grep 'sonar.host.url=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+
+# Token is read from SONAR_TOKEN environment variable (not stored in file for security)
 
 REPORT_DIR="$SCRIPT_DIR/reports"
 OUTPUT_FILE="$REPORT_DIR/sonar-report.json"
@@ -25,11 +26,16 @@ done
 
 mkdir -p "$REPORT_DIR"
 
+# Verify SONAR_TOKEN environment variable is set
+if [[ -z "${SONAR_TOKEN:-}" ]]; then
+  echo "Error: SONAR_TOKEN environment variable not set"
+  exit 1
+fi
+
 # Run analysis
 echo "Running SonarCloud analysis..."
 SCANNER_EXIT=0
 sonar-scanner \
-  -Dsonar.token="$SONAR_TOKEN" \
   -Dsonar.projectKey="$PROJECT_KEY" \
   -Dsonar.organization="$ORGANIZATION" \
   -Dsonar.host.url="$SONAR_HOST" \
