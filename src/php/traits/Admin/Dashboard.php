@@ -330,7 +330,7 @@ trait LinkBlog_Admin_Dashboard {
 
     public function renderDashboardJs(): void {
         $js_data = wp_json_encode( array(
-            'restUrl' => rest_url( 'linkblog/v1/links/' ),
+            'restUrl' => rest_url( LINKBLOG_REST_NAMESPACE . '/links/' ),
             'nonce'   => wp_create_nonce( 'wp_rest' ),
             'labels'  => array(
                 'delete' => __( 'Delete?', 'linkblog' ),

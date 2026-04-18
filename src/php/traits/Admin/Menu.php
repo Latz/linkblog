@@ -251,9 +251,11 @@ trait LinkBlog_Admin_Menu {
 
         if (strpos($hook, 'linkblog-schedule') !== false) {
             $asset_file = plugin_dir_path(LINKBLOG_PLUGIN_FILE) . 'build/schedule.asset.php';
-            $asset = file_exists($asset_file)
-                ? require_once $asset_file
-                : array('dependencies' => array(), 'version' => '1.0.0');
+            if (file_exists($asset_file)) {
+                $asset = require_once $asset_file;
+            } else {
+                $asset = array('dependencies' => array(), 'version' => '1.0.0');
+            }
 
             wp_enqueue_script(
                 'linkblog-schedule',

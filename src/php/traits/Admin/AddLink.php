@@ -79,21 +79,24 @@ trait LinkBlog_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <span><?php esc_html_e('Categories', 'linkblog'); ?></span>
+                            <label><?php esc_html_e('Categories', 'linkblog'); ?></label>
                         </th>
                         <td>
-                            <?php if (!empty($all_categories)) : ?>
-                                <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff;">
-                                    <?php foreach ($all_categories as $category) : ?>
-                                        <label style="display: block; margin-bottom: 5px;">
-                                            <input type="checkbox" name="linkblog_categories[]" value="<?php echo esc_attr($category->term_id); ?>" <?php echo in_array((int) $category->term_id, $current_cats, true) ? 'checked' : ''; ?>>
-                                            <?php echo esc_html($category->name); ?>
-                                        </label>
-                                    <?php endforeach; ?>
-                                </div>
-                            <?php else : ?>
-                                <p><?php esc_html_e('No categories available. Create categories first in LinkBlog > Categories.', 'linkblog'); ?></p>
-                            <?php endif; ?>
+                            <fieldset>
+                                <legend class="screen-reader-text"><?php esc_html_e('Categories', 'linkblog'); ?></legend>
+                                <?php if (!empty($all_categories)) : ?>
+                                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff;">
+                                        <?php foreach ($all_categories as $category) : ?>
+                                            <label style="display: block; margin-bottom: 5px;">
+                                                <input type="checkbox" name="linkblog_categories[]" value="<?php echo esc_attr($category->term_id); ?>" <?php echo in_array((int) $category->term_id, $current_cats, true) ? 'checked' : ''; ?>>
+                                                <?php echo esc_html($category->name); ?>
+                                            </label>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else : ?>
+                                    <p><?php esc_html_e('No categories available. Create categories first in LinkBlog > Categories.', 'linkblog'); ?></p>
+                                <?php endif; ?>
+                            </fieldset>
                         </td>
                     </tr>
 
