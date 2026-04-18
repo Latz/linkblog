@@ -344,7 +344,7 @@ trait LinkBlog_Admin_Dashboard {
 
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.lb-date-time').forEach(function(element) {
-                const timestamp = parseInt(element.dataset.timestamp);
+                const timestamp = Number.parseInt(element.dataset.timestamp);
                 if (!timestamp) return;
                 const date = new Date(timestamp * 1000);
                 element.textContent = date.toLocaleString(navigator.language, {
