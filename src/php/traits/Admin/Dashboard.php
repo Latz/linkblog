@@ -31,15 +31,15 @@ trait LinkBlog_Admin_Dashboard {
         ?>
         <div class="linkblog-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo number_format($stats['total_links']); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format($stats['total_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkblog'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo number_format($stats['published_links']); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format($stats['published_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkblog'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo number_format($stats['unpublished_links']); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format($stats['unpublished_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkblog'); ?></div>
             </div>
         </div>
@@ -329,13 +329,19 @@ trait LinkBlog_Admin_Dashboard {
     }
 
     public function renderDashboardJs(): void {
-        $rest_url     = esc_js( rest_url( 'linkblog/v1/links/' ) );
-        $nonce        = esc_js( wp_create_nonce( 'wp_rest' ) );
-        $lbl_delete   = esc_js( __( 'Delete?', 'linkblog' ) );
-        $lbl_yes      = esc_js( __( 'Yes', 'linkblog' ) );
-        $lbl_cancel   = esc_js( __( 'Cancel', 'linkblog' ) );
+        $js_data = wp_json_encode( array(
+            'restUrl' => rest_url( 'linkblog/v1/links/' ),
+            'nonce'   => wp_create_nonce( 'wp_rest' ),
+            'labels'  => array(
+                'delete' => __( 'Delete?', 'linkblog' ),
+                'yes'    => __( 'Yes', 'linkblog' ),
+                'cancel' => __( 'Cancel', 'linkblog' ),
+            ),
+        ) );
         ?>
         <script>
+        var linkblogDash = <?php echo $js_data; ?>;
+
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.lb-date-time').forEach(function(element) {
                 const timestamp = parseInt(element.dataset.timestamp);
@@ -362,10 +368,10 @@ trait LinkBlog_Admin_Dashboard {
                 btn.disabled = true;
                 btn.textContent = '...';
                 try {
-                    const res = await fetch('<?php echo $rest_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>' + li.dataset.linkId, {
+                    const res = await fetch(linkblogDash.restUrl + li.dataset.linkId, {
                         method: 'DELETE',
                         credentials: 'same-origin',
-                        headers: { 'X-WP-Nonce': '<?php echo $nonce; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>' }
+                        headers: { 'X-WP-Nonce': linkblogDash.nonce }
                     });
                     if (res.ok || res.status === 204) {
                         li.remove();
@@ -387,9 +393,16 @@ trait LinkBlog_Admin_Dashboard {
             btn.style.display = 'none';
             const row = document.createElement('div');
             row.className = 'lb-delete-confirm-row';
-            row.innerHTML = '<span class="lb-delete-confirm-label"><?php echo $lbl_delete; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>'
-                + '<button class="lb-delete-confirm-yes"><?php echo $lbl_yes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>'
-                + '<button class="lb-delete-cancel"><?php echo $lbl_cancel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>';
+            const lbl = document.createElement('span');
+            lbl.className = 'lb-delete-confirm-label';
+            lbl.textContent = linkblogDash.labels.delete;
+            const yes = document.createElement('button');
+            yes.className = 'lb-delete-confirm-yes';
+            yes.textContent = linkblogDash.labels.yes;
+            const no = document.createElement('button');
+            no.className = 'lb-delete-cancel';
+            no.textContent = linkblogDash.labels.cancel;
+            row.append(lbl, yes, no);
             btn.parentElement.appendChild(row);
         });
         </script>
@@ -441,22 +454,22 @@ trait LinkBlog_Admin_Dashboard {
             <div class="lb-stats-grid">
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo number_format( $total_links ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_links )); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkblog' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-category lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo number_format( $total_categories ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_categories )); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkblog' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo number_format( $published_links ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $published_links )); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkblog' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo number_format( $unpublished_links ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $unpublished_links )); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkblog' ); ?></span></div>
                 </div>
             </div>

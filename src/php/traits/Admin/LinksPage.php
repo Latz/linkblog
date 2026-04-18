@@ -122,9 +122,9 @@ trait LinkBlog_Admin_LinksPage {
             return ['', $result['message']];
         }
         if ($as_draft) {
-            return [$result['message'] . ' <a href="' . esc_url(get_edit_post_link($result['post_id'])) . '" target="_blank">' . esc_html__('Edit Draft', 'linkblog') . '</a>', ''];
+            return [esc_html($result['message']) . ' <a href="' . esc_url(get_edit_post_link($result['post_id'])) . '" target="_blank">' . esc_html__('Edit Draft', 'linkblog') . '</a>', ''];
         }
-        return [$result['message'] . ' <a href="' . esc_url(get_permalink($result['post_id'])) . '" target="_blank">' . esc_html__('View Post', 'linkblog') . '</a>', ''];
+        return [esc_html($result['message']) . ' <a href="' . esc_url(get_permalink($result['post_id'])) . '" target="_blank">' . esc_html__('View Post', 'linkblog') . '</a>', ''];
     }
 
     private function executeUnpublishAction(int $link_id): array {
