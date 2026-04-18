@@ -17,7 +17,7 @@ export default function TimePicker({ times, onChange }) {
   return (
     <div className="linkblog-timepicker">
       {times.map((t, i) => (
-        <div key={`${i}-${t}`} className="linkblog-time-row">
+        <div key={`time-${t}`} className="linkblog-time-row">
           <input
             type="time"
             className="linkblog-time-input"

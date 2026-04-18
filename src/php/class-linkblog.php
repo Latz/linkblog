@@ -8,8 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class LinkBlog {
 
-    private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS'; // NOSONAR — used in traits via self::
-    private const META_COMPARE_NOT_IN     = 'NOT IN';     // NOSONAR — used in traits via self::
+    private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS';          // NOSONAR — used in traits via self::
+    private const META_COMPARE_NOT_IN     = 'NOT IN';              // NOSONAR — used in traits via self::
+    private const ADMIN_LINKS_PAGE        = 'admin.php?page=linkblog-admin'; // NOSONAR — used in traits via self::
 
     use LinkBlog_PostType;
     use LinkBlog_MetaBoxes;

@@ -95,7 +95,7 @@ trait LinkBlog_Admin_Dashboard {
         if ( ! wp_verify_nonce( $nonce, 'linkblog_batch_publish' ) ) {
             return null;
         }
-        $as_draft = isset( $_POST['publish_as_draft'] ) && $_POST['publish_as_draft'] === '1';
+        $as_draft = isset( $_POST['publish_as_draft'] ) && wp_unslash( $_POST['publish_as_draft'] ) === '1';
         return $this->batchPublishLinks( $this->getUnpublishedLinkIds(), $as_draft );
     }
 
@@ -108,7 +108,7 @@ trait LinkBlog_Admin_Dashboard {
             return null;
         }
         $roundup_title = isset( $_POST['roundup_title'] ) ? sanitize_text_field( wp_unslash( $_POST['roundup_title'] ) ) : '';
-        $as_draft      = isset( $_POST['roundup_as_draft'] ) && $_POST['roundup_as_draft'] === '1';
+        $as_draft      = isset( $_POST['roundup_as_draft'] ) && wp_unslash( $_POST['roundup_as_draft'] ) === '1';
         return $this->createRoundupPost( $this->getUnpublishedLinkIds(), $roundup_title, $as_draft );
     }
 
@@ -195,7 +195,7 @@ trait LinkBlog_Admin_Dashboard {
                         <?php endforeach; ?>
                     </ul>
                     <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=linkblog-admin' ) ); ?>" class="button">
+                        <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>" class="button">
                             <?php esc_html_e( 'View All Links', 'linkblog' ); ?>
                         </a>
                     </div>

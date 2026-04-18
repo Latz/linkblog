@@ -148,11 +148,11 @@ trait LinkBlog_Admin_LinksPage {
     private function renderLinkActions(\WP_Post $link, string $publish_status, mixed $published_post_id): void {
         $confirm_unpublish = "return confirm('" . esc_js(__('Are you sure you want to unpublish this link?', 'linkblog')) . "');";
         $confirm_delete    = "return confirm('" . esc_js(__('Are you sure you want to delete this link?', 'linkblog')) . "');";
-        $publish_url       = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID));
-        $unpublish_url     = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID));
+        $publish_url       = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID));
+        $unpublish_url     = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID));
 
         if ($publish_status === 'unpublished') {
-            $draft_url = esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
+            $draft_url = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
             echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'linkblog') . '</a> | ';
             echo '<a href="' . esc_url($draft_url) . '">' . esc_html__('Save as Draft', 'linkblog') . '</a> | ';
         } elseif ($publish_status === 'published') {
@@ -167,6 +167,6 @@ trait LinkBlog_Admin_LinksPage {
         }
         echo '<a href="' . esc_url(get_edit_post_link($link->ID)) . '">' . esc_html__('Edit', 'linkblog') . '</a> | ';
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_delete uses esc_js() internally
-        echo '<a href="' . esc_url(wp_nonce_url(admin_url('admin.php?page=linkblog-admin&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)) . '" onclick="' . $confirm_delete . '">' . esc_html__('Delete', 'linkblog') . '</a>';
+        echo '<a href="' . esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID)) . '" onclick="' . $confirm_delete . '">' . esc_html__('Delete', 'linkblog') . '</a>';
     }
 }

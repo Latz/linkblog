@@ -35,8 +35,7 @@ async function testConnection(apiEndpoint, apiKey) {
         });
 
         return response.ok;
-    } catch (error) {
-        console.error('Connection test failed:', error);
+    } catch {
         return false;
     }
 }
@@ -67,8 +66,7 @@ async function handleSubmit(e) {
         });
 
         showMessage('Settings saved successfully! Connection verified.', 'success');
-    } catch (error) {
-        console.error('Error saving settings:', error);
+    } catch {
         showMessage('Failed to save settings. Please try again.', 'error');
     }
 }

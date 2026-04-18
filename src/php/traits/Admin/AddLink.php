@@ -113,7 +113,7 @@ trait LinkBlog_Admin_AddLink {
 
                 <p class="submit">
                     <input type="submit" name="linkblog_add_submit" id="submit" class="button button-primary" value="<?php esc_attr_e('Add Link', 'linkblog'); ?>">
-                    <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-admin')); ?>" class="button"><?php esc_html_e('Cancel', 'linkblog'); ?></a>
+                    <a href="<?php echo esc_url(admin_url(self::ADMIN_LINKS_PAGE)); ?>" class="button"><?php esc_html_e('Cancel', 'linkblog'); ?></a>
                 </p>
             </form>
         </div>

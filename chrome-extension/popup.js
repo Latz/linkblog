@@ -51,12 +51,12 @@ async function loadPageInfo() {
                 if (result) {
                     document.getElementById('content').value = result;
                 }
-            } catch (e) {
-                console.debug('Skipping description extraction on restricted page:', e.message);
+            } catch {
+                // Silently skip description extraction on restricted pages
             }
         }
-    } catch (error) {
-        console.error('Error loading page info:', error);
+    } catch {
+        // Fail silently — page info is best-effort
     }
 }
 
@@ -131,8 +131,7 @@ async function loadCategories() {
         });
 
         renderCategories(categories);
-    } catch (error) {
-        console.error('Error loading categories:', error);
+    } catch {
         categoriesList.innerHTML = '<div class="loading">Failed to load categories</div>';
     }
 }
@@ -219,7 +218,6 @@ async function handleSubmit(e) {
         }, () => window.close());
 
     } catch (error) {
-        console.error('Error saving link:', error);
         showMessage(error.message || 'Failed to save link. Please check your settings.', 'error');
     } finally {
         saveBtn.disabled = false;
@@ -272,6 +270,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         Promise.all([
             loadPageInfo(),
             loadCategories()
-        ]).catch(err => console.error('Error during initialization:', err));
+        ]).catch(() => {});
     }
 });
