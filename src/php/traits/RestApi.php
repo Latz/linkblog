@@ -135,6 +135,21 @@ trait LinkBlog_RestApi {
             return new \WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
         }
 
+        // Reject duplicate URLs
+        if (!empty($url)) {
+            $existing = get_posts(array(
+                'post_type'   => 'linkblog',
+                'post_status' => 'any',
+                'meta_key'    => '_linkblog_url',
+                'meta_value'  => $url,
+                'numberposts' => 1,
+                'fields'      => 'ids',
+            ));
+            if (!empty($existing)) {
+                return new \WP_Error('duplicate_url', __('This URL has already been saved.', 'linkblog'), array('status' => 409));
+            }
+        }
+
         // Create the post
         $post_data = array(
             'post_title'   => $title,

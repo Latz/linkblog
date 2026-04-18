@@ -197,6 +197,16 @@ async function handleSubmit(e) {
 
         const result = await response.json();
 
+        if (response.status === 409) {
+            chrome.notifications.create({
+                type: 'basic',
+                iconUrl: 'icon48.png',
+                title: 'Already saved',
+                message: result.message || 'This URL has already been saved.'
+            }, () => window.close());
+            return;
+        }
+
         if (!response.ok) {
             throw new Error(result.message || 'Failed to save link');
         }
