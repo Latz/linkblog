@@ -147,6 +147,16 @@ body {
     resize: vertical;
 }
 
+.form-group fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.form-group fieldset legend {
+    margin-bottom: 6px;
+}
+
 .categories-list {
     display: flex;
     flex-wrap: wrap;

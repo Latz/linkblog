@@ -49,3 +49,5 @@ CLAUDE.local.md
 # Planning & design notes (archived, not tracked)
 /docs/plans/
 /docs/design/.env
+/bin
+/ftp.login

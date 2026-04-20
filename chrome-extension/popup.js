@@ -92,24 +92,19 @@ function renderCategories(categories) {
     categoriesList.appendChild(fragment);
 }
 
-// Load categories from WordPress (with caching)
+// Load categories from WordPress
 async function loadCategories() {
     const categoriesList = document.getElementById('categoriesList');
 
+    // Show cached data immediately if available (optimistic)
+    const cached = await chrome.storage.local.get(['categories']);
+    if (cached.categories) {
+        renderCategories(cached.categories);
+    }
+
+    // Always fetch fresh
     try {
-        // Check cache first (5 minutes expiration)
-        const cached = await chrome.storage.local.get(['categories', 'categoriesTimestamp']);
-        const cacheAge = Date.now() - (cached.categoriesTimestamp || 0);
-
-        if (cached.categories && cacheAge < 5 * 60 * 1000) {
-            // Use cached data
-            renderCategories(cached.categories);
-            return;
-        }
-
-        // Fetch fresh data
         const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
-
         const response = await fetch(`${settings.apiEndpoint}/categories`, {
             method: 'GET',
             headers: {
@@ -117,22 +112,14 @@ async function loadCategories() {
                 'X-LinkBlog-API-Key': settings.apiKey
             }
         });
-
-        if (!response.ok) {
-            throw new Error('Failed to load categories');
-        }
-
+        if (!response.ok) throw new Error('Failed to load categories');
         const categories = await response.json();
-
-        // Cache the results
-        await chrome.storage.local.set({
-            categories: categories,
-            categoriesTimestamp: Date.now()
-        });
-
+        await chrome.storage.local.set({ categories, categoriesTimestamp: Date.now() });
         renderCategories(categories);
     } catch {
-        categoriesList.innerHTML = '<div class="loading">Failed to load categories</div>';
+        if (!cached.categories) {
+            categoriesList.innerHTML = '<div class="loading">Failed to load categories</div>';
+        }
     }
 }
 

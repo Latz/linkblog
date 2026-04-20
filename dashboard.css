@@ -274,3 +274,108 @@
 		flex-direction: column;
 	}
 }
+
+/* === Setting X: Expansion Layout === */
+.lb-x-badge {
+	font-size: 11px;
+	font-weight: 400;
+	background: #dba617;
+	color: #fff;
+	padding: 2px 8px;
+	border-radius: 10px;
+	vertical-align: middle;
+	margin-left: 8px;
+}
+
+.lb-x-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 16px 0;
+}
+
+.lb-expansion-list { padding-bottom: 80px; }
+
+.lb-category-block {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 8px;
+	margin-bottom: 24px;
+	overflow: hidden;
+}
+
+.lb-category-header {
+	background: #f6f7f7;
+	padding: 12px 20px;
+	border-bottom: 1px solid #ccd0d4;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.lb-category-header h2 { margin: 0; font-size: 1rem; }
+.lb-category-header .dashicons { color: #2271b1; }
+
+.lb-expansion-row {
+	border-bottom: 1px solid #f0f0f1;
+	border-left: 0 solid #2271b1;
+	transition: border-left-width .2s;
+}
+
+.lb-expansion-row:last-child { border-bottom: 0; }
+.lb-expansion-row.is-open { border-left: 4px solid #2271b1; }
+
+.lb-expansion-trigger {
+	width: 100%;
+	padding: 16px 20px;
+	background: none;
+	border: none;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	cursor: pointer;
+	font-size: 13px;
+}
+
+.lb-expansion-trigger:hover { background: #f9f9f9; }
+.lb-setting-title { flex: 1; font-weight: 600; text-align: left; }
+.lb-setting-summary { color: #646970; font-size: 12px; }
+.lb-expansion-trigger .dashicons { transition: transform .2s; color: #646970; }
+.lb-expansion-row.is-open .lb-expansion-trigger .dashicons { transform: rotate(180deg); }
+
+.lb-expansion-content {
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height .3s ease-out;
+	background: #fafafa;
+}
+
+.lb-expansion-row.is-open .lb-expansion-content {
+	max-height: 500px;
+	padding: 20px;
+	border-top: 1px solid #f0f0f1;
+}
+
+.lb-x-sticky-bar {
+	position: fixed;
+	bottom: 0;
+	left: 160px;
+	right: 0;
+	padding: 14px 30px;
+	background: rgba(255,255,255,.88);
+	backdrop-filter: blur(8px);
+	border-top: 1px solid #ddd;
+	z-index: 100;
+	box-shadow: 0 -4px 14px rgba(0,0,0,.06);
+}
+
+.lb-x-sticky-bar .bar-inner {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	max-width: 900px;
+}
+
+@media (max-width: 782px) {
+	.lb-x-sticky-bar { left: 0; }
+}

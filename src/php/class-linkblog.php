@@ -43,12 +43,13 @@ class LinkBlog {
 
         // REST API
         add_action('rest_api_init', [$instance, 'registerRestRoutes']);
-        add_action('rest_api_init', [$instance, 'addCorsHeaders']);
+        add_filter('rest_pre_serve_request', [$instance, 'addCorsHeaders'], 15);
         add_action('created_linkblog_category', [$instance, 'invalidateCategoriesCache']);
         add_action('edited_linkblog_category',  [$instance, 'invalidateCategoriesCache']);
         add_action('delete_linkblog_category',  [$instance, 'invalidateCategoriesCache']);
 
         // Admin menu & assets
+        add_action('admin_init', [$instance, 'registerSettingX']);
         add_action('admin_menu', [$instance, 'adminMenu']);
         add_action('admin_enqueue_scripts', [$instance, 'enqueueAdminAssets']);
         add_action('wp_dashboard_setup', [$instance, 'addDashboardWidget']);

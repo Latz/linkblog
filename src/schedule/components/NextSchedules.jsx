@@ -16,13 +16,22 @@ export default function NextSchedules({ config, form }) {
   const nextDates = useMemo(() => {
     if (!isSchedule || !config.rrule) return [];
     try {
+      const now = new Date();
+      const allTimesPast = form.times.length === 0 || form.times.every(t => {
+        const [h, m] = t.split(':').map(Number);
+        const todayAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
+        return now >= todayAt;
+      });
+      const dtstart = allTimesPast
+        ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
+        : now;
       const parsed = RRule.fromString(config.rrule);
-      const rule = new RRule({ ...parsed.options, dtstart: new Date() });
+      const rule = new RRule({ ...parsed.options, dtstart });
       return rule.all((_, i) => i < 10);
     } catch {
       return [];
     }
-  }, [config.rrule, isSchedule]);
+  }, [config.rrule, form.times, isSchedule]);
 
   if (!isSchedule) return null;
 

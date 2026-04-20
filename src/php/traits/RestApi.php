@@ -243,17 +243,15 @@ trait LinkBlog_RestApi {
         delete_transient('linkblog_api_categories_list');
     }
 
-    public function addCorsHeaders(): void {
-        // Get the origin from the request
+    public function addCorsHeaders(bool $served): bool {
         $origin = get_http_origin();
-
-        // Allow requests from Chrome extensions
-        if (strpos($origin, 'chrome-extension://') === 0) {
+        if (is_string($origin) && strpos($origin, 'chrome-extension://') === 0) {
             header('Access-Control-Allow-Origin: ' . $origin);
-            header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
             header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
         }
+        return $served;
     }
 
     public function handlePreflight(): void {
