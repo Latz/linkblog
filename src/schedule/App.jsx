@@ -32,6 +32,11 @@ export default function App() {
   async function handleSave() {
     setSaving(true);
     setNotice(null);
+    if (new Set(form.times).size !== form.times.length) {
+      setNotice({ status: 'error', message: __('Execution times must be unique.', 'linkblog') });
+      setSaving(false);
+      return;
+    }
     try {
       await apiFetch({ path: '/linkblog/v1/schedule', method: 'POST', data: form });
       setNotice({ status: 'success', message: __('Schedule saved.', 'linkblog') });
