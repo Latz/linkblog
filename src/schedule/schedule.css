@@ -132,6 +132,21 @@
 }
 
 /* Next schedules */
+.linkblog-next-heading {
+  padding: 10px 12px;
+  border-bottom: 1px solid #c3c4c7;
+  background: #f6f7f7;
+  font-size: 16px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.linkblog-next-schedules-inside {
+  background: #f6f7f7;
+  padding: 12px 16px;
+}
+
 .linkblog-next-schedules {
   margin: 0;
   padding: 0;
@@ -142,12 +157,16 @@
   display: flex;
   justify-content: space-between;
   padding: 4px 0;
-  border-bottom: 1px solid #f0f0f1;
+  border-bottom: 1px solid #dcdcde;
   font-size: 13px;
 }
 
 .linkblog-next-schedule-row:last-child {
   border-bottom: none;
+}
+
+.linkblog-next-schedule-row:first-child {
+  font-weight: 600;
 }
 
 .linkblog-next-time {

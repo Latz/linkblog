@@ -43,6 +43,7 @@ class LinkBlog {
 
         // REST API
         add_action('rest_api_init', [$instance, 'registerRestRoutes']);
+        add_action('wp_ajax_linkblog_get_rest_nonce', [$instance, 'handleGetRestNonce']);
         add_filter('rest_pre_serve_request', [$instance, 'addCorsHeaders'], 15);
         add_action('created_linkblog_category', [$instance, 'invalidateCategoriesCache']);
         add_action('edited_linkblog_category',  [$instance, 'invalidateCategoriesCache']);

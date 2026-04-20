@@ -36,11 +36,9 @@ export default function NextSchedules({ config, form }) {
   if (!isSchedule) return null;
 
   return (
-    <div className="postbox">
-      <div className="postbox-header">
-        <h2 className="hndle">{__('Next 10 Schedules', 'linkblog')}</h2>
-      </div>
-      <div className="inside">
+    <div className="postbox linkblog-next-postbox">
+      <div className="linkblog-next-heading">{__('Next 10 Schedules', 'linkblog')}</div>
+      <div className="inside linkblog-next-schedules-inside">
         {nextDates.length > 0 ? (
           <ol className="linkblog-next-schedules">
             {nextDates.map((d, i) => (

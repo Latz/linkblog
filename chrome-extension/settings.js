@@ -71,8 +71,85 @@ async function handleSubmit(e) {
     }
 }
 
+async function checkWpLogin(url) {
+    const status = document.getElementById('wpLoginStatus');
+    if (!url) { status.style.display = 'none'; return; }
+
+    status.textContent = 'Checking…';
+    status.className = 'wp-login-status';
+    status.style.display = 'block';
+
+    // Verify this is a WordPress installation
+    try {
+        const wpBase = url.replace(/\/$/, '');
+        const res = await fetch(`${wpBase}/wp-json/`, { method: 'GET' });
+        const data = await res.json();
+        if (!res.ok || !Array.isArray(data.namespaces)) throw new Error('not wp');
+    } catch {
+        status.textContent = '✗ No WordPress installation found at this URL';
+        status.className = 'wp-login-status logged-out';
+        return;
+    }
+
+    try {
+        // Use the root origin so the cookie lookup isn't restricted by path
+        let cookieUrl = url;
+        try { cookieUrl = new URL(url).origin; } catch {}
+        const cookies = await chrome.cookies.getAll({ url: cookieUrl });
+        const loggedIn = cookies.some(c => c.name.startsWith('wordpress_logged_in_'));
+
+        if (!loggedIn) {
+            status.textContent = '✗ Not logged in to WordPress';
+            status.className = 'wp-login-status logged-out';
+            return;
+        }
+
+        const wpBase = url.replace(/\/$/, '');
+
+        // Get a WP REST nonce via admin-ajax
+        status.textContent = '✓ Logged in — fetching nonce…';
+        const nonceRes = await fetch(`${wpBase}/wp-admin/admin-ajax.php`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'action=linkblog_get_rest_nonce',
+        });
+        const nonceData = await nonceRes.json();
+        if (!nonceData.success) throw new Error(`nonce: ${nonceRes.status}`);
+
+        // Fetch the API key using the nonce
+        status.textContent = '✓ Logged in — fetching API key…';
+        const endpoint = document.getElementById('apiEndpoint').value.trim()
+            || `${wpBase}/wp-json/linkblog/v1`;
+        const keyRes = await fetch(`${endpoint}/api-key`, {
+            credentials: 'include',
+            headers: { 'X-WP-Nonce': nonceData.data.nonce },
+        });
+        const keyData = await keyRes.json();
+        if (!keyRes.ok || !keyData.key) throw new Error(`key: ${keyRes.status}`);
+
+        document.getElementById('apiKey').value = keyData.key;
+        status.textContent = '✓ Logged in — API key filled automatically';
+    } catch (err) {
+        status.textContent = `✓ Logged in — auto-fetch failed (${err.message})`;
+        status.className = 'wp-login-status logged-in';
+        status.style.display = 'block';
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     loadSettings();
     document.getElementById('settingsForm').addEventListener('submit', handleSubmit);
+
+    const wpInput = document.getElementById('wpAddress');
+
+    wpInput.addEventListener('change', () => checkWpLogin(wpInput.value.trim()));
+
+    document.getElementById('createEndpointBtn').addEventListener('click', () => {
+        const wp = wpInput.value.trim().replace(/\/$/, '');
+        if (wp) {
+            document.getElementById('apiEndpoint').value = `${wp}/wp-json/linkblog/v1`;
+        }
+    });
 });

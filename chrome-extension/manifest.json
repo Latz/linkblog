@@ -8,7 +8,8 @@
     "scripting",
     "storage",
     "notifications",
-    "contextMenus"
+    "contextMenus",
+    "cookies"
   ],
   "background": {
     "service_worker": "background.js"

@@ -66,6 +66,32 @@ trait LinkBlog_RestApi {
             'callback'            => [$this, 'runScheduleNow'],
             'permission_callback' => function() { return current_user_can('manage_options'); },
         ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/api-key', array(
+            'methods'             => 'GET',
+            'callback'            => [$this, 'restGetApiKey'],
+            'permission_callback' => function() { return current_user_can('manage_options'); },
+        ));
+    }
+
+    public function restGetApiKey(): mixed {
+        $key = get_option('linkblog_api_key', '');
+        if (empty($key)) {
+            return new \WP_Error('no_key', __('No API key configured.', 'linkblog'), ['status' => 404]);
+        }
+        return rest_ensure_response(['key' => $key]);
+    }
+
+    public function handleGetRestNonce(): void {
+        $origin = get_http_origin();
+        if (is_string($origin) && strpos($origin, 'chrome-extension://') === 0) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Credentials: true');
+        }
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Forbidden', 403);
+        }
+        wp_send_json_success(['nonce' => wp_create_nonce('wp_rest')]);
     }
 
     public function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
