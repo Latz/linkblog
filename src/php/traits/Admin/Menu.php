@@ -274,6 +274,19 @@ trait LinkBlog_Admin_Menu {
         }
     }
 
+    public function hideCategoryFields(): void {
+        global $pagenow;
+        if ($pagenow !== 'edit-tags.php') {
+            return;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
+        if ($taxonomy !== 'linkblog_category') {
+            return;
+        }
+        echo '<style>.term-description-wrap{display:none}</style>';
+    }
+
     public function addDashboardWidget(): void {
         wp_add_dashboard_widget(
             'linkblog_dashboard_widget',

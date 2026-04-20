@@ -94,7 +94,7 @@ trait LinkBlog_PostType {
 
         $category_args = array(
             'labels'                     => $category_labels,
-            'hierarchical'               => true,
+            'hierarchical'               => false,
             'public'                     => true,
             'show_ui'                    => true,
             'show_admin_column'          => true,

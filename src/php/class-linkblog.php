@@ -53,6 +53,8 @@ class LinkBlog {
         add_action('admin_enqueue_scripts', [$instance, 'enqueueAdminAssets']);
         add_action('wp_dashboard_setup', [$instance, 'addDashboardWidget']);
 
+        add_action('admin_head', [$instance, 'hideCategoryFields']);
+
         // Menu highlighting for taxonomy pages
         add_filter('parent_file', [$instance, 'parentFileFilter']);
         add_filter('submenu_file', [$instance, 'submenuFileFilter']);
