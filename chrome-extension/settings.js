@@ -23,20 +23,22 @@ function showMessage(text, type) {
     }, 5000);
 }
 
-// Test API connection
+// Test API connection — returns categories array on success, null on failure
 async function testConnection(apiEndpoint, apiKey) {
     try {
         const response = await fetch(`${apiEndpoint}/categories`, {
             method: 'GET',
+            cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
                 'X-LinkBlog-API-Key': apiKey
             }
         });
 
-        return response.ok;
+        if (!response.ok) return null;
+        return await response.json();
     } catch {
-        return false;
+        return null;
     }
 }
 
@@ -50,20 +52,24 @@ async function handleSubmit(e) {
     // Remove trailing slash from endpoint if present
     const cleanEndpoint = apiEndpoint.replace(/\/$/, '');
 
-    // Test connection
-    const isConnected = await testConnection(cleanEndpoint, apiKey);
+    // Test connection and fetch categories in one request
+    const categories = await testConnection(cleanEndpoint, apiKey);
 
-    if (!isConnected) {
+    if (!categories) {
         showMessage('Failed to connect to WordPress. Please check your credentials.', 'error');
         return;
     }
 
-    // Save settings
+    // Save settings and pre-warm category cache
     try {
         await chrome.storage.sync.set({
             apiEndpoint: cleanEndpoint,
             apiKey: apiKey
         });
+
+        if (Array.isArray(categories)) {
+            await chrome.storage.local.set({ categories, categoriesTimestamp: Date.now() });
+        }
 
         showMessage('Settings saved successfully! Connection verified.', 'success');
     } catch {

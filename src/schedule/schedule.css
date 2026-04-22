@@ -126,6 +126,10 @@
   gap: 2px;
 }
 
+.linkblog-time-row .components-button.is-compact {
+  padding-left: 2px;
+}
+
 .linkblog-time-input {
   padding: 4px 8px;
   border: 1px solid #8c8f94;

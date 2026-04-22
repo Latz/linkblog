@@ -107,6 +107,7 @@ async function loadCategories() {
         const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
         const response = await fetch(`${settings.apiEndpoint}/categories`, {
             method: 'GET',
+            cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
                 'X-LinkBlog-API-Key': settings.apiKey

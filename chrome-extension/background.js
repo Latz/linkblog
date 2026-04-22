@@ -1,4 +1,5 @@
 const MENU_ID = 'linkblog-admin';
+const MENU_ID_REFRESH = 'linkblog-refresh-categories';
 
 async function refreshCategories() {
     const { apiEndpoint, apiKey } = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
@@ -7,6 +8,7 @@ async function refreshCategories() {
     try {
         const response = await fetch(`${apiEndpoint}/categories`, {
             method: 'GET',
+            cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
                 'X-LinkBlog-API-Key': apiKey
@@ -22,16 +24,32 @@ async function refreshCategories() {
 
 chrome.runtime.onStartup.addListener(() => refreshCategories());
 
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'sync' && (changes.apiEndpoint || changes.apiKey)) {
+        refreshCategories();
+    }
+});
+
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: MENU_ID,
         title: 'Open LinkBlog Admin',
         contexts: ['action']
     });
+    chrome.contextMenus.create({
+        id: MENU_ID_REFRESH,
+        title: 'Update categories',
+        contexts: ['action']
+    });
     refreshCategories();
 });
 
 chrome.contextMenus.onClicked.addListener(async (info) => {
+    if (info.menuItemId === MENU_ID_REFRESH) {
+        refreshCategories();
+        return;
+    }
+
     if (info.menuItemId !== MENU_ID) return;
 
     const { apiEndpoint } = await chrome.storage.sync.get('apiEndpoint');
