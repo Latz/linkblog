@@ -17,7 +17,7 @@ export default function NextSchedules({ config, form }) {
     if (!isSchedule || !config.rrule) return [];
     try {
       const now = new Date();
-      const allTimesPast = form.times.length === 0 || form.times.every(t => {
+      const allTimesPast = form.times.every(t => {
         const [h, m] = t.split(':').map(Number);
         const todayAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
         return now >= todayAt;

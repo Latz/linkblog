@@ -84,9 +84,8 @@ trait LinkBlog_RestApi {
 
     public function handleGetRestNonce(): void {
         $origin = get_http_origin();
-        if (is_string($origin) && strpos($origin, 'chrome-extension://') === 0) {
-            header('Access-Control-Allow-Origin: ' . $origin);
-            header('Access-Control-Allow-Credentials: true');
+        if (is_string($origin) && $this->isFromChromeExtension($origin)) {
+            $this->setCorsOriginHeaders($origin);
         }
         if (!current_user_can('manage_options')) {
             wp_send_json_error('Forbidden', 403);
@@ -271,10 +270,9 @@ trait LinkBlog_RestApi {
 
     public function addCorsHeaders(bool $served): bool {
         $origin = get_http_origin();
-        if (is_string($origin) && strpos($origin, 'chrome-extension://') === 0) {
-            header('Access-Control-Allow-Origin: ' . $origin);
+        if (is_string($origin) && $this->isFromChromeExtension($origin)) {
+            $this->setCorsOriginHeaders($origin);
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
-            header('Access-Control-Allow-Credentials: true');
             header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
         }
         return $served;
@@ -283,14 +281,22 @@ trait LinkBlog_RestApi {
     public function handlePreflight(): void {
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             $origin = get_http_origin();
-            if (strpos($origin, 'chrome-extension://') === 0) {
-                header('Access-Control-Allow-Origin: ' . $origin);
+            if ($this->isFromChromeExtension($origin)) {
+                $this->setCorsOriginHeaders($origin);
                 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-                header('Access-Control-Allow-Credentials: true');
                 header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
                 header('Access-Control-Max-Age: 86400');
                 exit;
             }
         }
+    }
+
+    private function isFromChromeExtension( string $origin ): bool {
+        return strpos( $origin, 'chrome-extension://' ) === 0;
+    }
+
+    private function setCorsOriginHeaders( string $origin ): void {
+        header( 'Access-Control-Allow-Origin: ' . $origin );
+        header( 'Access-Control-Allow-Credentials: true' );
     }
 }

@@ -215,40 +215,7 @@ trait LinkBlog_Admin_Dashboard {
                 <?php if ( empty( $recently_published ) ) : ?>
                     <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkblog' ); ?></p>
                 <?php else : ?>
-                    <ul class="lb-recent-links">
-                        <?php foreach ( $recently_published as $link ) :
-                            $published_post_id = get_post_meta( $link->ID, '_linkblog_published_post_id', true );
-                            $publish_status    = get_post_meta( $link->ID, '_linkblog_publish_status', true );
-                            $published_date    = get_post_meta( $link->ID, '_linkblog_published_date', true );
-                            $categories_list   = get_the_terms( $link->ID, 'linkblog_category' );
-                            $category_name     = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
-                            $is_draft          = $publish_status === 'draft';
-                        ?>
-                            <li class="lb-link-item">
-                                <div class="lb-link-item-header">
-                                    <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                                    <?php if ( $publish_status === 'published' ) : ?>
-                                        <span class="lb-status-badge lb-status-published"><?php esc_html_e( 'Published', 'linkblog' ); ?></span>
-                                    <?php elseif ( $is_draft ) : ?>
-                                        <span class="lb-status-badge lb-status-draft"><?php esc_html_e( 'Draft', 'linkblog' ); ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                <?php if ( $published_post_id ) : ?>
-                                    <a href="<?php echo esc_url( $is_draft ? get_edit_post_link( $published_post_id ) : get_permalink( $published_post_id ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                                        <?php echo $is_draft ? esc_html__( 'View Draft', 'linkblog' ) : esc_html__( 'View Post', 'linkblog' ); ?> ↗
-                                    </a>
-                                <?php endif; ?>
-                                <div class="lb-link-meta">
-                                    <?php if ( $category_name ) : ?>
-                                        <span><?php echo esc_html( $category_name ); ?></span>
-                                    <?php endif; ?>
-                                    <?php if ( $published_date ) : ?>
-                                        <span><?php echo esc_html( mysql2date( 'M j, Y', $published_date ) ); ?></span>
-                                    <?php endif; ?>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+                    <?php $this->renderRecentlyPublishedList( $recently_published ); ?>
                 <?php endif; ?>
             </div>
         </div>
@@ -290,6 +257,56 @@ trait LinkBlog_Admin_Dashboard {
             </div>
         </div>
         <?php
+    }
+
+    private function renderRecentlyPublishedList( array $recently_published ): void {
+        ?>
+        <ul class="lb-recent-links">
+            <?php foreach ( $recently_published as $link ) :
+                $meta = $this->getRecentlyPublishedLinkMetadata( $link );
+            ?>
+                <li class="lb-link-item">
+                    <div class="lb-link-item-header">
+                        <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
+                        <?php $this->renderPublishedLinkBadge( $meta['publish_status'], $meta['is_draft'] ); ?>
+                    </div>
+                    <?php if ( $meta['published_post_id'] ) : ?>
+                        <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                            <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'linkblog' ) : esc_html__( 'View Post', 'linkblog' ); ?> ↗
+                        </a>
+                    <?php endif; ?>
+                    <div class="lb-link-meta">
+                        <?php if ( $meta['category_name'] ) : ?>
+                            <span><?php echo esc_html( $meta['category_name'] ); ?></span>
+                        <?php endif; ?>
+                        <?php if ( $meta['published_date'] ) : ?>
+                            <span><?php echo esc_html( mysql2date( 'M j, Y', $meta['published_date'] ) ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <?php
+    }
+
+    private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
+        if ( 'published' === $publish_status ) {
+            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'linkblog' ) . '</span>';
+        } elseif ( $is_draft ) {
+            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'linkblog' ) . '</span>';
+        }
+    }
+
+    private function getRecentlyPublishedLinkMetadata( \WP_Post $link ): array {
+        $publish_status = get_post_meta( $link->ID, '_linkblog_publish_status', true );
+        $categories_list = get_the_terms( $link->ID, 'linkblog_category' );
+        return [
+            'published_post_id' => get_post_meta( $link->ID, '_linkblog_published_post_id', true ),
+            'publish_status' => $publish_status,
+            'published_date' => get_post_meta( $link->ID, '_linkblog_published_date', true ),
+            'category_name' => $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '',
+            'is_draft' => $publish_status === 'draft',
+        ];
     }
 
     public function renderQuickAddBox( bool $quick_add_success ): void {

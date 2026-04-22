@@ -58,39 +58,44 @@ trait LinkBlog_Admin_LinksPage {
                     </thead>
                     <tbody>
                         <?php foreach ($category_links as $link) :
-                            $url = get_post_meta($link->ID, '_linkblog_url', true);
-                            $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
-                            $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
-                            $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
-                            if (empty($publish_status)) {
-                                $publish_status = 'unpublished';
-                            }
-                        ?>
-                            <tr>
-                                <td><strong><?php echo esc_html($link->post_title); ?></strong></td>
-                                <td>
-                                    <?php if ($url) : ?>
-                                        <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
-                                    <?php else : ?>
-                                        -
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
-                                <td>
-                                    <?php if ($published_date) : ?>
-                                        <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
-                                    <?php else : ?>
-                                        -
-                                    <?php endif; ?>
-                                </td>
-                                <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
-                                <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
-                            </tr>
-                        <?php endforeach; ?>
+                            $this->renderLinkTableRow($link);
+                        endforeach; ?>
                     </tbody>
                 </table>
             </div>
         <?php endforeach;
+    }
+
+    private function renderLinkTableRow(\WP_Post $link): void {
+        $url = get_post_meta($link->ID, '_linkblog_url', true);
+        $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
+        $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
+        $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
+        if (empty($publish_status)) {
+            $publish_status = 'unpublished';
+        }
+        ?>
+        <tr>
+            <td><strong><?php echo esc_html($link->post_title); ?></strong></td>
+            <td>
+                <?php if ($url) : ?>
+                    <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
+                <?php else : ?>
+                    -
+                <?php endif; ?>
+            </td>
+            <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
+            <td>
+                <?php if ($published_date) : ?>
+                    <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
+                <?php else : ?>
+                    -
+                <?php endif; ?>
+            </td>
+            <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
+            <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
+        </tr>
+        <?php
     }
 
     private function processLinksPageAction(): array {

@@ -4,10 +4,9 @@ set -euo pipefail
 # Read config from sonar-project.properties
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-WHITESPACE_CHARS='[:space:]'
-PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
-ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
-SONAR_HOST=$(grep 'sonar.host.url=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d "$WHITESPACE_CHARS")
+PROJECT_KEY=$(grep 'sonar.projectKey=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
+ORGANIZATION=$(grep 'sonar.organization=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
+SONAR_HOST=$(grep 'sonar.host.url=' "$SCRIPT_DIR/sonar-project.properties" | cut -d= -f2 | tr -d '[:space:]')
 
 # Load .env file if it exists (for local development)
 if [[ -f "$PROJECT_ROOT/.env" ]]; then
@@ -41,14 +40,19 @@ if [[ -z "${SONAR_TOKEN:-}" ]]; then
   exit 1
 fi
 
+# Run unit tests and collect coverage (test failures don't abort the scan)
+echo "Running unit tests with coverage..."
+PEST_EXIT=0
+php vendor/bin/pest \
+  --bootstrap tests/bootstrap-unit.php \
+  tests/Unit \
+  --coverage-clover "$REPORT_DIR/coverage.xml" \
+  || PEST_EXIT=$?
+
 # Run analysis
 echo "Running SonarCloud analysis..."
 SCANNER_EXIT=0
-sonar-scanner \
-  -Dsonar.projectKey="$PROJECT_KEY" \
-  -Dsonar.organization="$ORGANIZATION" \
-  -Dsonar.host.url="$SONAR_HOST" \
-  -Dsonar.qualitygate.wait=true \
+sonar-scanner -Dproject.settings="$SCRIPT_DIR/sonar-project.properties" \
   || SCANNER_EXIT=$?
 
 # Download report if requested (always runs, even when quality gate fails)
