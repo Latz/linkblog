@@ -138,7 +138,7 @@ trait LinkDigest_RestApi {
 
     public function restPermissionCheck(\WP_REST_Request $request): bool {
         // Check for API key in header
-        $api_key = $request->get_header('X-LinkBlog-API-Key');
+        $api_key = $request->get_header('X-LinkDigest-API-Key');
         $stored_key = get_option('linkdigest_api_key');
 
         if (!empty($api_key) && !empty($stored_key) && hash_equals($stored_key, $api_key)) {
@@ -186,7 +186,7 @@ trait LinkDigest_RestApi {
         ));
     }
 
-    private function validateRestLink(string $title, string $url): bool|\WP_Error {
+    private function validateRestLink(string $title, ?string $url): bool|\WP_Error {
         if (empty($title)) {
             return new \WP_Error('missing_title', __('Title is required.', 'linkdigest'), array('status' => 400));
         }
@@ -273,7 +273,7 @@ trait LinkDigest_RestApi {
         if (is_string($origin) && $this->isFromChromeExtension($origin)) {
             $this->setCorsOriginHeaders($origin);
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
-            header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+            header('Access-Control-Allow-Headers: Content-Type, X-LinkDigest-API-Key, Authorization');
         }
         return $served;
     }
@@ -284,7 +284,7 @@ trait LinkDigest_RestApi {
             if ($this->isFromChromeExtension($origin)) {
                 $this->setCorsOriginHeaders($origin);
                 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
-                header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+                header('Access-Control-Allow-Headers: Content-Type, X-LinkDigest-API-Key, Authorization');
                 header('Access-Control-Max-Age: 86400');
                 exit;
             }
