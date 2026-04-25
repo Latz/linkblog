@@ -26,7 +26,7 @@ trait LinkDigest_Admin_AddLink {
         ));
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('Add New Link', 'linkblog'); ?></h1>
+            <h1><?php esc_html_e('Add New Link', 'LinkDigest'); ?></h1>
 
             <?php if ($message) : ?>
                 <div class="notice notice-success is-dismissible">
@@ -46,7 +46,7 @@ trait LinkDigest_Admin_AddLink {
                 <table class="form-table">
                     <tr>
                         <th scope="row">
-                            <label for="linkdigest_title"><?php esc_html_e('Title', 'linkblog'); ?> <span class="required">*</span></label>
+                            <label for="linkdigest_title"><?php esc_html_e('Title', 'LinkDigest'); ?> <span class="required">*</span></label>
                         </th>
                         <td>
                             <input type="text" name="linkdigest_title" id="linkdigest_title" class="regular-text" value="<?php echo esc_attr($current_title); ?>" required>
@@ -55,7 +55,7 @@ trait LinkDigest_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label for="linkdigest_url"><?php esc_html_e('URL', 'linkblog'); ?></label>
+                            <label for="linkdigest_url"><?php esc_html_e('URL', 'LinkDigest'); ?></label>
                         </th>
                         <td>
                             <input type="url" name="linkdigest_url" id="linkdigest_url" class="regular-text" value="<?php echo esc_attr($current_url); ?>" placeholder="https://example.com">
@@ -64,7 +64,7 @@ trait LinkDigest_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label for="linkdigest_content"><?php esc_html_e('Text/Description', 'linkblog'); ?></label>
+                            <label for="linkdigest_content"><?php esc_html_e('Text/Description', 'LinkDigest'); ?></label>
                         </th>
                         <td>
                             <?php
@@ -79,11 +79,11 @@ trait LinkDigest_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <span><?php esc_html_e('Categories', 'linkblog'); ?></span>
+                            <span><?php esc_html_e('Categories', 'LinkDigest'); ?></span>
                         </th>
                         <td>
                             <fieldset>
-                                <legend class="screen-reader-text"><?php esc_html_e('Categories', 'linkblog'); ?></legend>
+                                <legend class="screen-reader-text"><?php esc_html_e('Categories', 'LinkDigest'); ?></legend>
                                 <?php if (!empty($all_categories)) : ?>
                                     <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff;">
                                         <?php foreach ($all_categories as $category) : ?>
@@ -94,7 +94,7 @@ trait LinkDigest_Admin_AddLink {
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else : ?>
-                                    <p><?php esc_html_e('No categories available. Create categories first in LinkDigest > Categories.', 'linkblog'); ?></p>
+                                    <p><?php esc_html_e('No categories available. Create categories first in LinkDigest > Categories.', 'LinkDigest'); ?></p>
                                 <?php endif; ?>
                             </fieldset>
                         </td>
@@ -102,18 +102,18 @@ trait LinkDigest_Admin_AddLink {
 
                     <tr>
                         <th scope="row">
-                            <label for="linkdigest_tags"><?php esc_html_e('Tags', 'linkblog'); ?></label>
+                            <label for="linkdigest_tags"><?php esc_html_e('Tags', 'LinkDigest'); ?></label>
                         </th>
                         <td>
-                            <input type="text" name="linkdigest_tags" id="linkdigest_tags" class="regular-text" value="<?php echo esc_attr($current_tags); ?>" placeholder="<?php esc_attr_e('Separate tags with commas', 'linkblog'); ?>">
-                            <p class="description"><?php esc_html_e('Separate multiple tags with commas (e.g., tag1, tag2, tag3)', 'linkblog'); ?></p>
+                            <input type="text" name="linkdigest_tags" id="linkdigest_tags" class="regular-text" value="<?php echo esc_attr($current_tags); ?>" placeholder="<?php esc_attr_e('Separate tags with commas', 'LinkDigest'); ?>">
+                            <p class="description"><?php esc_html_e('Separate multiple tags with commas (e.g., tag1, tag2, tag3)', 'LinkDigest'); ?></p>
                         </td>
                     </tr>
                 </table>
 
                 <p class="submit">
-                    <input type="submit" name="linkdigest_add_submit" id="submit" class="button button-primary" value="<?php esc_attr_e('Add Link', 'linkblog'); ?>">
-                    <a href="<?php echo esc_url(admin_url(self::ADMIN_LINKS_PAGE)); ?>" class="button"><?php esc_html_e('Cancel', 'linkblog'); ?></a>
+                    <input type="submit" name="linkdigest_add_submit" id="submit" class="button button-primary" value="<?php esc_attr_e('Add Link', 'LinkDigest'); ?>">
+                    <a href="<?php echo esc_url(admin_url(self::ADMIN_LINKS_PAGE)); ?>" class="button"><?php esc_html_e('Cancel', 'LinkDigest'); ?></a>
                 </p>
             </form>
         </div>
@@ -127,7 +127,7 @@ trait LinkDigest_Admin_AddLink {
 
         $nonce = isset($_POST['linkdigest_add_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkdigest_add_nonce'])) : '';
         if (!wp_verify_nonce($nonce, 'linkdigest_add_link')) {
-            return ['', __('Security check failed.', 'linkblog')];
+            return ['', __('Security check failed.', 'LinkDigest')];
         }
 
         $input = $this->validateAddLinkInput();
@@ -146,7 +146,7 @@ trait LinkDigest_Admin_AddLink {
         $categories = isset($_POST['linkdigest_categories']) ? array_map('intval', $_POST['linkdigest_categories']) : array();
         $tags       = isset($_POST['linkdigest_tags'])    ? sanitize_text_field(wp_unslash($_POST['linkdigest_tags']))    : '';
 
-        $error = empty($title) ? __('Title is required.', 'linkblog') : '';
+        $error = empty($title) ? __('Title is required.', 'LinkDigest') : '';
         return compact('title', 'url', 'content', 'categories', 'tags', 'error');
     }
 
@@ -159,7 +159,7 @@ trait LinkDigest_Admin_AddLink {
         ));
 
         if (!$post_id) {
-            return ['', __('Failed to add link.', 'linkblog')];
+            return ['', __('Failed to add link.', 'LinkDigest')];
         }
 
         if (!empty($input['url'])) {
@@ -173,6 +173,6 @@ trait LinkDigest_Admin_AddLink {
         }
 
         $_POST = array();
-        return [__('Link added successfully!', 'linkblog'), ''];
+        return [__('Link added successfully!', 'LinkDigest'), ''];
     }
 }

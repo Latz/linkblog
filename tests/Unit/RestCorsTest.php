@@ -87,6 +87,7 @@ describe('LinkDigest CORS helpers', function (): void { // NOSONAR
             Functions\when('get_http_origin')->justReturn('https://example.com');
             Functions\when('current_user_can')->justReturn(false);
             Functions\when('wp_send_json_error')->alias(function (string $msg, int $code): void {
+                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
                 throw new RuntimeException("json_error:{$code}");
             });
 

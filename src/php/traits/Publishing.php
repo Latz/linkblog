@@ -6,22 +6,22 @@ trait LinkDigest_Publishing {
 
     public function validateLinkForPublish(int $link_id): ?array {
         if (!current_user_can('publish_posts')) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkdigest'), 'error_code' => 'no_permission');
+            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'LinkDigest'), 'error_code' => 'no_permission');
         }
         $link = get_post($link_id);
         if (!$link || $link->post_type !== 'linkdigest') {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Invalid link ID.', 'linkdigest'), 'error_code' => 'invalid_link');
+            return array('success' => false, 'post_id' => 0, 'message' => __('Invalid link ID.', 'LinkDigest'), 'error_code' => 'invalid_link');
         }
         return $this->validateLinkState($link, $link_id);
     }
 
     private function validateLinkState(\WP_Post $link, int $link_id): ?array {
         if (empty($link->post_title)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'linkdigest'), 'error_code' => 'missing_title');
+            return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'LinkDigest'), 'error_code' => 'missing_title');
         }
         $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);
         if ($published_post_id && get_post($published_post_id)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('This link has already been published.', 'linkdigest'), 'error_code' => 'already_published');
+            return array('success' => false, 'post_id' => 0, 'message' => __('This link has already been published.', 'LinkDigest'), 'error_code' => 'already_published');
         }
         return null;
     }
@@ -89,7 +89,7 @@ trait LinkDigest_Publishing {
             return array(
                 'success' => false,
                 'post_id' => 0,
-                'message' => __('Failed to create blog post.', 'linkdigest'),
+                'message' => __('Failed to create blog post.', 'LinkDigest'),
                 'error_code' => 'insert_failed'
             );
         }
@@ -106,8 +106,8 @@ trait LinkDigest_Publishing {
             'success' => true,
             'post_id' => $post_id,
             'message' => $as_draft
-                ? __('Link saved as draft successfully.', 'linkdigest')
-                : __('Link published successfully.', 'linkdigest')
+                ? __('Link saved as draft successfully.', 'LinkDigest')
+                : __('Link published successfully.', 'LinkDigest')
         );
     }
 }

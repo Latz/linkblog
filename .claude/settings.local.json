@@ -118,7 +118,13 @@
       "Bash(wait)",
       "Bash(phpdbg --version)",
       "Bash(apt-cache show *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "Bash(xargs -0 sed -i 's/LinkBlog/LinkDigest/g')",
+      "Bash(xargs -0 sed -i \"s/linkblog_/linkdigest_/g\")",
+      "Bash(composer run *)",
+      "Bash(svn --version)",
+      "Bash(mysql --version)",
+      "Bash(mysql *)"
     ]
   }
 }

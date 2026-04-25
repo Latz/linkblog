@@ -99,7 +99,7 @@ trait LinkDigest_RestApi {
     public function saveSchedule(\WP_REST_Request $request): mixed {
         $data = $request->get_json_params();
         if (empty($data) || !isset($data['mode'])) {
-            return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
+            return new \WP_Error('invalid_data', __('Invalid schedule data', 'LinkDigest'), array('status' => 400));
         }
         update_option('linkdigest_schedule', $data);
         $this->scheduleNextEvent();
@@ -145,7 +145,7 @@ trait LinkDigest_RestApi {
 
         $post_id = wp_insert_post($post_data);
         if (is_wp_error($post_id)) {
-            return new \WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
+            return new \WP_Error('insert_failed', __('Failed to create link.', 'LinkDigest'), array('status' => 500));
         }
 
         if (!empty($url)) {
@@ -157,26 +157,26 @@ trait LinkDigest_RestApi {
         return rest_ensure_response(array(
             'success' => true,
             'post_id' => $post_id,
-            'message' => __('Link added successfully!', 'linkblog'),
+            'message' => __('Link added successfully!', 'LinkDigest'),
         ));
     }
 
     private function validateRestLink(string $title, string $url): bool|\WP_Error {
         if (empty($title)) {
-            return new \WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
+            return new \WP_Error('missing_title', __('Title is required.', 'LinkDigest'), array('status' => 400));
         }
 
         if (!empty($url)) {
             $existing = get_posts(array(
                 'post_type'   => 'linkblog',
                 'post_status' => 'any',
-                'meta_key'    => '_linkdigest_url',
-                'meta_value'  => $url,
+                'meta_key'    => '_linkdigest_url', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+                'meta_value'  => $url, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
                 'numberposts' => 1,
                 'fields'      => 'ids',
             ));
             if (!empty($existing)) {
-                return new \WP_Error('duplicate_url', __('This URL has already been saved.', 'linkblog'), array('status' => 409));
+                return new \WP_Error('duplicate_url', __('This URL has already been saved.', 'LinkDigest'), array('status' => 409));
             }
         }
 
@@ -223,7 +223,7 @@ trait LinkDigest_RestApi {
             ));
 
             if (is_wp_error($categories)) {
-                return new \WP_Error('fetch_failed', __('Failed to fetch categories.', 'linkblog'), array('status' => 500));
+                return new \WP_Error('fetch_failed', __('Failed to fetch categories.', 'LinkDigest'), array('status' => 500));
             }
 
             $category_list = array();

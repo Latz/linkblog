@@ -130,8 +130,8 @@ if (!function_exists('remove_action')) { function remove_action(string $hook, $c
 if (!function_exists('__'))         { function __(string $t, string $d = 'default'): string { return $t; } }
 if (!function_exists('_e'))         { function _e(string $t, string $d = 'default'): void   { echo esc_html($t); } }
 if (!function_exists('_x'))         { function _x(string $t, string $c, string $d = 'default'): string { return $t; } }
-if (!function_exists('esc_html__')) { function esc_html__(string $t, string $d = 'default'): string { return htmlspecialchars($t); } }
-if (!function_exists('esc_html_e'))  { function esc_html_e(string $t, string $d = 'default'): void   { echo htmlspecialchars($t); } }
+if (!function_exists('esc_html__')) { function esc_html__(string $t, string $d = 'default'): string { return htmlspecialchars($t); } } // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+if (!function_exists('esc_html_e'))  { function esc_html_e(string $t, string $d = 'default'): void   { echo htmlspecialchars($t); } } // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 if (!function_exists('sprintf'))    { /* built-in */ }
 
 // ---------------------------------------------------------------------------

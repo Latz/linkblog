@@ -95,7 +95,7 @@ trait LinkDigest_Queries {
         ));
 
         if (!empty($uncategorized_links)) {
-            $grouped_links[__('Uncategorized', 'linkdigest')] = $uncategorized_links;
+            $grouped_links[__('Uncategorized', 'LinkDigest')] = $uncategorized_links;
         }
 
         return $grouped_links;
@@ -108,7 +108,7 @@ trait LinkDigest_Queries {
         if (!$published_post_id) {
             return array(
                 'success' => false,
-                'message' => __('This link has not been published.', 'linkdigest')
+                'message' => __('This link has not been published.', 'LinkDigest')
             );
         }
 
@@ -118,7 +118,7 @@ trait LinkDigest_Queries {
         if (!$trashed) {
             return array(
                 'success' => false,
-                'message' => __('Failed to unpublish link.', 'linkdigest')
+                'message' => __('Failed to unpublish link.', 'LinkDigest')
             );
         }
 
@@ -129,7 +129,7 @@ trait LinkDigest_Queries {
 
         return array(
             'success' => true,
-            'message' => __('Link unpublished successfully.', 'linkdigest')
+            'message' => __('Link unpublished successfully.', 'LinkDigest')
         );
     }
 }
