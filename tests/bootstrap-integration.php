@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit;
+}
+
 // phpcs:disable WordPress.WP.GlobalVariablesOverride,WordPress.Security.EscapeOutput.OutputNotEscaped -- test bootstrap file
 
 declare(strict_types=1);
