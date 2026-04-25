@@ -10,7 +10,7 @@ Before loading this extension in Chrome, you need to create three icon files:
 You can:
 - Create simple icons with any design tool (Photoshop, Figma, Canva, etc.)
 - Use a link/chain icon or "LB" text
-- Match your LinkBlog branding colors
+- Match your LinkDigest branding colors
 
 Quick option using ImageMagick (if installed):
 ----------------------------------------------

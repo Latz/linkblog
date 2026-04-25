@@ -110,7 +110,7 @@ async function loadCategories() {
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
-                'X-LinkBlog-API-Key': settings.apiKey
+                'X-LinkDigest-API-Key': settings.apiKey
             }
         });
         if (!response.ok) throw new Error('Failed to load categories');
@@ -177,7 +177,7 @@ async function handleSubmit(e) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-LinkBlog-API-Key': settings.apiKey
+                'X-LinkDigest-API-Key': settings.apiKey
             },
             body: JSON.stringify(formData)
         });

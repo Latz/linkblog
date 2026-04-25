@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Admin_LinksPage {
+trait LinkDigest_Admin_LinksPage {
 
     public function showLinksPage(): void {
         [$action_message, $action_error] = $this->processLinksPageAction();
@@ -10,7 +10,7 @@ trait LinkBlog_Admin_LinksPage {
         $has_links = $this->hasLinks($grouped_links);
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline"><?php esc_html_e('LinkBlog - All Links', 'linkblog'); ?></h1>
+            <h1 class="wp-heading-inline"><?php esc_html_e('LinkDigest - All Links', 'linkblog'); ?></h1>
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-add')); ?>" class="page-title-action"><?php esc_html_e('Add New', 'linkblog'); ?></a>
             <hr class="wp-header-end">
 
@@ -58,10 +58,10 @@ trait LinkBlog_Admin_LinksPage {
                     </thead>
                     <tbody>
                         <?php foreach ($category_links as $link) :
-                            $url = get_post_meta($link->ID, '_linkblog_url', true);
-                            $publish_status = get_post_meta($link->ID, '_linkblog_publish_status', true);
-                            $published_post_id = get_post_meta($link->ID, '_linkblog_published_post_id', true);
-                            $published_date = get_post_meta($link->ID, '_linkblog_published_date', true);
+                            $url = get_post_meta($link->ID, '_linkdigest_url', true);
+                            $publish_status = get_post_meta($link->ID, '_linkdigest_publish_status', true);
+                            $published_post_id = get_post_meta($link->ID, '_linkdigest_published_post_id', true);
+                            $published_date = get_post_meta($link->ID, '_linkdigest_published_date', true);
                             if (empty($publish_status)) {
                                 $publish_status = 'unpublished';
                             }

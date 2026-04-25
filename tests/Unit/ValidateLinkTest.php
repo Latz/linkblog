@@ -15,10 +15,10 @@ use Brain\Monkey\Functions;
  */
 
 beforeEach(function (): void {
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::validateLinkForPublish()', function (): void {
+describe('LinkDigest::validateLinkForPublish()', function (): void {
 
     it('returns null when every validation condition passes', function (): void {
         Functions\when('current_user_can')->justReturn(true);

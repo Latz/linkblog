@@ -1,16 +1,16 @@
 {
     "name": "latz/linkdigest",
-    "description": "LinkBlog WordPress plugin – curated link roundups",
+    "description": "LinkDigest WordPress plugin – curated link roundups",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "autoload": {
         "psr-4": {
-            "LinkBlog\\": "src/"
+            "LinkDigest\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "LinkBlog\\Tests\\": "tests/"
+            "LinkDigest\\Tests\\": "tests/"
         }
     },
     "require": {
@@ -18,7 +18,8 @@
     },
     "require-dev": {
         "pestphp/pest": "^4.0",
-        "brain/monkey": "^2.7"
+        "brain/monkey": "^2.7",
+        "yoast/phpunit-polyfills": "^4.0"
     },
     "config": {
         "allow-plugins": {

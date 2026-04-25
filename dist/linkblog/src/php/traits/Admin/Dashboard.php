@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Admin_Dashboard {
+trait LinkDigest_Admin_Dashboard {
 
     public function dashboardWidgetContent(): void {
         // Get statistics
@@ -17,11 +17,11 @@ trait LinkBlog_Admin_Dashboard {
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'compare' => self::META_COMPARE_NOT_EXISTS,
                 ),
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => array('published', 'draft'),
                     'compare' => self::META_COMPARE_NOT_IN,
                 )
@@ -49,7 +49,7 @@ trait LinkBlog_Admin_Dashboard {
                 <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'linkblog'); ?></h4>
                 <ul style="margin: 0; padding: 0; list-style: none;">
                     <?php foreach ($recent_unpublished as $link) :
-                        $url = get_post_meta($link->ID, '_linkblog_url', true);
+                        $url = get_post_meta($link->ID, '_linkdigest_url', true);
                     ?>
                         <li style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f1;">
                             <div style="font-weight: 500; font-size: 13px; margin-bottom: 2px;">
@@ -68,7 +68,7 @@ trait LinkBlog_Admin_Dashboard {
 
         <div style="text-align: center; padding-top: 8px; border-top: 1px solid #f0f0f1;">
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-dashboard')); ?>" class="button button-primary">
-                <?php esc_html_e('Go to LinkBlog', 'linkblog'); ?>
+                <?php esc_html_e('Go to LinkDigest', 'linkblog'); ?>
             </a>
         </div>
         <?php
@@ -81,18 +81,18 @@ trait LinkBlog_Admin_Dashboard {
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
+                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
     }
 
     public function handleBatchPublishRequest(): ?array {
-        if ( ! isset( $_POST['linkblog_batch_publish'] ) ) {
+        if ( ! isset( $_POST['linkdigest_batch_publish'] ) ) {
             return null;
         }
-        $nonce = isset( $_POST['linkblog_batch_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_batch_nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_batch_publish' ) ) {
+        $nonce = isset( $_POST['linkdigest_batch_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_batch_nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_batch_publish' ) ) {
             return null;
         }
         $as_draft = isset( $_POST['publish_as_draft'] ) && wp_unslash( $_POST['publish_as_draft'] ) === '1';
@@ -100,11 +100,11 @@ trait LinkBlog_Admin_Dashboard {
     }
 
     public function handleRoundupRequest(): ?array {
-        if ( ! isset( $_POST['linkblog_create_roundup'] ) ) {
+        if ( ! isset( $_POST['linkdigest_create_roundup'] ) ) {
             return null;
         }
-        $nonce = isset( $_POST['linkblog_roundup_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_roundup_nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_create_roundup' ) ) {
+        $nonce = isset( $_POST['linkdigest_roundup_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_roundup_nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_create_roundup' ) ) {
             return null;
         }
         $roundup_title = isset( $_POST['roundup_title'] ) ? sanitize_text_field( wp_unslash( $_POST['roundup_title'] ) ) : '';
@@ -113,13 +113,13 @@ trait LinkBlog_Admin_Dashboard {
     }
 
     public function handleQuickAddRequest(): bool {
-        if ( ! isset( $_POST['linkblog_quick_add'] ) ) {
+        if ( ! isset( $_POST['linkdigest_quick_add'] ) ) {
             return false;
         }
-        $nonce = isset( $_POST['linkblog_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_quick_nonce'] ) ) : '';
+        $nonce = isset( $_POST['linkdigest_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_quick_nonce'] ) ) : '';
         $title = isset( $_POST['quick_title'] ) ? sanitize_text_field( wp_unslash( $_POST['quick_title'] ) ) : '';
         $url   = isset( $_POST['quick_url'] )   ? esc_url_raw( wp_unslash( $_POST['quick_url'] ) )           : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_quick_add_link' ) || empty( $title ) ) {
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_quick_add_link' ) || empty( $title ) ) {
             return false;
         }
         $post_id = wp_insert_post( array(
@@ -128,7 +128,7 @@ trait LinkBlog_Admin_Dashboard {
             'post_status' => 'publish',
         ) );
         if ( $post_id && ! empty( $url ) ) {
-            update_post_meta( $post_id, '_linkblog_url', $url );
+            update_post_meta( $post_id, '_linkdigest_url', $url );
         }
         return (bool) $post_id;
     }
@@ -169,8 +169,8 @@ trait LinkBlog_Admin_Dashboard {
                 <?php else : ?>
                     <ul class="lb-recent-links">
                         <?php foreach ( $recent_links as $link ) :
-                            $url             = get_post_meta( $link->ID, '_linkblog_url', true );
-                            $categories_list = get_the_terms( $link->ID, 'linkblog_category' );
+                            $url             = get_post_meta( $link->ID, '_linkdigest_url', true );
+                            $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
                             $category_name   = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
                         ?>
                             <li class="lb-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
@@ -217,10 +217,10 @@ trait LinkBlog_Admin_Dashboard {
                 <?php else : ?>
                     <ul class="lb-recent-links">
                         <?php foreach ( $recently_published as $link ) :
-                            $published_post_id = get_post_meta( $link->ID, '_linkblog_published_post_id', true );
-                            $publish_status    = get_post_meta( $link->ID, '_linkblog_publish_status', true );
-                            $published_date    = get_post_meta( $link->ID, '_linkblog_published_date', true );
-                            $categories_list   = get_the_terms( $link->ID, 'linkblog_category' );
+                            $published_post_id = get_post_meta( $link->ID, '_linkdigest_published_post_id', true );
+                            $publish_status    = get_post_meta( $link->ID, '_linkdigest_publish_status', true );
+                            $published_date    = get_post_meta( $link->ID, '_linkdigest_published_date', true );
+                            $categories_list   = get_the_terms( $link->ID, 'linkdigest_category' );
                             $category_name     = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
                             $is_draft          = $publish_status === 'draft';
                         ?>
@@ -268,7 +268,7 @@ trait LinkBlog_Admin_Dashboard {
                     printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkblog' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
                     ?>
                     <form method="post" action="">
-                        <?php wp_nonce_field( 'linkblog_create_roundup', 'linkblog_roundup_nonce' ); ?>
+                        <?php wp_nonce_field( 'linkdigest_create_roundup', 'linkdigest_roundup_nonce' ); ?>
                         <p>
                             <label for="roundup_title"><strong><?php esc_html_e( 'Post Title', 'linkblog' ); ?></strong></label><br>
                             <input type="text" id="roundup_title" name="roundup_title" class="regular-text"
@@ -279,9 +279,9 @@ trait LinkBlog_Admin_Dashboard {
                         </p>
                         <input type="hidden" name="roundup_as_draft" value="0">
                         <p>
-                            <button type="submit" name="linkblog_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'linkblog' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'linkblog' ); ?></button>
                             &nbsp;
-                            <button type="submit" name="linkblog_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'linkblog' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'linkblog' ); ?></button>
                         </p>
                     </form>
                 <?php else : ?>
@@ -303,7 +303,7 @@ trait LinkBlog_Admin_Dashboard {
                     <div class="notice notice-success inline"><p><?php esc_html_e( 'Link added successfully!', 'linkblog' ); ?></p></div>
                 <?php endif; ?>
                 <form method="post" action="">
-                    <?php wp_nonce_field( 'linkblog_quick_add_link', 'linkblog_quick_nonce' ); ?>
+                    <?php wp_nonce_field( 'linkdigest_quick_add_link', 'linkdigest_quick_nonce' ); ?>
                     <p>
                         <label for="quick_title"><strong><?php esc_html_e( 'Title', 'linkblog' ); ?> *</strong></label><br>
                         <input type="text" id="quick_title" name="quick_title" class="regular-text"
@@ -315,7 +315,7 @@ trait LinkBlog_Admin_Dashboard {
                             placeholder="https://example.com">
                     </p>
                     <p>
-                        <button type="submit" name="linkblog_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkblog' ); ?></button>
+                        <button type="submit" name="linkdigest_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkblog' ); ?></button>
                     </p>
                 </form>
             </div>
@@ -413,7 +413,7 @@ trait LinkBlog_Admin_Dashboard {
         $total_links       = $publish_stats['total_links'];
         $published_links   = $publish_stats['published_links'];
         $unpublished_links = $publish_stats['unpublished_links'];
-        $total_categories  = count( get_terms( array( 'taxonomy' => 'linkblog_category', 'hide_empty' => false ) ) );
+        $total_categories  = count( get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) ) );
 
         $recent_links = get_posts( array(
             'post_type'      => 'linkblog',
@@ -422,8 +422,8 @@ trait LinkBlog_Admin_Dashboard {
             'order'          => 'DESC',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
+                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
 
@@ -433,9 +433,9 @@ trait LinkBlog_Admin_Dashboard {
             'orderby'        => 'meta_value',
             'order'          => 'DESC',
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-            'meta_key'       => '_linkblog_published_date',
+            'meta_key'       => '_linkdigest_published_date',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'IN' ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'IN' ),
             ),
         ) );
 

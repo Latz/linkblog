@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Queries {
+trait LinkDigest_Queries {
 
     public function getPublishStatistics(): array {
         $counts = wp_count_posts('linkblog');
@@ -15,7 +15,7 @@ trait LinkBlog_Queries {
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => 'published',
                     'compare' => '='
                 )
@@ -30,7 +30,7 @@ trait LinkBlog_Queries {
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => 'draft',
                     'compare' => '='
                 )
@@ -51,7 +51,7 @@ trait LinkBlog_Queries {
     public function getLinksGroupedByCategory(): array {
         // Get all categories
         $categories = get_terms(array(
-            'taxonomy'   => 'linkblog_category',
+            'taxonomy'   => 'linkdigest_category',
             'hide_empty' => false,
         ));
 
@@ -67,7 +67,7 @@ trait LinkBlog_Queries {
                     'order'          => 'DESC',
                     'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                         array(
-                            'taxonomy' => 'linkblog_category',
+                            'taxonomy' => 'linkdigest_category',
                             'field'    => 'term_id',
                             'terms'    => $category->term_id,
                         ),
@@ -88,7 +88,7 @@ trait LinkBlog_Queries {
             'order'          => 'DESC',
             'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                 array(
-                    'taxonomy' => 'linkblog_category',
+                    'taxonomy' => 'linkdigest_category',
                     'operator' => 'NOT EXISTS',
                 ),
             ),
@@ -103,7 +103,7 @@ trait LinkBlog_Queries {
 
     public function unpublishLink(int $link_id): array {
         // Get published post ID
-        $published_post_id = get_post_meta($link_id, '_linkblog_published_post_id', true);
+        $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);
 
         if (!$published_post_id) {
             return array(
@@ -123,9 +123,9 @@ trait LinkBlog_Queries {
         }
 
         // Reset meta fields
-        delete_post_meta($link_id, '_linkblog_published_post_id');
-        delete_post_meta($link_id, '_linkblog_publish_status');
-        delete_post_meta($link_id, '_linkblog_published_date');
+        delete_post_meta($link_id, '_linkdigest_published_post_id');
+        delete_post_meta($link_id, '_linkdigest_publish_status');
+        delete_post_meta($link_id, '_linkdigest_published_date');
 
         return array(
             'success' => true,

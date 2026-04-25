@@ -8,7 +8,7 @@ trait LinkDigest_PostType {
         $labels = array(
             'name'                  => _x('Links', 'Post Type General Name', 'linkdigest'),
             'singular_name'         => _x('Link', 'Post Type Singular Name', 'linkdigest'),
-            'menu_name'             => __('LinkBlog', 'linkdigest'),
+            'menu_name'             => __('LinkDigest', 'linkdigest'),
             'name_admin_bar'        => __('Link', 'linkdigest'),
             'archives'              => __('Link Archives', 'linkdigest'),
             'attributes'            => __('Link Attributes', 'linkdigest'),

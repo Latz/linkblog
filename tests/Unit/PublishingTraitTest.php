@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace LinkBlog\Tests\Unit;
+namespace LinkDigest\Tests\Unit;
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-use LinkBlog;
+use LinkDigest;
 use Mockery;
 use Brain\Monkey\Functions;
 use Brain\Monkey\Actions;
 use Brain\Monkey\Filters;
 
-describe('LinkBlog_Publishing Trait', function () {
+describe('LinkDigest_Publishing Trait', function () {
     beforeEach(function () {
-        $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+        $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
     });
 
     describe('validateLinkForPublish()', function () {

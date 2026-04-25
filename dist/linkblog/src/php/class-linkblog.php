@@ -6,23 +6,23 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-class LinkBlog {
+class LinkDigest {
 
     private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS';          // NOSONAR — used in traits via self::
     private const META_COMPARE_NOT_IN     = 'NOT IN';              // NOSONAR — used in traits via self::
     private const ADMIN_LINKS_PAGE        = 'admin.php?page=linkblog-admin'; // NOSONAR — used in traits via self::
 
-    use LinkBlog_PostType;
-    use LinkBlog_MetaBoxes;
-    use LinkBlog_Publishing;
-    use LinkBlog_Batch;
-    use LinkBlog_Queries;
-    use LinkBlog_RestApi;
-    use LinkBlog_Scheduler;
-    use LinkBlog_Admin_Menu;
-    use LinkBlog_Admin_Dashboard;
-    use LinkBlog_Admin_LinksPage;
-    use LinkBlog_Admin_AddLink;
+    use LinkDigest_PostType;
+    use LinkDigest_MetaBoxes;
+    use LinkDigest_Publishing;
+    use LinkDigest_Batch;
+    use LinkDigest_Queries;
+    use LinkDigest_RestApi;
+    use LinkDigest_Scheduler;
+    use LinkDigest_Admin_Menu;
+    use LinkDigest_Admin_Dashboard;
+    use LinkDigest_Admin_LinksPage;
+    use LinkDigest_Admin_AddLink;
 
     public static function register(): void {
         $instance = new self();
@@ -44,9 +44,9 @@ class LinkBlog {
         // REST API
         add_action('rest_api_init', [$instance, 'registerRestRoutes']);
         add_filter('rest_pre_serve_request', [$instance, 'addCorsHeaders'], 15);
-        add_action('created_linkblog_category', [$instance, 'invalidateCategoriesCache']);
-        add_action('edited_linkblog_category',  [$instance, 'invalidateCategoriesCache']);
-        add_action('delete_linkblog_category',  [$instance, 'invalidateCategoriesCache']);
+        add_action('created_linkdigest_category', [$instance, 'invalidateCategoriesCache']);
+        add_action('edited_linkdigest_category',  [$instance, 'invalidateCategoriesCache']);
+        add_action('delete_linkdigest_category',  [$instance, 'invalidateCategoriesCache']);
 
         // Admin menu & assets
         add_action('admin_init', [$instance, 'registerSettingX']);

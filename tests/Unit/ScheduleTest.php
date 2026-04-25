@@ -14,10 +14,10 @@ use Brain\Monkey\Functions;
 
 beforeEach(function (): void {
     Functions\when('rest_ensure_response')->returnArg();
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::getSchedule()', function (): void {
+describe('LinkDigest::getSchedule()', function (): void {
 
     it('returns the stored option when one exists', function (): void {
         $stored = ['mode' => 'weekly', 'times' => ['08:00']];
@@ -42,7 +42,7 @@ describe('LinkBlog::getSchedule()', function (): void {
     });
 });
 
-describe('LinkBlog::saveSchedule()', function (): void {
+describe('LinkDigest::saveSchedule()', function (): void {
 
     beforeEach(function (): void {
         Functions\when('__')->returnArg();

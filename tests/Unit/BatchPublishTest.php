@@ -20,10 +20,10 @@ beforeEach(function (): void {
     Functions\when('__')->returnArg();
     Functions\when('get_the_terms')->justReturn(false);
     Functions\when('current_time')->justReturn('2026-04-13 10:00:00');
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::batchPublishLinks()', function (): void {
+describe('LinkDigest::batchPublishLinks()', function (): void {
 
     it('returns zeros and a message when called with an empty array', function (): void {
         $result = $this->plugin->batchPublishLinks([]);

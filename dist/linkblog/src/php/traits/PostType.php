@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_PostType {
+trait LinkDigest_PostType {
 
     public function registerPostType(): void {
         $labels = array(
             'name'                  => _x('Links', 'Post Type General Name', 'linkblog'),
             'singular_name'         => _x('Link', 'Post Type Singular Name', 'linkblog'),
-            'menu_name'             => __('LinkBlog', 'linkblog'),
+            'menu_name'             => __('LinkDigest', 'linkblog'),
             'name_admin_bar'        => __('Link', 'linkblog'),
             'archives'              => __('Link Archives', 'linkblog'),
             'attributes'            => __('Link Attributes', 'linkblog'),
@@ -40,7 +40,7 @@ trait LinkBlog_PostType {
             'description'           => __('Links to publish on blog', 'linkblog'),
             'labels'                => $labels,
             'supports'              => array('title', 'editor', 'custom-fields'),
-            'taxonomies'            => array('linkblog_category', 'linkblog_tag'),
+            'taxonomies'            => array('linkdigest_category', 'linkdigest_tag'),
             'hierarchical'          => false,
             'public'                => true,
             'show_ui'               => true,
@@ -59,7 +59,7 @@ trait LinkBlog_PostType {
 
         register_post_type('linkblog', $args);
 
-        register_post_meta('linkblog', '_linkblog_publish_status', array(
+        register_post_meta('linkblog', '_linkdigest_publish_status', array(
             'show_in_rest'  => true,
             'single'        => true,
             'type'          => 'string',
@@ -103,7 +103,7 @@ trait LinkBlog_PostType {
             'show_in_rest'               => true,
         );
 
-        register_taxonomy('linkblog_category', array('linkblog'), $category_args);
+        register_taxonomy('linkdigest_category', array('linkblog'), $category_args);
 
         // Register Tag taxonomy
         $tag_labels = array(
@@ -140,6 +140,6 @@ trait LinkBlog_PostType {
             'show_in_rest'               => true,
         );
 
-        register_taxonomy('linkblog_tag', array('linkblog'), $tag_args);
+        register_taxonomy('linkdigest_tag', array('linkblog'), $tag_args);
     }
 }

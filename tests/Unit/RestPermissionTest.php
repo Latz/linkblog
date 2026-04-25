@@ -12,15 +12,15 @@ use Brain\Monkey\Functions;
  * Tests for linkdigest_rest_permission_check()
  *
  * Two auth paths:
- *  1. API key in X-LinkBlog-API-Key header — compared with stored key via hash_equals
+ *  1. API key in X-LinkDigest-API-Key header — compared with stored key via hash_equals
  *  2. Fallback: current_user_can('edit_posts')
  */
 
 beforeEach(function (): void {
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::restPermissionCheck()', function (): void {
+describe('LinkDigest::restPermissionCheck()', function (): void {
 
     it('grants access when a valid API key matches the stored key', function (): void {
         $key = 'super-secret-key-abc123';
@@ -28,7 +28,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')
             ->alias(fn($opt) => $opt === 'linkdigest_api_key' ? $key : false);
 
-        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => $key]);
+        $request = linkdigest_make_request([], ['X-LinkDigest-API-Key' => $key]);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -40,7 +40,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
             ->alias(fn($opt) => $opt === 'linkdigest_api_key' ? 'correct-key' : false);
         Functions\when('current_user_can')->justReturn(false);
 
-        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => 'wrong-key']);
+        $request = linkdigest_make_request([], ['X-LinkDigest-API-Key' => 'wrong-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -62,7 +62,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn(''); // empty stored key
         Functions\when('current_user_can')->justReturn(true);
 
-        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => 'any-key']);
+        $request = linkdigest_make_request([], ['X-LinkDigest-API-Key' => 'any-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 

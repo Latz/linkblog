@@ -9,16 +9,16 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for LinkBlog::restGetCategories() and LinkBlog::invalidateCategoriesCache()
+ * Tests for LinkDigest::restGetCategories() and LinkDigest::invalidateCategoriesCache()
  */
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg();
     Functions\when('rest_ensure_response')->returnArg();
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::restGetCategories()', function (): void {
+describe('LinkDigest::restGetCategories()', function (): void {
 
     it('returns cached data and skips get_terms on a cache hit', function (): void {
         $cached = [['id' => 1, 'name' => 'Tech', 'slug' => 'tech']];
@@ -93,7 +93,7 @@ describe('LinkBlog::restGetCategories()', function (): void {
     });
 });
 
-describe('LinkBlog::invalidateCategoriesCache()', function (): void {
+describe('LinkDigest::invalidateCategoriesCache()', function (): void {
 
     it('deletes the correct transient key', function (): void {
         $deletedKey = null;

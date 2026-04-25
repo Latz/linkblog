@@ -9,15 +9,15 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for LinkBlog::unpublishLink()
+ * Tests for LinkDigest::unpublishLink()
  */
 
 beforeEach(function (): void {
     Functions\when('__')->returnArg();
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::unpublishLink()', function (): void {
+describe('LinkDigest::unpublishLink()', function (): void {
 
     it('returns an error when the link has no published post id in meta', function (): void {
         Functions\when('get_post_meta')->justReturn(''); // no stored post ID

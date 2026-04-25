@@ -11,7 +11,7 @@ async function refreshCategories() {
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
-                'X-LinkBlog-API-Key': apiKey
+                'X-LinkDigest-API-Key': apiKey
             }
         });
         if (!response.ok) return;

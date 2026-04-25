@@ -9,7 +9,7 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for LinkBlog::restAddLink()
+ * Tests for LinkDigest::restAddLink()
  */
 
 beforeEach(function (): void {
@@ -17,10 +17,10 @@ beforeEach(function (): void {
     Functions\when('rest_ensure_response')->returnArg();
     Functions\when('sanitize_text_field')->returnArg();
     Functions\when('esc_url_raw')->returnArg();
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::restAddLink()', function (): void {
+describe('LinkDigest::restAddLink()', function (): void {
 
     it('returns a WP_Error with status 400 when title is empty', function (): void {
         $request = linkdigest_make_request(['title' => '']);

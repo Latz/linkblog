@@ -6,25 +6,25 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-trait LinkBlog_Scheduler {
+trait LinkDigest_Scheduler {
 
     // Called from register() — binds the cron callback
     public function registerSchedulerHooks(): void {
-        add_action('linkblog_execute_schedule', [$this, 'executeSchedule']);
+        add_action('linkdigest_execute_schedule', [$this, 'executeSchedule']);
     }
 
     // Calculates next timestamp, cancels any pending event, schedules a new one
     public function scheduleNextEvent(): void {
-        wp_clear_scheduled_hook('linkblog_execute_schedule');
+        wp_clear_scheduled_hook('linkdigest_execute_schedule');
         $ts = $this->getNextScheduleTimestamp();
         if ($ts !== null) {
-            wp_schedule_single_event($ts, 'linkblog_execute_schedule');
+            wp_schedule_single_event($ts, 'linkdigest_execute_schedule');
         }
     }
 
     // Cron callback: check trigger condition → publish → re-schedule
     public function executeSchedule(): void {
-        $config  = get_option('linkblog_schedule', []);
+        $config  = get_option('linkdigest_schedule', []);
         $mode    = $config['mode']    ?? 'daily';
         $trigger = $config['trigger'] ?? [];
 
@@ -63,7 +63,7 @@ trait LinkBlog_Scheduler {
 
     // Returns next UNIX timestamp (UTC) based on schedule config, or null for 'manual'
     public function getNextScheduleTimestamp(): ?int {
-        $config     = get_option('linkblog_schedule', []);
+        $config     = get_option('linkdigest_schedule', []);
         $mode       = $config['mode']       ?? 'daily';
         $times      = $config['times']      ?? ['09:00'];
         $recurrence = $config['recurrence'] ?? [];
@@ -136,8 +136,8 @@ trait LinkBlog_Scheduler {
             'date_query'     => [['before' => $cutoff]],
             'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
-                ['key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
-                ['key' => '_linkblog_publish_status', 'value' => ['published', 'draft'], 'compare' => self::META_COMPARE_NOT_IN],
+                ['key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
+                ['key' => '_linkdigest_publish_status', 'value' => ['published', 'draft'], 'compare' => self::META_COMPARE_NOT_IN],
             ],
         ]);
         return !empty($found);

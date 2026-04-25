@@ -31,7 +31,7 @@ async function testConnection(apiEndpoint, apiKey) {
             cache: 'no-store',
             headers: {
                 'Content-Type': 'application/json',
-                'X-LinkBlog-API-Key': apiKey
+                'X-LinkDigest-API-Key': apiKey
             }
         });
 

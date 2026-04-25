@@ -1,5 +1,5 @@
 /**
- * Playwright — REST API tests for the LinkBlog plugin.
+ * Playwright — REST API tests for the LinkDigest plugin.
  *
  * Prerequisites:
  *   npm run env:start          (first time: pulls Docker images, ~2 min)
@@ -34,11 +34,12 @@ test.describe('GET /categories', () => {
 // ---------------------------------------------------------------------------
 test.describe('Link CRUD', () => {
     let createdId;
+    const testUrl = `https://example.com/test-${Date.now()}`;
 
     test('POST /add-link creates a link and returns its ID', async ({ request }) => {
         const res = await request.post(api(ROUTES.ADD_LINK), {
             data: {
-                url:        'https://example.com/test',
+                url:        testUrl,
                 title:      'Playwright Test Link',
                 categories: ['Uncategorized'],
             },

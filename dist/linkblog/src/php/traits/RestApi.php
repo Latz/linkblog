@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_RestApi {
+trait LinkDigest_RestApi {
 
     public function registerRestRoutes(): void {
         register_rest_route(LINKBLOG_REST_NAMESPACE, '/add-link', array(
@@ -92,7 +92,7 @@ trait LinkBlog_RestApi {
             'trigger' => array('count' => 10, 'tag_id' => null, 'days' => 7),
             'times'   => array('09:00'),
         );
-        $config = get_option('linkblog_schedule', $default);
+        $config = get_option('linkdigest_schedule', $default);
         return rest_ensure_response($config);
     }
 
@@ -101,7 +101,7 @@ trait LinkBlog_RestApi {
         if (empty($data) || !isset($data['mode'])) {
             return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
         }
-        update_option('linkblog_schedule', $data);
+        update_option('linkdigest_schedule', $data);
         $this->scheduleNextEvent();
         return rest_ensure_response(array('success' => true));
     }
@@ -113,8 +113,8 @@ trait LinkBlog_RestApi {
 
     public function restPermissionCheck(\WP_REST_Request $request): bool {
         // Check for API key in header
-        $api_key = $request->get_header('X-LinkBlog-API-Key');
-        $stored_key = get_option('linkblog_api_key');
+        $api_key = $request->get_header('X-LinkDigest-API-Key');
+        $stored_key = get_option('linkdigest_api_key');
 
         if (!empty($api_key) && !empty($stored_key) && hash_equals($stored_key, $api_key)) {
             return true;
@@ -149,7 +149,7 @@ trait LinkBlog_RestApi {
         }
 
         if (!empty($url)) {
-            update_post_meta($post_id, '_linkblog_url', $url);
+            update_post_meta($post_id, '_linkdigest_url', $url);
         }
 
         $this->applyLinkTaxonomies($post_id, $categories, $tags);
@@ -170,7 +170,7 @@ trait LinkBlog_RestApi {
             $existing = get_posts(array(
                 'post_type'   => 'linkblog',
                 'post_status' => 'any',
-                'meta_key'    => '_linkblog_url',
+                'meta_key'    => '_linkdigest_url',
                 'meta_value'  => $url,
                 'numberposts' => 1,
                 'fields'      => 'ids',
@@ -186,9 +186,9 @@ trait LinkBlog_RestApi {
     private function resolveOrCreateCategories(array $categories): array {
         $ids = array();
         foreach ($categories as $cat_name) {
-            $term = get_term_by('name', $cat_name, 'linkblog_category');
+            $term = get_term_by('name', $cat_name, 'linkdigest_category');
             if (!$term) {
-                $result = wp_insert_term($cat_name, 'linkblog_category');
+                $result = wp_insert_term($cat_name, 'linkdigest_category');
                 if (!is_wp_error($result)) {
                     $ids[] = $result['term_id'];
                 }
@@ -203,22 +203,22 @@ trait LinkBlog_RestApi {
         if (!empty($categories) && is_array($categories)) {
             $ids = $this->resolveOrCreateCategories($categories);
             if (!empty($ids)) {
-                wp_set_object_terms($post_id, $ids, 'linkblog_category');
+                wp_set_object_terms($post_id, $ids, 'linkdigest_category');
             }
         }
         if (!empty($tags)) {
             $tag_names = array_map('trim', explode(',', $tags));
-            wp_set_object_terms($post_id, $tag_names, 'linkblog_tag');
+            wp_set_object_terms($post_id, $tag_names, 'linkdigest_tag');
         }
     }
 
     public function restGetCategories(): mixed {
-        $cache_key = 'linkblog_api_categories_list';
+        $cache_key = 'linkdigest_api_categories_list';
         $category_list = get_transient($cache_key);
 
         if (false === $category_list) {
             $categories = get_terms(array(
-                'taxonomy'   => 'linkblog_category',
+                'taxonomy'   => 'linkdigest_category',
                 'hide_empty' => false,
             ));
 
@@ -240,7 +240,7 @@ trait LinkBlog_RestApi {
     }
 
     public function invalidateCategoriesCache(): void {
-        delete_transient('linkblog_api_categories_list');
+        delete_transient('linkdigest_api_categories_list');
     }
 
     public function addCorsHeaders(bool $served): bool {
@@ -249,7 +249,7 @@ trait LinkBlog_RestApi {
             header('Access-Control-Allow-Origin: ' . $origin);
             header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
             header('Access-Control-Allow-Credentials: true');
-            header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+            header('Access-Control-Allow-Headers: Content-Type, X-LinkDigest-API-Key, Authorization');
         }
         return $served;
     }
@@ -261,7 +261,7 @@ trait LinkBlog_RestApi {
                 header('Access-Control-Allow-Origin: ' . $origin);
                 header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
                 header('Access-Control-Allow-Credentials: true');
-                header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+                header('Access-Control-Allow-Headers: Content-Type, X-LinkDigest-API-Key, Authorization');
                 header('Access-Control-Max-Age: 86400');
                 exit;
             }

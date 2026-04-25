@@ -10,7 +10,7 @@ trait LinkDigest_Admin_LinksPage {
         $has_links = $this->hasLinks($grouped_links);
         ?>
         <div class="wrap">
-            <h1 class="wp-heading-inline"><?php esc_html_e('LinkBlog - All Links', 'linkdigest'); ?></h1>
+            <h1 class="wp-heading-inline"><?php esc_html_e('LinkDigest - All Links', 'linkdigest'); ?></h1>
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkdigest-add')); ?>" class="page-title-action"><?php esc_html_e('Add New', 'linkdigest'); ?></a>
             <hr class="wp-header-end">
 

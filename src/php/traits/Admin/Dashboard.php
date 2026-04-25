@@ -68,7 +68,7 @@ trait LinkDigest_Admin_Dashboard {
 
         <div style="text-align: center; padding-top: 8px; border-top: 1px solid #f0f0f1;">
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkdigest-dashboard')); ?>" class="button button-primary">
-                <?php esc_html_e('Go to LinkBlog', 'linkdigest'); ?>
+                <?php esc_html_e('Go to LinkDigest', 'linkdigest'); ?>
             </a>
         </div>
         <?php

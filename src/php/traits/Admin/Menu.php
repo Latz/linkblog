@@ -126,11 +126,11 @@ trait LinkDigest_Admin_Menu {
         $site_url = get_site_url();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('LinkBlog Settings', 'linkdigest'); ?></h1>
+            <h1><?php esc_html_e('LinkDigest Settings', 'linkdigest'); ?></h1>
 
             <div class="card" style="max-width: 800px;">
                 <h2><?php esc_html_e('Chrome Extension Access Data', 'linkdigest'); ?></h2>
-                <p><?php esc_html_e('Use these credentials to connect the LinkBlog Chrome extension to your WordPress site.', 'linkdigest'); ?></p>
+                <p><?php esc_html_e('Use these credentials to connect the LinkDigest Chrome extension to your WordPress site.', 'linkdigest'); ?></p>
 
                 <div style="margin: 20px 0;">
                     <label for="linkdigest-api-endpoint" style="display: block; margin-bottom: 8px; font-weight: 600;">
@@ -197,7 +197,7 @@ trait LinkDigest_Admin_Menu {
             <div class="card" style="max-width: 800px; margin-top: 20px;">
                 <h2><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
                 <ol>
-                    <li><?php esc_html_e('Download and install the LinkBlog Chrome extension', 'linkdigest'); ?></li>
+                    <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
                     <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
                     <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkdigest'); ?></li>
                     <li><?php esc_html_e('Click Save', 'linkdigest'); ?></li>
@@ -667,7 +667,7 @@ trait LinkDigest_Admin_Menu {
     public function addDashboardWidget(): void {
         wp_add_dashboard_widget(
             'linkdigest_dashboard_widget',
-            __('LinkBlog Summary', 'linkdigest'),
+            __('LinkDigest Summary', 'linkdigest'),
             [$this, 'dashboardWidgetContent']
         );
     }

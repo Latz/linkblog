@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Batch {
+trait LinkDigest_Batch {
 
     public function batchPublishLinks(mixed $link_ids, bool $as_draft = false): array {
         $success_count = 0;
@@ -106,7 +106,7 @@ trait LinkBlog_Batch {
             if (!$link || $link->post_type !== 'linkblog') {
                 continue;
             }
-            $cats = get_the_terms($link_id, 'linkblog_category');
+            $cats = get_the_terms($link_id, 'linkdigest_category');
             if ($cats && !is_wp_error($cats)) {
                 $primary = $cats[0];
                 if (!isset($links_by_category[$primary->slug])) {
@@ -129,7 +129,7 @@ trait LinkBlog_Batch {
             $content .= "<ul>\n";
             foreach ($ids as $link_id) {
                 $link = get_post($link_id);
-                $url  = get_post_meta($link_id, '_linkblog_url', true);
+                $url  = get_post_meta($link_id, '_linkdigest_url', true);
                 $desc = trim($link->post_content);
                 $content .= '<li>';
                 $content .= !empty($url)
@@ -185,7 +185,7 @@ trait LinkBlog_Batch {
         $all_cats = array();
         foreach ($links_by_category as $group) {
             foreach ($group['links'] as $link_id) {
-                $cats = get_the_terms($link_id, 'linkblog_category');
+                $cats = get_the_terms($link_id, 'linkdigest_category');
                 if ($cats && !is_wp_error($cats)) {
                     foreach ($cats as $cat) {
                         $all_cats[] = $cat;
@@ -199,7 +199,7 @@ trait LinkBlog_Batch {
     private function assignRoundupTags(int $post_id, array $link_ids): void {
         $tag_names = array();
         foreach ($link_ids as $link_id) {
-            $tags = get_the_terms($link_id, 'linkblog_tag');
+            $tags = get_the_terms($link_id, 'linkdigest_tag');
             if ($tags && !is_wp_error($tags)) {
                 foreach ($tags as $tag) {
                     $tag_names[] = $tag->name;
@@ -217,9 +217,9 @@ trait LinkBlog_Batch {
         foreach ($link_ids as $link_id) {
             $link = get_post($link_id);
             if ($link && $link->post_type === 'linkblog') {
-                update_post_meta($link_id, '_linkblog_published_post_id', $post_id);
-                update_post_meta($link_id, '_linkblog_publish_status', $status);
-                update_post_meta($link_id, '_linkblog_published_date', $date);
+                update_post_meta($link_id, '_linkdigest_published_post_id', $post_id);
+                update_post_meta($link_id, '_linkdigest_publish_status', $status);
+                update_post_meta($link_id, '_linkdigest_published_date', $date);
             }
         }
     }

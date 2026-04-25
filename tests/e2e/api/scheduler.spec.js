@@ -1,5 +1,5 @@
 /**
- * Playwright — E2E tests for the LinkBlog scheduler.
+ * Playwright — E2E tests for the LinkDigest scheduler.
  *
  * Verifies that POST /schedule/run publishes unpublished links into a roundup
  * post and marks each link's _linkdigest_publish_status as 'published'.
@@ -21,7 +21,7 @@ test.describe('Scheduler publishing', () => {
     test('POST /schedule/run publishes links and creates a roundup post', async ({ request }) => {
         // 1. Create a test link.
         const addRes = await request.post(api(ROUTES.ADD_LINK), {
-            data: { title: 'Scheduler E2E Test Link', url: 'https://example.com/scheduler-e2e' },
+            data: { title: 'Scheduler E2E Test Link', url: `https://example.com/scheduler-e2e-${Date.now()}` },
         });
         expect(addRes.status()).toBe(200);
         const { post_id } = await addRes.json();

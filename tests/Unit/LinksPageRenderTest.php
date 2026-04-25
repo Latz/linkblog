@@ -16,10 +16,10 @@ beforeEach(function (): void {
     Functions\when('wp_nonce_url')->returnArg();
     Functions\when('get_permalink')->justReturn('https://example.com/post/1');
     Functions\when('get_edit_post_link')->justReturn('https://example.com/wp-admin/edit?p=1');
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
+describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
 
     it('shows no-links message when there are no links', function (): void {
         $this->plugin->shouldReceive('getLinksGroupedByCategory')->andReturn([]);

@@ -94,7 +94,7 @@ trait LinkDigest_Admin_AddLink {
                                         <?php endforeach; ?>
                                     </div>
                                 <?php else : ?>
-                                    <p><?php esc_html_e('No categories available. Create categories first in LinkBlog > Categories.', 'linkdigest'); ?></p>
+                                    <p><?php esc_html_e('No categories available. Create categories first in LinkDigest > Categories.', 'linkdigest'); ?></p>
                                 <?php endif; ?>
                             </fieldset>
                         </td>

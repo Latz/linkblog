@@ -55,9 +55,9 @@ describe('buildRequestHeaders()', () => {
         expect(headers['Content-Type']).toBe('application/json');
     });
 
-    it('returns an object with X-LinkBlog-API-Key set to the given key', () => {
+    it('returns an object with X-LinkDigest-API-Key set to the given key', () => {
         const headers = buildRequestHeaders('my-secret-key');
-        expect(headers['X-LinkBlog-API-Key']).toBe('my-secret-key');
+        expect(headers['X-LinkDigest-API-Key']).toBe('my-secret-key');
     });
 
     it('returns exactly two keys', () => {
@@ -98,11 +98,11 @@ describe('testConnection()', () => {
         );
     });
 
-    it('passes the API key in the X-LinkBlog-API-Key header', async () => {
+    it('passes the API key in the X-LinkDigest-API-Key header', async () => {
         const mockFetch = vi.fn().mockResolvedValue({ ok: true });
         await testConnection('https://example.com/wp-json/linkdigest/v1', 'secret-key', mockFetch);
         const [, options] = mockFetch.mock.calls[0];
-        expect(options.headers['X-LinkBlog-API-Key']).toBe('secret-key');
+        expect(options.headers['X-LinkDigest-API-Key']).toBe('secret-key');
     });
 
     it('uses GET method', async () => {

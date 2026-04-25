@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Admin_Menu {
+trait LinkDigest_Admin_Menu {
 
     public function adminMenu(): void {
         add_menu_page(
-            __('LinkBlog', 'linkblog'),
-            __('LinkBlog', 'linkblog'),
+            __('LinkDigest', 'linkblog'),
+            __('LinkDigest', 'linkblog'),
             'read',
             'linkblog-dashboard',
             [$this, 'dashboardPage'],
@@ -47,7 +47,7 @@ trait LinkBlog_Admin_Menu {
             __('Categories', 'linkblog'),
             __('Categories', 'linkblog'),
             'manage_categories',
-            'edit-tags.php?taxonomy=linkblog_category&post_type=linkblog'
+            'edit-tags.php?taxonomy=linkdigest_category&post_type=linkblog'
         );
 
         add_submenu_page(
@@ -55,7 +55,7 @@ trait LinkBlog_Admin_Menu {
             __('Tags', 'linkblog'),
             __('Tags', 'linkblog'),
             'manage_categories',
-            'edit-tags.php?taxonomy=linkblog_tag&post_type=linkblog'
+            'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkblog'
         );
 
         add_submenu_page(
@@ -91,7 +91,7 @@ trait LinkBlog_Admin_Menu {
         if ($pagenow === 'edit-tags.php') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkblog_category' || $taxonomy === 'linkblog_tag') {
+            if ($taxonomy === 'linkdigest_category' || $taxonomy === 'linkdigest_tag') {
                 return 'linkblog-dashboard';
             }
         }
@@ -103,11 +103,11 @@ trait LinkBlog_Admin_Menu {
         if ($pagenow === 'edit-tags.php') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkblog_category') {
-                return 'edit-tags.php?taxonomy=linkblog_category&post_type=linkblog';
+            if ($taxonomy === 'linkdigest_category') {
+                return 'edit-tags.php?taxonomy=linkdigest_category&post_type=linkblog';
             }
-            if ($taxonomy === 'linkblog_tag') {
-                return 'edit-tags.php?taxonomy=linkblog_tag&post_type=linkblog';
+            if ($taxonomy === 'linkdigest_tag') {
+                return 'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkblog';
             }
         }
         return $submenu_file ?? '';
@@ -115,22 +115,22 @@ trait LinkBlog_Admin_Menu {
 
     public function settingsPage(): void {
         // Handle API key generation
-        $nonce = isset($_POST['linkblog_settings_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkblog_settings_nonce'])) : '';
-        if (isset($_POST['linkblog_generate_api_key']) && wp_verify_nonce($nonce, 'linkblog_settings')) {
+        $nonce = isset($_POST['linkdigest_settings_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkdigest_settings_nonce'])) : '';
+        if (isset($_POST['linkdigest_generate_api_key']) && wp_verify_nonce($nonce, 'linkdigest_settings')) {
             $api_key = wp_generate_password(32, false);
-            update_option('linkblog_api_key', $api_key);
+            update_option('linkdigest_api_key', $api_key);
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('New API key generated successfully!', 'linkblog') . '</p></div>';
         }
 
-        $api_key = get_option('linkblog_api_key');
+        $api_key = get_option('linkdigest_api_key');
         $site_url = get_site_url();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('LinkBlog Settings', 'linkblog'); ?></h1>
+            <h1><?php esc_html_e('LinkDigest Settings', 'linkblog'); ?></h1>
 
             <div class="card" style="max-width: 800px;">
                 <h2><?php esc_html_e('Chrome Extension Access Data', 'linkblog'); ?></h2>
-                <p><?php esc_html_e('Use these credentials to connect the LinkBlog Chrome extension to your WordPress site.', 'linkblog'); ?></p>
+                <p><?php esc_html_e('Use these credentials to connect the LinkDigest Chrome extension to your WordPress site.', 'linkblog'); ?></p>
 
                 <div style="margin: 20px 0;">
                     <label for="linkblog-api-endpoint" style="display: block; margin-bottom: 8px; font-weight: 600;">
@@ -182,8 +182,8 @@ trait LinkBlog_Admin_Menu {
                 <?php endif; ?>
 
                 <form method="post" action="">
-                    <?php wp_nonce_field('linkblog_settings', 'linkblog_settings_nonce'); ?>
-                    <button type="submit" name="linkblog_generate_api_key" class="button button-primary">
+                    <?php wp_nonce_field('linkdigest_settings', 'linkdigest_settings_nonce'); ?>
+                    <button type="submit" name="linkdigest_generate_api_key" class="button button-primary">
                         <?php echo $api_key ? esc_html__('Generate New API Key', 'linkblog') : esc_html__('Generate API Key', 'linkblog'); ?>
                     </button>
                     <?php if ($api_key) : ?>
@@ -197,7 +197,7 @@ trait LinkBlog_Admin_Menu {
             <div class="card" style="max-width: 800px; margin-top: 20px;">
                 <h2><?php esc_html_e('Chrome Extension Setup', 'linkblog'); ?></h2>
                 <ol>
-                    <li><?php esc_html_e('Download and install the LinkBlog Chrome extension', 'linkblog'); ?></li>
+                    <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkblog'); ?></li>
                     <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkblog'); ?></li>
                     <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkblog'); ?></li>
                     <li><?php esc_html_e('Click Save', 'linkblog'); ?></li>
@@ -284,7 +284,7 @@ trait LinkBlog_Admin_Menu {
     }
 
     public function registerSettingX(): void {
-        register_setting('linkblog_x_group', 'linkblog_x_settings', [
+        register_setting('linkdigest_x_group', 'linkdigest_x_settings', [
             'sanitize_callback' => [$this, 'sanitizeSettingX'],
         ]);
     }
@@ -333,7 +333,7 @@ trait LinkBlog_Admin_Menu {
             'api_debug'            => 0,
             'api_auto_trash'       => 0,
         ];
-        $o = wp_parse_args((array) get_option('linkblog_x_settings', []), $defaults);
+        $o = wp_parse_args((array) get_option('linkdigest_x_settings', []), $defaults);
 
         $tog = static function(bool $val): string {
             return $val ? __('Enabled', 'linkblog') : __('Disabled', 'linkblog');
@@ -352,7 +352,7 @@ trait LinkBlog_Admin_Menu {
             </div>
 
             <form method="post" action="options.php">
-                <?php settings_fields('linkblog_x_group'); ?>
+                <?php settings_fields('linkdigest_x_group'); ?>
 
                 <div class="lb-expansion-list">
 
@@ -370,7 +370,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ext_enabled]" value="1" <?php checked(1, $o['ext_enabled']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ext_enabled]" value="1" <?php checked(1, $o['ext_enabled']); ?>>
                                 <?php esc_html_e('Enable the Chrome extension integration', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -382,7 +382,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <input type="text" name="linkblog_x_settings[ext_default_category]" value="<?php echo esc_attr($o['ext_default_category']); ?>" class="regular-text">
+                                <input type="text" name="linkdigest_x_settings[ext_default_category]" value="<?php echo esc_attr($o['ext_default_category']); ?>" class="regular-text">
                             </div>
                         </div>
 
@@ -393,7 +393,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ext_save_as_draft]" value="1" <?php checked(1, $o['ext_save_as_draft']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ext_save_as_draft]" value="1" <?php checked(1, $o['ext_save_as_draft']); ?>>
                                 <?php esc_html_e('Save links as drafts by default', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -405,7 +405,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ext_auto_title]" value="1" <?php checked(1, $o['ext_auto_title']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ext_auto_title]" value="1" <?php checked(1, $o['ext_auto_title']); ?>>
                                 <?php esc_html_e('Pre-fill title from page title', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -417,7 +417,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ext_show_tags]" value="1" <?php checked(1, $o['ext_show_tags']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ext_show_tags]" value="1" <?php checked(1, $o['ext_show_tags']); ?>>
                                 <?php esc_html_e('Show tag input field in the extension popup', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -437,7 +437,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <select name="linkblog_x_settings[post_default_status]">
+                                <select name="linkdigest_x_settings[post_default_status]">
                                     <option value="draft" <?php selected('draft', $o['post_default_status']); ?>><?php esc_html_e('Draft', 'linkblog'); ?></option>
                                     <option value="publish" <?php selected('publish', $o['post_default_status']); ?>><?php esc_html_e('Publish', 'linkblog'); ?></option>
                                 </select>
@@ -451,7 +451,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[post_add_source]" value="1" <?php checked(1, $o['post_add_source']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[post_add_source]" value="1" <?php checked(1, $o['post_add_source']); ?>>
                                 <?php esc_html_e('Append source URL to post content', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -463,7 +463,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[post_auto_excerpt]" value="1" <?php checked(1, $o['post_auto_excerpt']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[post_auto_excerpt]" value="1" <?php checked(1, $o['post_auto_excerpt']); ?>>
                                 <?php esc_html_e('Generate excerpt from link description', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -475,7 +475,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[post_archive]" value="1" <?php checked(1, $o['post_archive']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[post_archive]" value="1" <?php checked(1, $o['post_archive']); ?>>
                                 <?php esc_html_e('Move source posts to trash after roundup is published', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -487,7 +487,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <input type="number" name="linkblog_x_settings[post_author]" value="<?php echo esc_attr((string) $o['post_author']); ?>" min="0" style="width:80px;">
+                                <input type="number" name="linkdigest_x_settings[post_author]" value="<?php echo esc_attr((string) $o['post_author']); ?>" min="0" style="width:80px;">
                                 <p class="description"><?php esc_html_e('0 = use current user', 'linkblog'); ?></p>
                             </div>
                         </div>
@@ -507,7 +507,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <input type="color" name="linkblog_x_settings[ui_accent_color]" value="<?php echo esc_attr($o['ui_accent_color']); ?>">
+                                <input type="color" name="linkdigest_x_settings[ui_accent_color]" value="<?php echo esc_attr($o['ui_accent_color']); ?>">
                             </div>
                         </div>
 
@@ -518,7 +518,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ui_compact_view]" value="1" <?php checked(1, $o['ui_compact_view']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ui_compact_view]" value="1" <?php checked(1, $o['ui_compact_view']); ?>>
                                 <?php esc_html_e('Use compact spacing on the dashboard', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -530,7 +530,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <input type="number" name="linkblog_x_settings[ui_links_per_page]" value="<?php echo esc_attr((string) $o['ui_links_per_page']); ?>" min="1" max="200" style="width:80px;">
+                                <input type="number" name="linkdigest_x_settings[ui_links_per_page]" value="<?php echo esc_attr((string) $o['ui_links_per_page']); ?>" min="1" max="200" style="width:80px;">
                             </div>
                         </div>
 
@@ -541,7 +541,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[ui_category_badges]" value="1" <?php checked(1, $o['ui_category_badges']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[ui_category_badges]" value="1" <?php checked(1, $o['ui_category_badges']); ?>>
                                 <?php esc_html_e('Display category badges on link items', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -553,7 +553,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <select name="linkblog_x_settings[ui_date_format]">
+                                <select name="linkdigest_x_settings[ui_date_format]">
                                     <option value="relative" <?php selected('relative', $o['ui_date_format']); ?>><?php esc_html_e('Relative (e.g. 2 hours ago)', 'linkblog'); ?></option>
                                     <option value="absolute" <?php selected('absolute', $o['ui_date_format']); ?>><?php esc_html_e('Absolute (e.g. 2026-04-20)', 'linkblog'); ?></option>
                                 </select>
@@ -575,7 +575,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[api_public]" value="1" <?php checked(1, $o['api_public']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[api_public]" value="1" <?php checked(1, $o['api_public']); ?>>
                                 <?php esc_html_e('Allow unauthenticated read access to the REST API', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -587,7 +587,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[api_cors]" value="1" <?php checked(1, $o['api_cors']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[api_cors]" value="1" <?php checked(1, $o['api_cors']); ?>>
                                 <?php esc_html_e('Send CORS headers for cross-origin requests', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -599,7 +599,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <input type="number" name="linkblog_x_settings[api_cache_minutes]" value="<?php echo esc_attr((string) $o['api_cache_minutes']); ?>" min="1" style="width:80px;">
+                                <input type="number" name="linkdigest_x_settings[api_cache_minutes]" value="<?php echo esc_attr((string) $o['api_cache_minutes']); ?>" min="1" style="width:80px;">
                             </div>
                         </div>
 
@@ -610,7 +610,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[api_debug]" value="1" <?php checked(1, $o['api_debug']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[api_debug]" value="1" <?php checked(1, $o['api_debug']); ?>>
                                 <?php esc_html_e('Log API requests and errors', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -622,7 +622,7 @@ trait LinkBlog_Admin_Menu {
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
                             <div class="lb-expansion-content">
-                                <label><input type="checkbox" name="linkblog_x_settings[api_auto_trash]" value="1" <?php checked(1, $o['api_auto_trash']); ?>>
+                                <label><input type="checkbox" name="linkdigest_x_settings[api_auto_trash]" value="1" <?php checked(1, $o['api_auto_trash']); ?>>
                                 <?php esc_html_e('Automatically trash links after they are published', 'linkblog'); ?></label>
                             </div>
                         </div>
@@ -658,7 +658,7 @@ trait LinkBlog_Admin_Menu {
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-        if ($taxonomy !== 'linkblog_category') {
+        if ($taxonomy !== 'linkdigest_category') {
             return;
         }
         echo '<style>.term-description-wrap{display:none}</style>';
@@ -666,8 +666,8 @@ trait LinkBlog_Admin_Menu {
 
     public function addDashboardWidget(): void {
         wp_add_dashboard_widget(
-            'linkblog_dashboard_widget',
-            __('LinkBlog Summary', 'linkblog'),
+            'linkdigest_dashboard_widget',
+            __('LinkDigest Summary', 'linkblog'),
             [$this, 'dashboardWidgetContent']
         );
     }

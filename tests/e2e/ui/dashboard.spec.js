@@ -1,5 +1,5 @@
 /**
- * Playwright — UI tests for the LinkBlog dashboard.
+ * Playwright — UI tests for the LinkDigest dashboard.
  *
  * Logs into wp-admin and verifies the plugin dashboard renders correctly.
  *
@@ -26,7 +26,7 @@ async function wpLogin(page) {
 // ---------------------------------------------------------------------------
 // Dashboard presence
 // ---------------------------------------------------------------------------
-test.describe('LinkBlog dashboard', () => {
+test.describe('LinkDigest dashboard', () => {
     test.beforeEach(async ({ page }) => {
         await wpLogin(page);
     });

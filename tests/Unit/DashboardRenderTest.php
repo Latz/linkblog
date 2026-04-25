@@ -14,10 +14,10 @@ beforeEach(function (): void {
     Functions\when('mysql2date')->returnArg(2);
     Functions\when('get_permalink')->justReturn('https://example.com/post/1');
     Functions\when('get_edit_post_link')->justReturn('https://example.com/wp-admin/edit?p=1');
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::renderRecentlyPublishedBox()', function (): void { // NOSONAR
+describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSONAR
 
     it('shows empty message when no links provided', function (): void {
         ob_start();

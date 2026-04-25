@@ -9,10 +9,10 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for LinkBlog::buildPostContent()
+ * Tests for LinkDigest::buildPostContent()
  *
  * The function signature:
- *   LinkBlog::buildPostContent(string $title, int $link_id, string $url, string $description): string
+ *   LinkDigest::buildPostContent(string $title, int $link_id, string $url, string $description): string
  */
 
 beforeEach(function (): void {
@@ -22,10 +22,10 @@ beforeEach(function (): void {
     Functions\when('wp_kses_post')->returnArg();
     // apply_filters returns the value (second arg) unchanged
     Functions\when('apply_filters')->returnArg(2);
-    $this->plugin = Mockery::mock(LinkBlog::class)->makePartial();
+    $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
-describe('LinkBlog::buildPostContent()', function (): void {
+describe('LinkDigest::buildPostContent()', function (): void {
 
     it('wraps title in an <h2> tag', function (): void {
         $result = $this->plugin->buildPostContent('My Title', 1, '', '');

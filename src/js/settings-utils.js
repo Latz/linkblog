@@ -21,7 +21,7 @@ export function normalizeEndpoint(url) {
 export function buildRequestHeaders(apiKey) {
     return {
         'Content-Type': 'application/json',
-        'X-LinkBlog-API-Key': apiKey,
+        'X-LinkDigest-API-Key': apiKey,
     };
 }
 

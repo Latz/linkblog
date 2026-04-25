@@ -25,7 +25,7 @@ download_wp() {
     local archive
     if [[ "$WP_VERSION" == "latest" ]]; then
         local api
-        api=$(curl -s https://api.wordpress.org/core/version-check/1.7/ | grep '"version"' | head -1 | sed 's/.*"\(.*\)".*/\1/')
+        api=$(curl -s https://api.wordpress.org/core/version-check/1.7/ | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['offers'][0]['version'])")
         archive="wordpress-${api}.tar.gz"
         curl -s "https://wordpress.org/${archive}" -o /tmp/wordpress.tar.gz
     else
@@ -44,12 +44,13 @@ install_test_suite() {
         return
     fi
     mkdir -p "$WP_TESTS_DIR"
-    svn co --quiet \
-        "https://develop.svn.wordpress.org/tags/${WP_VERSION}/tests/phpunit/includes/" \
-        "$WP_TESTS_DIR/includes" 2>/dev/null ||
-    svn co --quiet \
-        "https://develop.svn.wordpress.org/trunk/tests/phpunit/includes/" \
-        "$WP_TESTS_DIR/includes"
+    git clone --depth=1 --filter=blob:none --sparse \
+        "https://github.com/WordPress/wordpress-develop.git" /tmp/wp-develop-sparse 2>/dev/null \
+        || { echo "git clone failed"; return 1; }
+    git -C /tmp/wp-develop-sparse sparse-checkout set tests/phpunit/includes tests/phpunit/data 2>/dev/null
+    cp -r /tmp/wp-develop-sparse/tests/phpunit/includes "$WP_TESTS_DIR/includes"
+    cp -r /tmp/wp-develop-sparse/tests/phpunit/data    "$WP_TESTS_DIR/data" 2>/dev/null || true
+    rm -rf /tmp/wp-develop-sparse
 
     cat > "$WP_TESTS_DIR/wp-tests-config.php" <<PHP
 <?php
@@ -74,7 +75,10 @@ PHP
 # Create test database
 # ---------------------------------------------------------------------------
 create_db() {
-    mysql -u "$DB_USER" --password="$DB_PASS" -h "$DB_HOST" \
+    local host="${DB_HOST%%:*}"
+    local port="${DB_HOST##*:}"
+    [[ "$port" == "$host" ]] && port=3306
+    mysql -u "$DB_USER" --password="$DB_PASS" -h "$host" --port="$port" \
         -e "CREATE DATABASE IF NOT EXISTS \`${DB_NAME}\`;" 2>/dev/null && \
     echo "Database '${DB_NAME}' ready." || \
     echo "WARN: Could not create database. It may already exist."

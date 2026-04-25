@@ -2,10 +2,6 @@
 
 declare(strict_types=1);
 
-if (!defined('ABSPATH')) {
-    define('ABSPATH', dirname(__DIR__, 2) . '/');
-}
-
 /**
  * Bootstrap for Integration tests.
  *
@@ -25,22 +21,24 @@ if (!defined('ABSPATH')) {
 $linkdigest_wp_tests_dir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
 
 if (! is_dir($linkdigest_wp_tests_dir)) {
-    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
     echo "\nERROR: WP test suite not found at {$linkdigest_wp_tests_dir}.\n";
     echo "Run bin/install-wp-tests.sh or set WP_TESTS_DIR.\n\n";
     exit(1);
 }
 
-// Load the plugin under test before WP boots.
 define('LINKDIGEST_TESTS_DIR', dirname(__DIR__));
-require_once $linkdigest_wp_tests_dir . '/includes/functions.php';
 
-// WP test suite bootstrap — this loads WordPress and creates the test DB.
-require_once $wpTestsDir . '/includes/functions.php';
+// Point WP test bootstrap to the Composer-installed polyfills.
+define(
+    'WP_TESTS_PHPUNIT_POLYFILLS_PATH',
+    dirname(__DIR__) . '/vendor/yoast/phpunit-polyfills'
+);
+
+require_once $linkdigest_wp_tests_dir . '/includes/functions.php';
 
 tests_add_filter('muplugins_loaded', static function (): void {
     require_once LINKDIGEST_TESTS_DIR . '/linkdigest.php';
 });
 
-require_once $wpTestsDir . '/includes/bootstrap.php';
+require_once $linkdigest_wp_tests_dir . '/includes/bootstrap.php';
 require_once dirname(__DIR__) . '/vendor/autoload.php';
