@@ -77,7 +77,7 @@ trait LinkDigest_Admin_Dashboard {
     public function getUnpublishedLinkIds(): array {
         return get_posts( array(
             'post_type'      => 'linkdigest',
-            'posts_per_page' => -1,
+            'posts_per_page' => 500,
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
@@ -431,7 +431,7 @@ trait LinkDigest_Admin_Dashboard {
         $total_links       = $publish_stats['total_links'];
         $published_links   = $publish_stats['published_links'];
         $unpublished_links = $publish_stats['unpublished_links'];
-        $total_categories  = count( get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) ) );
+        $total_categories  = (int) get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false, 'fields' => 'count' ) );
 
         $recent_links = get_posts( array(
             'post_type'      => 'linkdigest',

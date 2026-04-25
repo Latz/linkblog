@@ -5,100 +5,87 @@ declare(strict_types=1);
 trait LinkDigest_Queries {
 
     public function getPublishStatistics(): array {
+        static $cache = null;
+        if ($cache !== null) {
+            return $cache;
+        }
+
+        $cached = get_transient('linkdigest_publish_stats');
+        if ($cached !== false) {
+            $cache = $cached;
+            return $cache;
+        }
+
         $counts = wp_count_posts('linkdigest');
         $total_links = (int) ($counts->publish ?? 0);
 
-        // Count published links
-        $published_args = array(
-            'post_type'      => 'linkdigest',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                array(
+        $q_published = new \WP_Query([
+            'post_type'                  => 'linkdigest',
+            'posts_per_page'             => 1,
+            'fields'                     => 'ids',
+            'no_found_rows'              => false,
+            'update_post_meta_cache'     => false,
+            'update_post_term_cache'     => false,
+            'meta_query'                 => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                [
                     'key'     => '_linkdigest_publish_status',
                     'value'   => 'published',
                     'compare' => '='
-                )
-            )
-        );
-        $published_links = count(get_posts($published_args));
+                ]
+            ]
+        ]);
+        $published_links = (int) $q_published->found_posts;
 
-        // Count draft links
-        $draft_args = array(
-            'post_type'      => 'linkdigest',
-            'posts_per_page' => -1,
-            'fields'         => 'ids',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                array(
+        $q_draft = new \WP_Query([
+            'post_type'                  => 'linkdigest',
+            'posts_per_page'             => 1,
+            'fields'                     => 'ids',
+            'no_found_rows'              => false,
+            'update_post_meta_cache'     => false,
+            'update_post_term_cache'     => false,
+            'meta_query'                 => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+                [
                     'key'     => '_linkdigest_publish_status',
                     'value'   => 'draft',
                     'compare' => '='
-                )
-            )
-        );
-        $draft_links = count(get_posts($draft_args));
+                ]
+            ]
+        ]);
+        $draft_links = (int) $q_draft->found_posts;
 
-        $unpublished_links = $total_links - $published_links - $draft_links;
-
-        return array(
-            'total_links'       => (int) $total_links,
-            'published_links'   => (int) $published_links,
-            'draft_links'       => (int) $draft_links,
-            'unpublished_links' => (int) $unpublished_links
-        );
+        $cache = [
+            'total_links'       => $total_links,
+            'published_links'   => $published_links,
+            'draft_links'       => $draft_links,
+            'unpublished_links' => $total_links - $published_links - $draft_links
+        ];
+        set_transient('linkdigest_publish_stats', $cache, 300);
+        return $cache;
     }
 
     public function getLinksGroupedByCategory(): array {
-        // Get all categories
-        $categories = get_terms(array(
-            'taxonomy'   => 'linkdigest_category',
-            'hide_empty' => false,
-        ));
-
-        $grouped_links = array();
-
-        // Get links for each category
-        if (!empty($categories) && !is_wp_error($categories)) {
-            foreach ($categories as $category) {
-                $category_links = get_posts(array(
-                    'post_type'      => 'linkdigest',
-                    'posts_per_page' => -1,
-                    'orderby'        => 'date',
-                    'order'          => 'DESC',
-                    'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-                        array(
-                            'taxonomy' => 'linkdigest_category',
-                            'field'    => 'term_id',
-                            'terms'    => $category->term_id,
-                        ),
-                    ),
-                ));
-
-                if (!empty($category_links)) {
-                    $grouped_links[$category->name] = $category_links;
-                }
-            }
+        $all_links = get_posts([
+            'post_type'                  => 'linkdigest',
+            'posts_per_page'             => -1,
+            'orderby'                    => 'date',
+            'order'                      => 'DESC',
+            'update_post_term_cache'     => false,
+        ]);
+        if (empty($all_links)) {
+            return [];
         }
 
-        // Get uncategorized links
-        $uncategorized_links = get_posts(array(
-            'post_type'      => 'linkdigest',
-            'posts_per_page' => -1,
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-            'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
-                array(
-                    'taxonomy' => 'linkdigest_category',
-                    'operator' => 'NOT EXISTS',
-                ),
-            ),
-        ));
+        $link_ids = wp_list_pluck($all_links, 'ID');
+        update_object_term_cache($link_ids, 'linkdigest');
 
-        if (!empty($uncategorized_links)) {
-            $grouped_links[__('Uncategorized', 'LinkDigest')] = $uncategorized_links;
+        $grouped = [];
+        $uncategorized_key = __('Uncategorized', 'LinkDigest');
+        foreach ($all_links as $link) {
+            $cats = get_the_terms($link->ID, 'linkdigest_category');
+            $group_name = ($cats && !is_wp_error($cats)) ? $cats[0]->name : $uncategorized_key;
+            $grouped[$group_name][] = $link;
         }
-
-        return $grouped_links;
+        return $grouped;
     }
 
     public function unpublishLink(int $link_id): array {
@@ -126,6 +113,7 @@ trait LinkDigest_Queries {
         delete_post_meta($link_id, '_linkdigest_published_post_id');
         delete_post_meta($link_id, '_linkdigest_publish_status');
         delete_post_meta($link_id, '_linkdigest_published_date');
+        delete_transient('linkdigest_publish_stats');
 
         return array(
             'success' => true,

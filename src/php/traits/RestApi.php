@@ -279,6 +279,9 @@ trait LinkDigest_RestApi {
     }
 
     public function handlePreflight(): void {
+        if (!isset($_SERVER['REQUEST_URI']) || strpos($_SERVER['REQUEST_URI'], '/wp-json/') === false) {
+            return;
+        }
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             $origin = get_http_origin();
             if ($this->isFromChromeExtension($origin)) {

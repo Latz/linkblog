@@ -47,6 +47,11 @@ trait LinkDigest_Batch {
             return $guard;
         }
 
+        // Prime caches: 3 queries instead of ~5×N in the batch publishing path
+        _prime_post_caches($link_ids, false, false);
+        update_meta_cache('post', $link_ids);
+        update_object_term_cache($link_ids, 'linkdigest');
+
         if (empty($post_title)) {
             /* translators: %s: formatted date, e.g. "April 15, 2026" */
             $post_title = sprintf(__('Links Roundup - %s', 'LinkDigest'), gmdate('F j, Y'));
@@ -222,5 +227,6 @@ trait LinkDigest_Batch {
                 update_post_meta($link_id, '_linkdigest_published_date', $date);
             }
         }
+        delete_transient('linkdigest_publish_stats');
     }
 }

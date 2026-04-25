@@ -244,7 +244,7 @@ trait LinkDigest_Admin_Menu {
     }
 
     public function enqueueAdminAssets(string $hook): void {
-        if (strpos($hook, 'LinkDigest') === false) {
+        if (strpos($hook, 'linkdigest') === false) {
             return;
         }
 

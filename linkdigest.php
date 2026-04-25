@@ -16,15 +16,11 @@ if (!defined('ABSPATH')) {
 
 // ---------------------------------------------------------------------------
 // Shared constants — single source of truth for REST namespace/routes.
-// The same constants.json is imported by Vitest and Playwright tests.
+// Inlined to avoid file_get_contents + json_decode on every request.
+// constants.json is imported separately by Vitest and Playwright tests.
 // ---------------------------------------------------------------------------
-$linkdigest_constants = json_decode(
-    file_get_contents(__DIR__ . '/constants.json'),
-    true
-);
-define('LINKDIGEST_REST_NAMESPACE', $linkdigest_constants['REST_NAMESPACE']);
-define('LINKDIGEST_POST_TYPE',      $linkdigest_constants['POST_TYPE']);
-unset($linkdigest_constants);
+define('LINKDIGEST_REST_NAMESPACE', 'linkdigest/v1');
+define('LINKDIGEST_POST_TYPE',      'linkdigest');
 
 define('LINKDIGEST_PLUGIN_FILE', __FILE__);
 

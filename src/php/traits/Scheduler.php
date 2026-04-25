@@ -30,6 +30,12 @@ trait LinkDigest_Scheduler {
 
         $link_ids = $this->getUnpublishedLinkIds();
 
+        $max_per_run = 200;
+        $has_more = count($link_ids) > $max_per_run;
+        if ($has_more) {
+            $link_ids = array_slice($link_ids, 0, $max_per_run);
+        }
+
         $should_publish = match ($mode) {
             'count' => count($link_ids) >= (int) ($trigger['count'] ?? 10),
             'age'   => $this->hasUnpublishedLinkOlderThan((int) ($trigger['days'] ?? 7)),
@@ -55,6 +61,10 @@ trait LinkDigest_Scheduler {
             // Restore previous user context.
             if (empty($prev_user_id)) {
                 wp_set_current_user(0);
+            }
+
+            if ($has_more) {
+                wp_schedule_single_event(time() + 60, 'linkdigest_execute_schedule');
             }
         }
 
