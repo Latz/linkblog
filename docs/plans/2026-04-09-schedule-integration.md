@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add a Schedule Configuration admin page to the LinkBlog WordPress plugin, backed by `wp_options`, built with `@wordpress/scripts` and WP React libraries.
+**Goal:** Add a Schedule Configuration admin page to the LinkDigest WordPress plugin, backed by `wp_options`, built with `@wordpress/scripts` and WP React libraries.
 
-**Architecture:** The timer's React source is ported into `src/schedule/` inside the plugin, built with `@wordpress/scripts` (webpack), and rendered in a WP admin submenu page. Config saves/loads via two REST endpoints (`GET`/`POST /linkblog/v1/schedule`) writing to `wp_options('linkblog_schedule')`. UI uses `@wordpress/components` (Button, NumberControl, SelectControl, Panel, Notice) for a native WP admin look.
+**Architecture:** The timer's React source is ported into `src/schedule/` inside the plugin, built with `@wordpress/scripts` (webpack), and rendered in a WP admin submenu page. Config saves/loads via two REST endpoints (`GET`/`POST /linkdigest/v1/schedule`) writing to `wp_options('linkdigest_schedule')`. UI uses `@wordpress/components` (Button, NumberControl, SelectControl, Panel, Notice) for a native WP admin look.
 
 **Tech Stack:** PHP, `@wordpress/scripts`, `@wordpress/element`, `@wordpress/components`, `@wordpress/api-fetch`, `@wordpress/i18n`, `rrule` npm package.
 
@@ -21,7 +21,7 @@
 
 ```json
 {
-  "name": "linkblog",
+  "name": "linkdigest",
   "version": "1.0.0",
   "scripts": {
     "build": "wp-scripts build",
@@ -62,7 +62,7 @@ build/
 **Step 4: Install dependencies**
 
 ```bash
-cd /home/latz/www/wp/wp-content/plugins/LinkBlog
+cd /home/latz/www/wp/wp-content/plugins/LinkDigest
 npm install
 ```
 
@@ -80,31 +80,31 @@ git commit -m "feat: add @wordpress/scripts build toolchain"
 ### Task 2: PHP — REST endpoints
 
 **Files:**
-- Modify: `linkblog.php` — inside `linkblog_register_rest_routes()` (line 918) and add two callbacks
+- Modify: `linkdigest.php` — inside `linkdigest_register_rest_routes()` (line 918) and add two callbacks
 
-**Step 1: Add schedule routes inside `linkblog_register_rest_routes()`**
+**Step 1: Add schedule routes inside `linkdigest_register_rest_routes()`**
 
 Add before the closing `}` of the function (after the `/categories` route):
 
 ```php
-    register_rest_route('linkblog/v1', '/schedule', array(
+    register_rest_route('linkdigest/v1', '/schedule', array(
         array(
             'methods'             => 'GET',
-            'callback'            => 'linkblog_get_schedule',
+            'callback'            => 'linkdigest_get_schedule',
             'permission_callback' => function() { return current_user_can('manage_options'); },
         ),
         array(
             'methods'             => 'POST',
-            'callback'            => 'linkblog_save_schedule',
+            'callback'            => 'linkdigest_save_schedule',
             'permission_callback' => function() { return current_user_can('manage_options'); },
         ),
     ));
 ```
 
-**Step 2: Add the two callback functions** (add after `linkblog_register_rest_routes`)
+**Step 2: Add the two callback functions** (add after `linkdigest_register_rest_routes`)
 
 ```php
-function linkblog_get_schedule() {
+function linkdigest_get_schedule() {
     $default = array(
         'mode'       => 'daily',
         'recurrence' => array(
@@ -116,28 +116,28 @@ function linkblog_get_schedule() {
         'trigger' => array('count' => 10, 'tag_id' => null, 'days' => 7),
         'times'   => array('09:00'),
     );
-    $config = get_option('linkblog_schedule', $default);
+    $config = get_option('linkdigest_schedule', $default);
     return rest_ensure_response($config);
 }
 
-function linkblog_save_schedule(WP_REST_Request $request) {
+function linkdigest_save_schedule(WP_REST_Request $request) {
     $data = $request->get_json_params();
     if (empty($data) || !isset($data['mode'])) {
-        return new WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
+        return new WP_Error('invalid_data', __('Invalid schedule data', 'linkdigest'), array('status' => 400));
     }
-    update_option('linkblog_schedule', $data);
+    update_option('linkdigest_schedule', $data);
     return rest_ensure_response(array('success' => true));
 }
 ```
 
 **Step 3: Verify in browser**
 
-Visit `https://yoursite.com/wp-json/linkblog/v1/schedule` (logged in as admin). Should return the default JSON config.
+Visit `https://yoursite.com/wp-json/linkdigest/v1/schedule` (logged in as admin). Should return the default JSON config.
 
 **Step 4: Commit**
 
 ```bash
-git add linkblog.php
+git add linkdigest.php
 git commit -m "feat: add GET/POST REST endpoints for schedule config"
 ```
 
@@ -146,62 +146,62 @@ git commit -m "feat: add GET/POST REST endpoints for schedule config"
 ### Task 3: PHP — Admin page + enqueue
 
 **Files:**
-- Modify: `linkblog.php` — `linkblog_admin_menu()` (line 695) and `linkblog_enqueue_admin_assets()` (line 888)
+- Modify: `linkdigest.php` — `linkdigest_admin_menu()` (line 695) and `linkdigest_enqueue_admin_assets()` (line 888)
 
 **Step 1: Add submenu page**
 
-Inside `linkblog_admin_menu()`, after the last `add_submenu_page` call (before the closing `}`):
+Inside `linkdigest_admin_menu()`, after the last `add_submenu_page` call (before the closing `}`):
 
 ```php
     add_submenu_page(
-        'linkblog-dashboard',
-        __('Schedule', 'linkblog'),
-        __('Schedule', 'linkblog'),
+        'linkdigest-dashboard',
+        __('Schedule', 'linkdigest'),
+        __('Schedule', 'linkdigest'),
         'manage_options',
-        'linkblog-schedule',
-        'linkblog_schedule_page'
+        'linkdigest-schedule',
+        'linkdigest_schedule_page'
     );
 ```
 
 **Step 2: Add the page callback** (add near the other page callbacks)
 
 ```php
-function linkblog_schedule_page() {
+function linkdigest_schedule_page() {
     ?>
     <div class="wrap">
-        <h1><?php _e('Schedule Configuration', 'linkblog'); ?></h1>
-        <div id="linkblog-schedule-root"></div>
+        <h1><?php _e('Schedule Configuration', 'linkdigest'); ?></h1>
+        <div id="linkdigest-schedule-root"></div>
     </div>
     <?php
 }
 ```
 
-**Step 3: Update `linkblog_enqueue_admin_assets()`**
+**Step 3: Update `linkdigest_enqueue_admin_assets()`**
 
 Replace the existing function body with:
 
 ```php
-function linkblog_enqueue_admin_assets($hook) {
-    if (strpos($hook, 'linkblog') === false) {
+function linkdigest_enqueue_admin_assets($hook) {
+    if (strpos($hook, 'linkdigest') === false) {
         return;
     }
 
     wp_enqueue_style('dashicons');
     wp_enqueue_style(
-        'linkblog-dashboard',
+        'linkdigest-dashboard',
         plugin_dir_url(__FILE__) . 'dashboard.css',
         array(),
         '1.0.0'
     );
 
-    if (strpos($hook, 'linkblog-schedule') !== false) {
+    if (strpos($hook, 'linkdigest-schedule') !== false) {
         $asset_file = plugin_dir_path(__FILE__) . 'build/schedule.asset.php';
         $asset = file_exists($asset_file)
             ? require($asset_file)
             : array('dependencies' => array(), 'version' => '1.0.0');
 
         wp_enqueue_script(
-            'linkblog-schedule',
+            'linkdigest-schedule',
             plugin_dir_url(__FILE__) . 'build/schedule.js',
             $asset['dependencies'],
             $asset['version'],
@@ -210,7 +210,7 @@ function linkblog_enqueue_admin_assets($hook) {
 
         if (file_exists(plugin_dir_path(__FILE__) . 'build/schedule.css')) {
             wp_enqueue_style(
-                'linkblog-schedule-style',
+                'linkdigest-schedule-style',
                 plugin_dir_url(__FILE__) . 'build/schedule.css',
                 array('wp-components'),
                 $asset['version']
@@ -223,7 +223,7 @@ function linkblog_enqueue_admin_assets($hook) {
 **Step 4: Commit**
 
 ```bash
-git add linkblog.php
+git add linkdigest.php
 git commit -m "feat: add Schedule submenu page and enqueue schedule assets"
 ```
 
@@ -266,20 +266,20 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 const SCHEDULE_TYPES = [
-  { value: 'daily',   label: __('Daily',   'linkblog') },
-  { value: 'weekly',  label: __('Weekly',  'linkblog') },
-  { value: 'monthly', label: __('Monthly', 'linkblog') },
+  { value: 'daily',   label: __('Daily',   'linkdigest') },
+  { value: 'weekly',  label: __('Weekly',  'linkdigest') },
+  { value: 'monthly', label: __('Monthly', 'linkdigest') },
 ];
 
 const TRIGGER_TYPES = [
-  { value: 'count', label: __('By Count', 'linkblog') },
-  { value: 'age',   label: __('By Age',   'linkblog') },
+  { value: 'count', label: __('By Count', 'linkdigest') },
+  { value: 'age',   label: __('By Age',   'linkdigest') },
 ];
 
 export default function ScheduleTypePicker({ value, onChange }) {
   return (
-    <div className="linkblog-mode-picker">
-      <div className="linkblog-btn-group">
+    <div className="linkdigest-mode-picker">
+      <div className="linkdigest-btn-group">
         {SCHEDULE_TYPES.map(t => (
           <Button
             key={t.value}
@@ -290,8 +290,8 @@ export default function ScheduleTypePicker({ value, onChange }) {
           </Button>
         ))}
       </div>
-      <div className="linkblog-btn-group-sep" />
-      <div className="linkblog-btn-group">
+      <div className="linkdigest-btn-group-sep" />
+      <div className="linkdigest-btn-group">
         {TRIGGER_TYPES.map(t => (
           <Button
             key={t.value}
@@ -302,13 +302,13 @@ export default function ScheduleTypePicker({ value, onChange }) {
           </Button>
         ))}
       </div>
-      <div className="linkblog-btn-group-sep" />
-      <div className="linkblog-btn-group">
+      <div className="linkdigest-btn-group-sep" />
+      <div className="linkdigest-btn-group">
         <Button
           variant={value === 'manual' ? 'primary' : 'secondary'}
           onClick={() => onChange('manual')}
         >
-          {__('Manual', 'linkblog')}
+          {__('Manual', 'linkdigest')}
         </Button>
       </div>
     </div>
@@ -351,10 +351,10 @@ const WEEKDAYS = [
 const WEEKDAY_SHORT = { MO: 'Mon', TU: 'Tue', WE: 'Wed', TH: 'Thu', FR: 'Fri', SA: 'Sat', SU: 'Sun' };
 
 const NTH_OPTIONS = [
-  { label: __('first',  'linkblog'), value: '1' },
-  { label: __('second', 'linkblog'), value: '2' },
-  { label: __('third',  'linkblog'), value: '3' },
-  { label: __('fourth', 'linkblog'), value: '4' },
+  { label: __('first',  'linkdigest'), value: '1' },
+  { label: __('second', 'linkdigest'), value: '2' },
+  { label: __('third',  'linkdigest'), value: '3' },
+  { label: __('fourth', 'linkdigest'), value: '4' },
 ];
 
 const WEEKDAY_OPTIONS = WEEKDAYS.map(d => ({ label: WEEKDAY_SHORT[d.value], value: d.value }));
@@ -366,33 +366,33 @@ function toggleDay(weekdays, day) {
 export default function RecurrenceConfig({ type, value, onChange }) {
   if (type === 'daily') {
     return (
-      <div className="linkblog-rc-row">
-        <span>{__('Every', 'linkblog')}</span>
+      <div className="linkdigest-rc-row">
+        <span>{__('Every', 'linkdigest')}</span>
         <NumberControl
           value={String(value.interval)}
           min={1} max={365}
           onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
-        <span>{value.interval !== 1 ? __('days', 'linkblog') : __('day', 'linkblog')}</span>
+        <span>{value.interval !== 1 ? __('days', 'linkdigest') : __('day', 'linkdigest')}</span>
       </div>
     );
   }
 
   if (type === 'weekly') {
     return (
-      <div className="linkblog-rc">
-        <div className="linkblog-rc-row">
-          <span>{__('Every', 'linkblog')}</span>
+      <div className="linkdigest-rc">
+        <div className="linkdigest-rc-row">
+          <span>{__('Every', 'linkdigest')}</span>
           <NumberControl
             value={String(value.interval)}
             min={1} max={52}
             onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
-          <span>{value.interval !== 1 ? __('weeks', 'linkblog') : __('week', 'linkblog')}</span>
+          <span>{value.interval !== 1 ? __('weeks', 'linkdigest') : __('week', 'linkdigest')}</span>
         </div>
-        <div className="linkblog-weekdays">
+        <div className="linkdigest-weekdays">
           {WEEKDAYS.map(d => (
             <Button
               key={d.value}
@@ -426,25 +426,25 @@ export default function RecurrenceConfig({ type, value, onChange }) {
     }
 
     return (
-      <div className="linkblog-rc">
-        <div className="linkblog-rc-row">
-          <span>{__('Every', 'linkblog')}</span>
+      <div className="linkdigest-rc">
+        <div className="linkdigest-rc-row">
+          <span>{__('Every', 'linkdigest')}</span>
           <NumberControl
             value={String(value.interval)}
             min={1} max={12}
             onChange={v => onChange({ ...value, interval: parseInt(v) || 1 })}
             style={{ width: '72px' }}
           />
-          <span>{value.interval !== 1 ? __('months, on', 'linkblog') : __('month, on', 'linkblog')}</span>
+          <span>{value.interval !== 1 ? __('months, on', 'linkdigest') : __('month, on', 'linkdigest')}</span>
         </div>
 
-        <div className="linkblog-month-days">
+        <div className="linkdigest-month-days">
           {monthDays.map((entry, i) => (
-            <div key={i} className="linkblog-month-day-row">
-              <span className="linkblog-day-index">{String(i + 1).padStart(2, '0')}</span>
+            <div key={i} className="linkdigest-month-day-row">
+              <span className="linkdigest-day-index">{String(i + 1).padStart(2, '0')}</span>
 
               <div
-                className={`linkblog-opt ${entry.type === 'day' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                className={`linkdigest-opt ${entry.type === 'day' ? 'linkdigest-opt--on' : 'linkdigest-opt--off'}`}
                 onClick={() => entry.type !== 'day' && updateEntry(i, { type: 'day' })}
               >
                 <NumberControl
@@ -456,10 +456,10 @@ export default function RecurrenceConfig({ type, value, onChange }) {
                 />
               </div>
 
-              <span className="linkblog-opt-sep">{__('or', 'linkblog')}</span>
+              <span className="linkdigest-opt-sep">{__('or', 'linkdigest')}</span>
 
               <div
-                className={`linkblog-opt ${entry.type === 'nth' ? 'linkblog-opt--on' : 'linkblog-opt--off'}`}
+                className={`linkdigest-opt ${entry.type === 'nth' ? 'linkdigest-opt--on' : 'linkdigest-opt--off'}`}
                 onClick={() => entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}
               >
                 <SelectControl
@@ -481,7 +481,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
                   isDestructive
                   size="compact"
                   onClick={() => removeDay(i)}
-                  aria-label={__('Remove', 'linkblog')}
+                  aria-label={__('Remove', 'linkdigest')}
                 >
                   ✕
                 </Button>
@@ -490,7 +490,7 @@ export default function RecurrenceConfig({ type, value, onChange }) {
           ))}
 
           <Button variant="secondary" size="compact" onClick={addDay}>
-            + {__('Add day', 'linkblog')}
+            + {__('Add day', 'linkdigest')}
           </Button>
         </div>
       </div>
@@ -524,29 +524,29 @@ import { __ } from '@wordpress/i18n';
 export default function TriggerCondition({ mode, value, onChange }) {
   if (mode === 'count') {
     return (
-      <div className="linkblog-rc-row">
-        <span>{__('Post when there are at least', 'linkblog')}</span>
+      <div className="linkdigest-rc-row">
+        <span>{__('Post when there are at least', 'linkdigest')}</span>
         <NumberControl
           value={String(value.count)}
           min={1}
           onChange={v => onChange({ ...value, count: parseInt(v) || 1 })}
           style={{ width: '72px' }}
         />
-        <span>{value.count !== 1 ? __('links', 'linkblog') : __('link', 'linkblog')}</span>
+        <span>{value.count !== 1 ? __('links', 'linkdigest') : __('link', 'linkdigest')}</span>
       </div>
     );
   }
 
   return (
-    <div className="linkblog-rc-row">
-      <span>{__('Post when oldest link is older than', 'linkblog')}</span>
+    <div className="linkdigest-rc-row">
+      <span>{__('Post when oldest link is older than', 'linkdigest')}</span>
       <NumberControl
         value={String(value.days)}
         min={1}
         onChange={v => onChange({ ...value, days: parseInt(v) || 1 })}
         style={{ width: '72px' }}
       />
-      <span>{value.days !== 1 ? __('days', 'linkblog') : __('day', 'linkblog')}</span>
+      <span>{value.days !== 1 ? __('days', 'linkdigest') : __('day', 'linkdigest')}</span>
     </div>
   );
 }
@@ -586,12 +586,12 @@ export default function TimePicker({ times, onChange }) {
   }
 
   return (
-    <div className="linkblog-timepicker">
+    <div className="linkdigest-timepicker">
       {times.map((t, i) => (
-        <div key={i} className="linkblog-time-row">
+        <div key={i} className="linkdigest-time-row">
           <input
             type="time"
-            className="linkblog-time-input"
+            className="linkdigest-time-input"
             value={t}
             onChange={e => updateTime(i, e.target.value)}
           />
@@ -600,7 +600,7 @@ export default function TimePicker({ times, onChange }) {
               isDestructive
               size="compact"
               onClick={() => removeTime(i)}
-              aria-label={__('Remove time', 'linkblog')}
+              aria-label={__('Remove time', 'linkdigest')}
             >
               ✕
             </Button>
@@ -608,7 +608,7 @@ export default function TimePicker({ times, onChange }) {
         </div>
       ))}
       <Button variant="secondary" size="compact" onClick={addTime}>
-        + {__('Add time', 'linkblog')}
+        + {__('Add time', 'linkdigest')}
       </Button>
     </div>
   );
@@ -663,22 +663,22 @@ export default function NextSchedules({ config, form }) {
   return (
     <div className="postbox">
       <div className="postbox-header">
-        <h2 className="hndle">{__('Next 10 Schedules', 'linkblog')}</h2>
+        <h2 className="hndle">{__('Next 10 Schedules', 'linkdigest')}</h2>
       </div>
       <div className="inside">
         {nextDates.length > 0 ? (
-          <ol className="linkblog-next-schedules">
+          <ol className="linkdigest-next-schedules">
             {nextDates.map((d, i) => (
-              <li key={i} className="linkblog-next-schedule-row">
-                <span className="linkblog-next-date">{formatDate(d)}</span>
+              <li key={i} className="linkdigest-next-schedule-row">
+                <span className="linkdigest-next-date">{formatDate(d)}</span>
                 {form.times.length > 0 && (
-                  <span className="linkblog-next-time">{form.times.join(', ')}</span>
+                  <span className="linkdigest-next-time">{form.times.join(', ')}</span>
                 )}
               </li>
             ))}
           </ol>
         ) : (
-          <p className="description">{__('No occurrences — check recurrence settings.', 'linkblog')}</p>
+          <p className="description">{__('No occurrences — check recurrence settings.', 'linkdigest')}</p>
         )}
       </div>
     </div>
@@ -729,7 +729,7 @@ export default function App() {
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
-    apiFetch({ path: '/linkblog/v1/schedule' })
+    apiFetch({ path: '/linkdigest/v1/schedule' })
       .then(data => setForm({ ...DEFAULT_FORM, ...data }))
       .catch(() => {});
   }, []);
@@ -738,10 +738,10 @@ export default function App() {
     setSaving(true);
     setNotice(null);
     try {
-      await apiFetch({ path: '/linkblog/v1/schedule', method: 'POST', data: form });
-      setNotice({ status: 'success', message: __('Schedule saved.', 'linkblog') });
+      await apiFetch({ path: '/linkdigest/v1/schedule', method: 'POST', data: form });
+      setNotice({ status: 'success', message: __('Schedule saved.', 'linkdigest') });
     } catch {
-      setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkblog') });
+      setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkdigest') });
     } finally {
       setSaving(false);
     }
@@ -766,11 +766,11 @@ export default function App() {
     ? { rrule: null, times: [], trigger: { type: 'manual' } }
     : { rrule: null, times: form.times, trigger: { type: form.mode, ...form.trigger } };
 
-  const section02Label = isSchedule ? __('Recurrence', 'linkblog') : __('Condition', 'linkblog');
+  const section02Label = isSchedule ? __('Recurrence', 'linkdigest') : __('Condition', 'linkdigest');
 
   return (
-    <div className="linkblog-schedule-wrap">
-      <div className="linkblog-schedule-main">
+    <div className="linkdigest-schedule-wrap">
+      <div className="linkdigest-schedule-main">
         {notice && (
           <Notice status={notice.status} onRemove={() => setNotice(null)} isDismissible>
             {notice.message}
@@ -778,7 +778,7 @@ export default function App() {
         )}
 
         <Panel>
-          <PanelBody title={__('Mode', 'linkblog')} initialOpen>
+          <PanelBody title={__('Mode', 'linkdigest')} initialOpen>
             <ScheduleTypePicker value={form.mode} onChange={handleModeChange} />
           </PanelBody>
 
@@ -791,7 +791,7 @@ export default function App() {
               />
             ) : isManual ? (
               <p className="description">
-                {__('No automatic trigger — posts must be triggered manually.', 'linkblog')}
+                {__('No automatic trigger — posts must be triggered manually.', 'linkdigest')}
               </p>
             ) : (
               <TriggerCondition
@@ -803,7 +803,7 @@ export default function App() {
           </PanelBody>
 
           {!isManual && (
-            <PanelBody title={__('Execution Times', 'linkblog')} initialOpen>
+            <PanelBody title={__('Execution Times', 'linkdigest')} initialOpen>
               <TimePicker
                 times={form.times}
                 onChange={v => setForm(f => ({ ...f, times: v }))}
@@ -812,14 +812,14 @@ export default function App() {
           )}
         </Panel>
 
-        <div className="linkblog-schedule-actions">
+        <div className="linkdigest-schedule-actions">
           <Button variant="primary" onClick={handleSave} isBusy={saving} disabled={saving}>
-            {__('Save Schedule', 'linkblog')}
+            {__('Save Schedule', 'linkdigest')}
           </Button>
         </div>
       </div>
 
-      <div className="linkblog-schedule-sidebar">
+      <div className="linkdigest-schedule-sidebar">
         <NextSchedules config={config} form={form} />
       </div>
     </div>
@@ -849,7 +849,7 @@ import { createRoot } from '@wordpress/element';
 import App from './App';
 import './schedule.css';
 
-const root = document.getElementById('linkblog-schedule-root');
+const root = document.getElementById('linkdigest-schedule-root');
 if (root) {
   createRoot(root).render(<App />);
 }
@@ -860,50 +860,50 @@ if (root) {
 Minimal layout — everything else uses WP admin defaults:
 
 ```css
-.linkblog-schedule-wrap {
+.linkdigest-schedule-wrap {
   display: flex;
   gap: 24px;
   align-items: flex-start;
   margin-top: 16px;
 }
 
-.linkblog-schedule-main {
+.linkdigest-schedule-main {
   flex: 1;
   min-width: 0;
 }
 
-.linkblog-schedule-sidebar {
+.linkdigest-schedule-sidebar {
   width: 280px;
   flex-shrink: 0;
 }
 
-.linkblog-schedule-actions {
+.linkdigest-schedule-actions {
   margin-top: 16px;
 }
 
 /* Mode picker */
-.linkblog-mode-picker {
+.linkdigest-mode-picker {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
 }
 
-.linkblog-btn-group {
+.linkdigest-btn-group {
   display: flex;
   gap: 0;
 }
 
-.linkblog-btn-group .components-button {
+.linkdigest-btn-group .components-button {
   border-radius: 0;
   margin: 0;
   border-right-width: 0;
 }
 
-.linkblog-btn-group .components-button:first-child { border-radius: 2px 0 0 2px; }
-.linkblog-btn-group .components-button:last-child  { border-radius: 0 2px 2px 0; border-right-width: 1px; }
+.linkdigest-btn-group .components-button:first-child { border-radius: 2px 0 0 2px; }
+.linkdigest-btn-group .components-button:last-child  { border-radius: 0 2px 2px 0; border-right-width: 1px; }
 
-.linkblog-btn-group-sep {
+.linkdigest-btn-group-sep {
   width: 1px;
   background: #dcdcde;
   margin: 2px 6px;
@@ -911,39 +911,39 @@ Minimal layout — everything else uses WP admin defaults:
 }
 
 /* Recurrence rows */
-.linkblog-rc-row {
+.linkdigest-rc-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.linkblog-rc {
+.linkdigest-rc {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.linkblog-weekdays {
+.linkdigest-weekdays {
   display: flex;
   gap: 2px;
 }
 
 /* Monthly day rows */
-.linkblog-month-days {
+.linkdigest-month-days {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.linkblog-month-day-row {
+.linkdigest-month-day-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.linkblog-day-index {
+.linkdigest-day-index {
   font-size: 11px;
   color: #787c82;
   width: 18px;
@@ -951,7 +951,7 @@ Minimal layout — everything else uses WP admin defaults:
   flex-shrink: 0;
 }
 
-.linkblog-opt {
+.linkdigest-opt {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -959,34 +959,34 @@ Minimal layout — everything else uses WP admin defaults:
   transition: opacity 0.15s;
 }
 
-.linkblog-opt--off {
+.linkdigest-opt--off {
   opacity: 0.3;
   cursor: pointer;
 }
 
-.linkblog-opt--off * {
+.linkdigest-opt--off * {
   pointer-events: none;
 }
 
-.linkblog-opt-sep {
+.linkdigest-opt-sep {
   font-size: 12px;
   color: #787c82;
 }
 
 /* TimePicker */
-.linkblog-timepicker {
+.linkdigest-timepicker {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.linkblog-time-row {
+.linkdigest-time-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.linkblog-time-input {
+.linkdigest-time-input {
   padding: 4px 8px;
   border: 1px solid #8c8f94;
   border-radius: 3px;
@@ -994,13 +994,13 @@ Minimal layout — everything else uses WP admin defaults:
 }
 
 /* Next schedules */
-.linkblog-next-schedules {
+.linkdigest-next-schedules {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.linkblog-next-schedule-row {
+.linkdigest-next-schedule-row {
   display: flex;
   justify-content: space-between;
   padding: 4px 0;
@@ -1008,11 +1008,11 @@ Minimal layout — everything else uses WP admin defaults:
   font-size: 13px;
 }
 
-.linkblog-next-schedule-row:last-child {
+.linkdigest-next-schedule-row:last-child {
   border-bottom: none;
 }
 
-.linkblog-next-time {
+.linkdigest-next-time {
   color: #2271b1;
   font-size: 12px;
 }
@@ -1032,7 +1032,7 @@ git commit -m "feat: add schedule entry point and layout CSS"
 **Step 1: Build**
 
 ```bash
-cd /home/latz/www/wp/wp-content/plugins/LinkBlog
+cd /home/latz/www/wp/wp-content/plugins/LinkDigest
 npm run build
 ```
 
@@ -1048,7 +1048,7 @@ Expected: `schedule.js`, `schedule.css`, `schedule.asset.php` present.
 
 **Step 3: Verify in browser**
 
-1. Go to WordPress admin → LinkBlog → Schedule
+1. Go to WordPress admin → LinkDigest → Schedule
 2. Page should load with the Schedule Configuration form
 3. All three section panels should be visible: Mode, Recurrence/Condition, Execution Times
 4. Change mode to Weekly, select some days — "Next 10 Schedules" postbox should update
@@ -1059,7 +1059,7 @@ Expected: `schedule.js`, `schedule.css`, `schedule.asset.php` present.
 
 In WP admin → Tools → Site Health → Info, or via WP CLI:
 ```bash
-wp option get linkblog_schedule --format=json
+wp option get linkdigest_schedule --format=json
 ```
 
 Expected: JSON object matching the saved form state.

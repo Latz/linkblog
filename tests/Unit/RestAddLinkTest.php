@@ -23,7 +23,7 @@ beforeEach(function (): void {
 describe('LinkBlog::restAddLink()', function (): void {
 
     it('returns a WP_Error with status 400 when title is empty', function (): void {
-        $request = linkblog_make_request(['title' => '']);
+        $request = linkdigest_make_request(['title' => '']);
 
         $result = $this->plugin->restAddLink($request);
 
@@ -36,7 +36,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         Functions\when('wp_insert_post')
             ->justReturn(new WP_Error('db_error', 'Database error'));
 
-        $request = linkblog_make_request(['title' => 'Valid Title']);
+        $request = linkdigest_make_request(['title' => 'Valid Title']);
 
         $result = $this->plugin->restAddLink($request);
 
@@ -48,7 +48,7 @@ describe('LinkBlog::restAddLink()', function (): void {
         Functions\when('wp_insert_post')->justReturn(42);
         Functions\when('update_post_meta')->justReturn(true);
 
-        $request = linkblog_make_request(['title' => 'My Link', 'url' => LINKBLOG_URL_EXAMPLE]);
+        $request = linkdigest_make_request(['title' => 'My Link', 'url' => LINKDIGEST_URL_EXAMPLE]);
 
         $result = $this->plugin->restAddLink($request);
 
@@ -66,10 +66,10 @@ describe('LinkBlog::restAddLink()', function (): void {
                 return true;
             });
 
-        $request = linkblog_make_request(['title' => 'Link', 'url' => LINKBLOG_URL_EXAMPLE]);
+        $request = linkdigest_make_request(['title' => 'Link', 'url' => LINKDIGEST_URL_EXAMPLE]);
         $this->plugin->restAddLink($request);
 
-        expect($savedMeta['_linkblog_url'])->toBe(LINKBLOG_URL_EXAMPLE);
+        expect($savedMeta['_linkdigest_url'])->toBe(LINKDIGEST_URL_EXAMPLE);
     });
 
     it('does not call update_post_meta for url when url is empty', function (): void {
@@ -82,10 +82,10 @@ describe('LinkBlog::restAddLink()', function (): void {
                 return true;
             });
 
-        $request = linkblog_make_request(['title' => 'Link', 'url' => '']);
+        $request = linkdigest_make_request(['title' => 'Link', 'url' => '']);
         $this->plugin->restAddLink($request);
 
-        expect($metaKeys)->not->toContain('_linkblog_url');
+        expect($metaKeys)->not->toContain('_linkdigest_url');
     });
 
     it('assigns categories when provided', function (): void {
@@ -102,10 +102,10 @@ describe('LinkBlog::restAddLink()', function (): void {
             }
         );
 
-        $request = linkblog_make_request(['title' => 'Link', 'categories' => ['Tech']]);
+        $request = linkdigest_make_request(['title' => 'Link', 'categories' => ['Tech']]);
         $this->plugin->restAddLink($request);
 
-        expect($termsCall)->toBe([42, [99], 'linkblog_category']);
+        expect($termsCall)->toBe([42, [99], 'linkdigest_category']);
     });
 
     it('creates a new category term when it does not exist yet', function (): void {
@@ -122,10 +122,10 @@ describe('LinkBlog::restAddLink()', function (): void {
         );
         Functions\when('wp_set_object_terms')->justReturn([]);
 
-        $request = linkblog_make_request(['title' => 'Link', 'categories' => ['NewCat']]);
+        $request = linkdigest_make_request(['title' => 'Link', 'categories' => ['NewCat']]);
         $this->plugin->restAddLink($request);
 
-        expect($insertedTerm)->toBe(['NewCat', 'linkblog_category']);
+        expect($insertedTerm)->toBe(['NewCat', 'linkdigest_category']);
     });
 
     it('assigns tags when provided as a comma-separated string', function (): void {
@@ -140,11 +140,11 @@ describe('LinkBlog::restAddLink()', function (): void {
             }
         );
 
-        $request = linkblog_make_request(['title' => 'Link', 'tags' => 'php, wordpress']);
+        $request = linkdigest_make_request(['title' => 'Link', 'tags' => 'php, wordpress']);
         $this->plugin->restAddLink($request);
 
         expect($tagsCall[0])->toBe(42);
         expect($tagsCall[1])->toBe(['php', 'wordpress']);
-        expect($tagsCall[2])->toBe('linkblog_tag');
+        expect($tagsCall[2])->toBe('linkdigest_tag');
     });
 });

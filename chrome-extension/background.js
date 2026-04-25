@@ -1,5 +1,5 @@
-const MENU_ID = 'linkblog-admin';
-const MENU_ID_REFRESH = 'linkblog-refresh-categories';
+const MENU_ID = 'linkdigest-admin';
+const MENU_ID_REFRESH = 'linkdigest-refresh-categories';
 
 async function refreshCategories() {
     const { apiEndpoint, apiKey } = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
@@ -60,5 +60,5 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
     }
 
     const wpBase = apiEndpoint.split('/wp-json/')[0];
-    chrome.tabs.create({ url: `${wpBase}/wp-admin/admin.php?page=linkblog-dashboard` });
+    chrome.tabs.create({ url: `${wpBase}/wp-admin/admin.php?page=linkdigest-dashboard` });
 });

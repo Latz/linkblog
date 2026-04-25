@@ -1,8 +1,8 @@
-# LinkBlog Dashboard
+# LinkDigest Dashboard
 
 ## Overview
 
-The LinkBlog Dashboard provides a beautiful, modern interface for managing your curated link collection with an **editorial aesthetic** inspired by high-end publications.
+The LinkDigest Dashboard provides a beautiful, modern interface for managing your curated link collection with an **editorial aesthetic** inspired by high-end publications.
 
 ## Design Philosophy
 
@@ -55,8 +55,8 @@ Each card features:
 
 ### Files Structure
 ```
-LinkBlog/
-├── linkblog.php          # Main plugin file with dashboard function
+LinkDigest/
+├── linkdigest.php          # Main plugin file with dashboard function
 └── dashboard.css         # Complete dashboard styling
 ```
 
@@ -69,7 +69,7 @@ LinkBlog/
 - Animation: `--lb-ease`, `--lb-ease-bounce`
 
 **Component Classes**
-- `.linkblog-dashboard` - Main container
+- `.linkdigest-dashboard` - Main container
 - `.lb-stat-card` - Statistics cards
 - `.lb-section-card` - Content sections
 - `.lb-link-item` - Individual link entries
@@ -102,7 +102,7 @@ LinkBlog/
 ### Accessing the Dashboard
 
 1. Navigate to WordPress Admin
-2. Click "LinkBlog" in the sidebar
+2. Click "LinkDigest" in the sidebar
 3. The dashboard is the default landing page
 
 ### Quick Actions

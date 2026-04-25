@@ -12,7 +12,7 @@ import constants from '../../../constants.json' assert { type: 'json' };
 const { WP_ENV } = constants;
 
 const ADMIN_URL     = `${WP_ENV.BASE_URL}/wp-admin`;
-const DASHBOARD_URL = `${ADMIN_URL}/admin.php?page=linkblog-dashboard`;
+const DASHBOARD_URL = `${ADMIN_URL}/admin.php?page=linkdigest-dashboard`;
 
 // Shared login helper — reused across tests.
 async function wpLogin(page) {

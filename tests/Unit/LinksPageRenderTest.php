@@ -12,7 +12,7 @@ beforeEach(function (): void {
     Functions\when('get_post_meta')->justReturn('');
     Functions\when('mysql2date')->returnArg(2);
     Functions\when('get_the_date')->justReturn('2026-04-22');
-    Functions\when('admin_url')->justReturn('https://example.com/wp-admin/admin.php?page=linkblog');
+    Functions\when('admin_url')->justReturn('https://example.com/wp-admin/admin.php?page=linkdigest');
     Functions\when('wp_nonce_url')->returnArg();
     Functions\when('get_permalink')->justReturn('https://example.com/post/1');
     Functions\when('get_edit_post_link')->justReturn('https://example.com/wp-admin/edit?p=1');
@@ -32,7 +32,7 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('shows a category section for each category', function (): void {
-        $link = linkblog_make_post(1, 'Test Link');
+        $link = linkdigest_make_post(1, 'Test Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['Tech' => [$link]]);
 
@@ -45,7 +45,7 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('renders the link title in the table row', function (): void {
-        $link = linkblog_make_post(1, 'My Test Link');
+        $link = linkdigest_make_post(1, 'My Test Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
 
@@ -57,11 +57,11 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('renders a URL anchor when a URL is set', function (): void {
-        $link = linkblog_make_post(1, 'Link With URL');
+        $link = linkdigest_make_post(1, 'Link With URL');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
         Functions\when('get_post_meta')->alias(
-            fn($id, $key, $single) => $key === '_linkblog_url' ? 'https://example.com' : ''
+            fn($id, $key, $single) => $key === '_linkdigest_url' ? 'https://example.com' : ''
         );
 
         ob_start();
@@ -73,7 +73,7 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('renders a dash when no URL is set', function (): void {
-        $link = linkblog_make_post(1, 'Link Without URL');
+        $link = linkdigest_make_post(1, 'Link Without URL');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
 
@@ -86,7 +86,7 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('defaults publish_status to unpublished when empty', function (): void {
-        $link = linkblog_make_post(1, 'New Link');
+        $link = linkdigest_make_post(1, 'New Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
 
@@ -98,11 +98,11 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('shows published status badge for a published link', function (): void {
-        $link = linkblog_make_post(1, 'Published Link');
+        $link = linkdigest_make_post(1, 'Published Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
         Functions\when('get_post_meta')->alias(
-            fn($id, $key, $single) => $key === '_linkblog_publish_status' ? 'published' : ''
+            fn($id, $key, $single) => $key === '_linkdigest_publish_status' ? 'published' : ''
         );
 
         ob_start();
@@ -113,11 +113,11 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
     });
 
     it('shows the published date when set', function (): void {
-        $link = linkblog_make_post(1, 'Dated Link');
+        $link = linkdigest_make_post(1, 'Dated Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
         Functions\when('get_post_meta')->alias(
-            fn($id, $key, $single) => $key === '_linkblog_published_date' ? '2026-01-15' : ''
+            fn($id, $key, $single) => $key === '_linkdigest_published_date' ? '2026-01-15' : ''
         );
 
         ob_start();
@@ -129,11 +129,11 @@ describe('LinkBlog::showLinksPage() rendering', function (): void { // NOSONAR
 
     it('truncates long URLs at 50 characters', function (): void {
         $longUrl = 'https://example.com/' . str_repeat('a', 40);
-        $link = linkblog_make_post(1, 'Long URL Link');
+        $link = linkdigest_make_post(1, 'Long URL Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['General' => [$link]]);
         Functions\when('get_post_meta')->alias(
-            fn($id, $key, $single) => $key === '_linkblog_url' ? $longUrl : ''
+            fn($id, $key, $single) => $key === '_linkdigest_url' ? $longUrl : ''
         );
 
         ob_start();

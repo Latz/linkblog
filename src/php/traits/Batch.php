@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Batch {
+trait LinkDigest_Batch {
 
     public function batchPublishLinks(mixed $link_ids, bool $as_draft = false): array {
         $success_count = 0;
@@ -13,7 +13,7 @@ trait LinkBlog_Batch {
             return array(
                 'success' => 0,
                 'failed' => 0,
-                'messages' => array(__('No links to publish.', 'linkblog'))
+                'messages' => array(__('No links to publish.', 'linkdigest'))
             );
         }
 
@@ -27,7 +27,7 @@ trait LinkBlog_Batch {
                 $link = get_post($link_id);
                 $messages[] = sprintf(
                     /* translators: 1: link title, 2: error message */
-                    __('Failed to publish "%1$s": %2$s', 'linkblog'),
+                    __('Failed to publish "%1$s": %2$s', 'linkdigest'),
                     $link ? $link->post_title : '#' . $link_id,
                     $result['message']
                 );
@@ -49,13 +49,13 @@ trait LinkBlog_Batch {
 
         if (empty($post_title)) {
             /* translators: %s: formatted date, e.g. "April 15, 2026" */
-            $post_title = sprintf(__('Links Roundup - %s', 'linkblog'), gmdate('F j, Y'));
+            $post_title = sprintf(__('Links Roundup - %s', 'linkdigest'), gmdate('F j, Y'));
         }
 
         [$links_by_category, $uncategorized_links, $published_count] = $this->groupLinksByCategory($link_ids);
 
         if ($published_count === 0) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'linkblog'), 'error_code' => 'no_valid_links');
+            return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'linkdigest'), 'error_code' => 'no_valid_links');
         }
 
         return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids);
@@ -63,10 +63,10 @@ trait LinkBlog_Batch {
 
     private function validateRoundupRequest(mixed $link_ids): ?array {
         if (!current_user_can('publish_posts')) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
+            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkdigest'), 'error_code' => 'no_permission');
         }
         if (empty($link_ids) || !is_array($link_ids)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'linkblog'), 'error_code' => 'no_links');
+            return array('success' => false, 'post_id' => 0, 'message' => __('No links to publish.', 'linkdigest'), 'error_code' => 'no_links');
         }
         return null;
     }
@@ -80,7 +80,7 @@ trait LinkBlog_Batch {
         ));
 
         if (is_wp_error($post_id) || !$post_id) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Failed to create roundup post.', 'linkblog'), 'error_code' => 'insert_failed');
+            return array('success' => false, 'post_id' => 0, 'message' => __('Failed to create roundup post.', 'linkdigest'), 'error_code' => 'insert_failed');
         }
 
         $this->assignRoundupCategories($post_id, $links_by_category);
@@ -92,7 +92,7 @@ trait LinkBlog_Batch {
             'post_id'    => $post_id,
             'link_count' => $count,
             /* translators: %d: number of links */
-            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'linkblog'), $count),
+            'message'    => sprintf(__('Roundup post created successfully with %d link(s).', 'linkdigest'), $count),
         );
     }
 
@@ -103,10 +103,10 @@ trait LinkBlog_Batch {
 
         foreach ($link_ids as $link_id) {
             $link = get_post($link_id);
-            if (!$link || $link->post_type !== 'linkblog') {
+            if (!$link || $link->post_type !== 'linkdigest') {
                 continue;
             }
-            $cats = get_the_terms($link_id, 'linkblog_category');
+            $cats = get_the_terms($link_id, 'linkdigest_category');
             if ($cats && !is_wp_error($cats)) {
                 $primary = $cats[0];
                 if (!isset($links_by_category[$primary->slug])) {
@@ -129,7 +129,7 @@ trait LinkBlog_Batch {
             $content .= "<ul>\n";
             foreach ($ids as $link_id) {
                 $link = get_post($link_id);
-                $url  = get_post_meta($link_id, '_linkblog_url', true);
+                $url  = get_post_meta($link_id, '_linkdigest_url', true);
                 $desc = trim($link->post_content);
                 $content .= '<li>';
                 $content .= !empty($url)
@@ -149,7 +149,7 @@ trait LinkBlog_Batch {
         }
 
         if (!empty($uncategorized_links)) {
-            $content .= '<h2>' . esc_html__('Other', 'linkblog') . "</h2>\n\n";
+            $content .= '<h2>' . esc_html__('Other', 'linkdigest') . "</h2>\n\n";
             $render_list($uncategorized_links);
         }
 
@@ -185,7 +185,7 @@ trait LinkBlog_Batch {
         $all_cats = array();
         foreach ($links_by_category as $group) {
             foreach ($group['links'] as $link_id) {
-                $cats = get_the_terms($link_id, 'linkblog_category');
+                $cats = get_the_terms($link_id, 'linkdigest_category');
                 if ($cats && !is_wp_error($cats)) {
                     foreach ($cats as $cat) {
                         $all_cats[] = $cat;
@@ -199,7 +199,7 @@ trait LinkBlog_Batch {
     private function assignRoundupTags(int $post_id, array $link_ids): void {
         $tag_names = array();
         foreach ($link_ids as $link_id) {
-            $tags = get_the_terms($link_id, 'linkblog_tag');
+            $tags = get_the_terms($link_id, 'linkdigest_tag');
             if ($tags && !is_wp_error($tags)) {
                 foreach ($tags as $tag) {
                     $tag_names[] = $tag->name;
@@ -216,10 +216,10 @@ trait LinkBlog_Batch {
         $date   = current_time('mysql');
         foreach ($link_ids as $link_id) {
             $link = get_post($link_id);
-            if ($link && $link->post_type === 'linkblog') {
-                update_post_meta($link_id, '_linkblog_published_post_id', $post_id);
-                update_post_meta($link_id, '_linkblog_publish_status', $status);
-                update_post_meta($link_id, '_linkblog_published_date', $date);
+            if ($link && $link->post_type === 'linkdigest') {
+                update_post_meta($link_id, '_linkdigest_published_post_id', $post_id);
+                update_post_meta($link_id, '_linkdigest_publish_status', $status);
+                update_post_meta($link_id, '_linkdigest_published_date', $date);
             }
         }
     }

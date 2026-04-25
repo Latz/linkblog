@@ -24,7 +24,7 @@ export default function App() {
   const [notice, setNotice] = useState(null);
 
   useEffect(() => {
-    apiFetch({ path: '/linkblog/v1/schedule' })
+    apiFetch({ path: '/linkdigest/v1/schedule' })
       .then(data => setForm({ ...DEFAULT_FORM, ...data }))
       .catch(() => {});
   }, []);
@@ -33,15 +33,15 @@ export default function App() {
     setSaving(true);
     setNotice(null);
     if (new Set(form.times).size !== form.times.length) {
-      setNotice({ status: 'error', message: __('Execution times must be unique.', 'linkblog') });
+      setNotice({ status: 'error', message: __('Execution times must be unique.', 'linkdigest') });
       setSaving(false);
       return;
     }
     try {
-      await apiFetch({ path: '/linkblog/v1/schedule', method: 'POST', data: form });
-      setNotice({ status: 'success', message: __('Schedule saved.', 'linkblog') });
+      await apiFetch({ path: '/linkdigest/v1/schedule', method: 'POST', data: form });
+      setNotice({ status: 'success', message: __('Schedule saved.', 'linkdigest') });
     } catch {
-      setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkblog') });
+      setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkdigest') });
     } finally {
       setSaving(false);
     }
@@ -70,7 +70,7 @@ export default function App() {
     return { rrule: null, times: form.times, trigger: { type: form.mode, ...form.trigger } };
   }, [form, isSchedule, isManual]);
 
-  const section02Label = isSchedule ? __('Recurrence', 'linkblog') : __('Condition', 'linkblog');
+  const section02Label = isSchedule ? __('Recurrence', 'linkdigest') : __('Condition', 'linkdigest');
 
   function renderConditionSection() {
     if (isSchedule) return (
@@ -82,7 +82,7 @@ export default function App() {
     );
     if (isManual) return (
       <p className="description">
-        {__('No automatic trigger — posts must be triggered manually.', 'linkblog')}
+        {__('No automatic trigger — posts must be triggered manually.', 'linkdigest')}
       </p>
     );
     return (
@@ -95,8 +95,8 @@ export default function App() {
   }
 
   return (
-    <div className="linkblog-schedule-wrap">
-      <div className="linkblog-schedule-main">
+    <div className="linkdigest-schedule-wrap">
+      <div className="linkdigest-schedule-main">
         {notice && (
           <Notice status={notice.status} onRemove={() => setNotice(null)} isDismissible>
             {notice.message}
@@ -104,7 +104,7 @@ export default function App() {
         )}
 
         <Panel>
-          <PanelBody title={__('Mode', 'linkblog')} initialOpen>
+          <PanelBody title={__('Mode', 'linkdigest')} initialOpen>
             <ScheduleTypePicker value={form.mode} onChange={handleModeChange} />
           </PanelBody>
 
@@ -113,7 +113,7 @@ export default function App() {
           </PanelBody>
 
           {!isManual && (
-            <PanelBody title={__('Execution Times', 'linkblog')} initialOpen>
+            <PanelBody title={__('Execution Times', 'linkdigest')} initialOpen>
               <TimePicker
                 times={form.times}
                 onChange={v => setForm(f => ({ ...f, times: v }))}
@@ -122,14 +122,14 @@ export default function App() {
           )}
         </Panel>
 
-        <div className="linkblog-schedule-actions">
+        <div className="linkdigest-schedule-actions">
           <Button variant="primary" onClick={handleSave} isBusy={saving} disabled={saving}>
-            {__('Save Schedule', 'linkblog')}
+            {__('Save Schedule', 'linkdigest')}
           </Button>
         </div>
       </div>
 
-      <div className="linkblog-schedule-sidebar">
+      <div className="linkdigest-schedule-sidebar">
         <NextSchedules config={config} form={form} />
       </div>
     </div>

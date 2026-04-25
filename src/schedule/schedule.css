@@ -1,47 +1,47 @@
-.linkblog-schedule-wrap {
+.linkdigest-schedule-wrap {
   display: flex;
   gap: 24px;
   align-items: flex-start;
   margin-top: 16px;
 }
 
-.linkblog-schedule-main {
+.linkdigest-schedule-main {
   flex: 1;
   min-width: 0;
 }
 
-.linkblog-schedule-sidebar {
+.linkdigest-schedule-sidebar {
   width: 280px;
   flex-shrink: 0;
 }
 
-.linkblog-schedule-actions {
+.linkdigest-schedule-actions {
   margin-top: 16px;
 }
 
 /* Mode picker */
-.linkblog-mode-picker {
+.linkdigest-mode-picker {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
 }
 
-.linkblog-btn-group {
+.linkdigest-btn-group {
   display: flex;
   gap: 0;
 }
 
-.linkblog-btn-group .components-button {
+.linkdigest-btn-group .components-button {
   border-radius: 0;
   margin: 0;
   border-right-width: 0;
 }
 
-.linkblog-btn-group .components-button:first-child { border-radius: 2px 0 0 2px; }
-.linkblog-btn-group .components-button:last-child  { border-radius: 0 2px 2px 0; border-right-width: 1px; }
+.linkdigest-btn-group .components-button:first-child { border-radius: 2px 0 0 2px; }
+.linkdigest-btn-group .components-button:last-child  { border-radius: 0 2px 2px 0; border-right-width: 1px; }
 
-.linkblog-btn-group-sep {
+.linkdigest-btn-group-sep {
   width: 1px;
   background: #dcdcde;
   margin: 2px 6px;
@@ -49,39 +49,39 @@
 }
 
 /* Recurrence rows */
-.linkblog-rc-row {
+.linkdigest-rc-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.linkblog-rc {
+.linkdigest-rc {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.linkblog-weekdays {
+.linkdigest-weekdays {
   display: flex;
   gap: 2px;
 }
 
 /* Monthly day rows */
-.linkblog-month-days {
+.linkdigest-month-days {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.linkblog-month-day-row {
+.linkdigest-month-day-row {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.linkblog-day-index {
+.linkdigest-day-index {
   font-size: 11px;
   color: #787c82;
   width: 18px;
@@ -89,7 +89,7 @@
   flex-shrink: 0;
 }
 
-.linkblog-opt {
+.linkdigest-opt {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -97,22 +97,22 @@
   transition: opacity 0.15s;
 }
 
-.linkblog-opt--off {
+.linkdigest-opt--off {
   opacity: 0.3;
   cursor: pointer;
 }
 
-.linkblog-opt--off * {
+.linkdigest-opt--off * {
   pointer-events: none;
 }
 
-.linkblog-opt-sep {
+.linkdigest-opt-sep {
   font-size: 12px;
   color: #787c82;
 }
 
 /* TimePicker */
-.linkblog-timepicker {
+.linkdigest-timepicker {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -120,17 +120,17 @@
   gap: 6px;
 }
 
-.linkblog-time-row {
+.linkdigest-time-row {
   display: flex;
   align-items: center;
   gap: 2px;
 }
 
-.linkblog-time-row .components-button.is-compact {
+.linkdigest-time-row .components-button.is-compact {
   padding-left: 2px;
 }
 
-.linkblog-time-input {
+.linkdigest-time-input {
   padding: 4px 8px;
   border: 1px solid #8c8f94;
   border-radius: 3px;
@@ -138,7 +138,7 @@
 }
 
 /* Next schedules */
-.linkblog-next-heading {
+.linkdigest-next-heading {
   padding: 10px 12px;
   border-bottom: 1px solid #c3c4c7;
   background: #f6f7f7;
@@ -148,18 +148,18 @@
   line-height: 1.4;
 }
 
-.linkblog-next-schedules-inside {
+.linkdigest-next-schedules-inside {
   background: #f6f7f7;
   padding: 12px 16px;
 }
 
-.linkblog-next-schedules {
+.linkdigest-next-schedules {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.linkblog-next-schedule-row {
+.linkdigest-next-schedule-row {
   display: flex;
   justify-content: space-between;
   padding: 4px 0;
@@ -167,15 +167,15 @@
   font-size: 13px;
 }
 
-.linkblog-next-schedule-row:last-child {
+.linkdigest-next-schedule-row:last-child {
   border-bottom: none;
 }
 
-.linkblog-next-schedule-row:first-child {
+.linkdigest-next-schedule-row:first-child {
   font-weight: 600;
 }
 
-.linkblog-next-time {
+.linkdigest-next-time {
   color: #2271b1;
   font-size: 12px;
 }

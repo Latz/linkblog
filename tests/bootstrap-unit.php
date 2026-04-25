@@ -36,6 +36,6 @@ require_once __DIR__ . '/helpers.php';
 // 5. One-shot Brain Monkey pass to absorb plugin-level hook registrations.
 Brain\Monkey\setUp();
 
-require_once dirname(__DIR__) . '/linkblog.php';
+require_once dirname(__DIR__) . '/linkdigest.php';
 
 Brain\Monkey\tearDown();

@@ -36,22 +36,22 @@ export default function NextSchedules({ config, form }) {
   if (!isSchedule) return null;
 
   return (
-    <div className="postbox linkblog-next-postbox">
-      <div className="linkblog-next-heading">{__('Next 10 Schedules', 'linkblog')}</div>
-      <div className="inside linkblog-next-schedules-inside">
+    <div className="postbox linkdigest-next-postbox">
+      <div className="linkdigest-next-heading">{__('Next 10 Schedules', 'linkdigest')}</div>
+      <div className="inside linkdigest-next-schedules-inside">
         {nextDates.length > 0 ? (
-          <ol className="linkblog-next-schedules">
+          <ol className="linkdigest-next-schedules">
             {nextDates.map((d, i) => (
-              <li key={d.toISOString()} className="linkblog-next-schedule-row">
-                <span className="linkblog-next-date">{formatDate(d)}</span>
+              <li key={d.toISOString()} className="linkdigest-next-schedule-row">
+                <span className="linkdigest-next-date">{formatDate(d)}</span>
                 {form.times.length > 0 && (
-                  <span className="linkblog-next-time">{form.times.join(', ')}</span>
+                  <span className="linkdigest-next-time">{form.times.join(', ')}</span>
                 )}
               </li>
             ))}
           </ol>
         ) : (
-          <p className="description">{__('No occurrences — check recurrence settings.', 'linkblog')}</p>
+          <p className="description">{__('No occurrences — check recurrence settings.', 'linkdigest')}</p>
         )}
       </div>
     </div>

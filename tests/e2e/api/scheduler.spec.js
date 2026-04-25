@@ -2,7 +2,7 @@
  * Playwright — E2E tests for the LinkBlog scheduler.
  *
  * Verifies that POST /schedule/run publishes unpublished links into a roundup
- * post and marks each link's _linkblog_publish_status as 'published'.
+ * post and marks each link's _linkdigest_publish_status as 'published'.
  *
  * Run with: npm run test:e2e:api
  */
@@ -46,9 +46,9 @@ test.describe('Scheduler publishing', () => {
         expect(posts.length).toBeGreaterThan(0);
 
         // 5. Verify the link's publish status meta was updated.
-        const linkRes = await request.get(wpApi(`/linkblog/${linkId}?context=edit`));
+        const linkRes = await request.get(wpApi(`/linkdigest/${linkId}?context=edit`));
         expect(linkRes.status()).toBe(200);
         const link = await linkRes.json();
-        expect(link.meta._linkblog_publish_status).toBe('published');
+        expect(link.meta._linkdigest_publish_status).toBe('published');
     });
 });

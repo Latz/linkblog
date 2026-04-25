@@ -2,26 +2,26 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Publishing {
+trait LinkDigest_Publishing {
 
     public function validateLinkForPublish(int $link_id): ?array {
         if (!current_user_can('publish_posts')) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkblog'), 'error_code' => 'no_permission');
+            return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkdigest'), 'error_code' => 'no_permission');
         }
         $link = get_post($link_id);
-        if (!$link || $link->post_type !== 'linkblog') {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Invalid link ID.', 'linkblog'), 'error_code' => 'invalid_link');
+        if (!$link || $link->post_type !== 'linkdigest') {
+            return array('success' => false, 'post_id' => 0, 'message' => __('Invalid link ID.', 'linkdigest'), 'error_code' => 'invalid_link');
         }
         return $this->validateLinkState($link, $link_id);
     }
 
     private function validateLinkState(\WP_Post $link, int $link_id): ?array {
         if (empty($link->post_title)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'linkblog'), 'error_code' => 'missing_title');
+            return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'linkdigest'), 'error_code' => 'missing_title');
         }
-        $published_post_id = get_post_meta($link_id, '_linkblog_published_post_id', true);
+        $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);
         if ($published_post_id && get_post($published_post_id)) {
-            return array('success' => false, 'post_id' => 0, 'message' => __('This link has already been published.', 'linkblog'), 'error_code' => 'already_published');
+            return array('success' => false, 'post_id' => 0, 'message' => __('This link has already been published.', 'linkdigest'), 'error_code' => 'already_published');
         }
         return null;
     }
@@ -34,32 +34,32 @@ trait LinkBlog_Publishing {
         if (!empty($url)) {
             $post_content .= "\n\n" . '<p>Read more: <a href="' . esc_url($url) . '">' . esc_html($url) . '</a></p>';
         }
-        return apply_filters('linkblog_blog_post_content', $post_content, $link_id, $url, $description);
+        return apply_filters('linkdigest_blog_post_content', $post_content, $link_id, $url, $description);
     }
 
     public function mapTaxonomies(int $post_id, int $link_id): void {
-        $linkblog_categories = get_the_terms($link_id, 'linkblog_category');
-        if ($linkblog_categories && !is_wp_error($linkblog_categories)) {
-            $category_ids = $this->resolveWpCategoryIds($linkblog_categories);
+        $linkdigest_categories = get_the_terms($link_id, 'linkdigest_category');
+        if ($linkdigest_categories && !is_wp_error($linkdigest_categories)) {
+            $category_ids = $this->resolveWpCategoryIds($linkdigest_categories);
             if (!empty($category_ids)) {
                 wp_set_post_categories($post_id, $category_ids);
             }
         }
 
-        $linkblog_tags = get_the_terms($link_id, 'linkblog_tag');
-        if ($linkblog_tags && !is_wp_error($linkblog_tags)) {
-            wp_set_post_tags($post_id, wp_list_pluck($linkblog_tags, 'name'));
+        $linkdigest_tags = get_the_terms($link_id, 'linkdigest_tag');
+        if ($linkdigest_tags && !is_wp_error($linkdigest_tags)) {
+            wp_set_post_tags($post_id, wp_list_pluck($linkdigest_tags, 'name'));
         }
     }
 
-    private function resolveWpCategoryIds(array $linkblog_categories): array {
+    private function resolveWpCategoryIds(array $linkdigest_categories): array {
         $category_ids = array();
-        foreach ($linkblog_categories as $linkblog_cat) {
-            $existing_cat = get_category_by_slug($linkblog_cat->slug);
+        foreach ($linkdigest_categories as $linkdigest_cat) {
+            $existing_cat = get_category_by_slug($linkdigest_cat->slug);
             if ($existing_cat) {
                 $category_ids[] = $existing_cat->term_id;
             } else {
-                $new_cat = wp_insert_term($linkblog_cat->name, 'category');
+                $new_cat = wp_insert_term($linkdigest_cat->name, 'category');
                 if (!is_wp_error($new_cat)) {
                     $category_ids[] = $new_cat['term_id'];
                 }
@@ -75,7 +75,7 @@ trait LinkBlog_Publishing {
         }
 
         $link = get_post($link_id);
-        $url = get_post_meta($link_id, '_linkblog_url', true);
+        $url = get_post_meta($link_id, '_linkdigest_url', true);
         $post_content = $this->buildPostContent($link->post_title, $link_id, $url, $link->post_content);
 
         $post_id = wp_insert_post(array(
@@ -89,25 +89,25 @@ trait LinkBlog_Publishing {
             return array(
                 'success' => false,
                 'post_id' => 0,
-                'message' => __('Failed to create blog post.', 'linkblog'),
+                'message' => __('Failed to create blog post.', 'linkdigest'),
                 'error_code' => 'insert_failed'
             );
         }
 
         $this->mapTaxonomies($post_id, $link_id);
 
-        update_post_meta($link_id, '_linkblog_published_post_id', $post_id);
-        update_post_meta($link_id, '_linkblog_publish_status', $as_draft ? 'draft' : 'published');
-        update_post_meta($link_id, '_linkblog_published_date', current_time('mysql'));
+        update_post_meta($link_id, '_linkdigest_published_post_id', $post_id);
+        update_post_meta($link_id, '_linkdigest_publish_status', $as_draft ? 'draft' : 'published');
+        update_post_meta($link_id, '_linkdigest_published_date', current_time('mysql'));
 
-        do_action('linkblog_after_publish', $link_id, $post_id, $as_draft);
+        do_action('linkdigest_after_publish', $link_id, $post_id, $as_draft);
 
         return array(
             'success' => true,
             'post_id' => $post_id,
             'message' => $as_draft
-                ? __('Link saved as draft successfully.', 'linkblog')
-                : __('Link published successfully.', 'linkblog')
+                ? __('Link saved as draft successfully.', 'linkdigest')
+                : __('Link published successfully.', 'linkdigest')
         );
     }
 }

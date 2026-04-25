@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Admin_Dashboard {
+trait LinkDigest_Admin_Dashboard {
 
     public function dashboardWidgetContent(): void {
         // Get statistics
@@ -10,18 +10,18 @@ trait LinkBlog_Admin_Dashboard {
 
         // Get recent unpublished links
         $recent_unpublished = get_posts(array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => 3,
             'orderby'        => 'date',
             'order'          => 'DESC',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'compare' => self::META_COMPARE_NOT_EXISTS,
                 ),
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => array('published', 'draft'),
                     'compare' => self::META_COMPARE_NOT_IN,
                 )
@@ -29,27 +29,27 @@ trait LinkBlog_Admin_Dashboard {
         ));
 
         ?>
-        <div class="linkblog-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+        <div class="linkdigest-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format($stats['total_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkblog'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format($stats['published_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkblog'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format($stats['unpublished_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkblog'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkdigest'); ?></div>
             </div>
         </div>
 
         <?php if (!empty($recent_unpublished)) : ?>
             <div style="margin-bottom: 12px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'linkblog'); ?></h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'linkdigest'); ?></h4>
                 <ul style="margin: 0; padding: 0; list-style: none;">
                     <?php foreach ($recent_unpublished as $link) :
-                        $url = get_post_meta($link->ID, '_linkblog_url', true);
+                        $url = get_post_meta($link->ID, '_linkdigest_url', true);
                     ?>
                         <li style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f1;">
                             <div style="font-weight: 500; font-size: 13px; margin-bottom: 2px;">
@@ -67,8 +67,8 @@ trait LinkBlog_Admin_Dashboard {
         <?php endif; ?>
 
         <div style="text-align: center; padding-top: 8px; border-top: 1px solid #f0f0f1;">
-            <a href="<?php echo esc_url(admin_url('admin.php?page=linkblog-dashboard')); ?>" class="button button-primary">
-                <?php esc_html_e('Go to LinkBlog', 'linkblog'); ?>
+            <a href="<?php echo esc_url(admin_url('admin.php?page=linkdigest-dashboard')); ?>" class="button button-primary">
+                <?php esc_html_e('Go to LinkBlog', 'linkdigest'); ?>
             </a>
         </div>
         <?php
@@ -76,23 +76,23 @@ trait LinkBlog_Admin_Dashboard {
 
     public function getUnpublishedLinkIds(): array {
         return get_posts( array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => -1,
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
+                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
     }
 
     public function handleBatchPublishRequest(): ?array {
-        if ( ! isset( $_POST['linkblog_batch_publish'] ) ) {
+        if ( ! isset( $_POST['linkdigest_batch_publish'] ) ) {
             return null;
         }
-        $nonce = isset( $_POST['linkblog_batch_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_batch_nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_batch_publish' ) ) {
+        $nonce = isset( $_POST['linkdigest_batch_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_batch_nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_batch_publish' ) ) {
             return null;
         }
         $as_draft = isset( $_POST['publish_as_draft'] ) && wp_unslash( $_POST['publish_as_draft'] ) === '1';
@@ -100,11 +100,11 @@ trait LinkBlog_Admin_Dashboard {
     }
 
     public function handleRoundupRequest(): ?array {
-        if ( ! isset( $_POST['linkblog_create_roundup'] ) ) {
+        if ( ! isset( $_POST['linkdigest_create_roundup'] ) ) {
             return null;
         }
-        $nonce = isset( $_POST['linkblog_roundup_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_roundup_nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_create_roundup' ) ) {
+        $nonce = isset( $_POST['linkdigest_roundup_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_roundup_nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_create_roundup' ) ) {
             return null;
         }
         $roundup_title = isset( $_POST['roundup_title'] ) ? sanitize_text_field( wp_unslash( $_POST['roundup_title'] ) ) : '';
@@ -113,22 +113,22 @@ trait LinkBlog_Admin_Dashboard {
     }
 
     public function handleQuickAddRequest(): bool {
-        if ( ! isset( $_POST['linkblog_quick_add'] ) ) {
+        if ( ! isset( $_POST['linkdigest_quick_add'] ) ) {
             return false;
         }
-        $nonce = isset( $_POST['linkblog_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkblog_quick_nonce'] ) ) : '';
+        $nonce = isset( $_POST['linkdigest_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_quick_nonce'] ) ) : '';
         $title = isset( $_POST['quick_title'] ) ? sanitize_text_field( wp_unslash( $_POST['quick_title'] ) ) : '';
         $url   = isset( $_POST['quick_url'] )   ? esc_url_raw( wp_unslash( $_POST['quick_url'] ) )           : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkblog_quick_add_link' ) || empty( $title ) ) {
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_quick_add_link' ) || empty( $title ) ) {
             return false;
         }
         $post_id = wp_insert_post( array(
             'post_title'  => $title,
-            'post_type'   => 'linkblog',
+            'post_type'   => 'linkdigest',
             'post_status' => 'publish',
         ) );
         if ( $post_id && ! empty( $url ) ) {
-            update_post_meta( $post_id, '_linkblog_url', $url );
+            update_post_meta( $post_id, '_linkdigest_url', $url );
         }
         return (bool) $post_id;
     }
@@ -137,10 +137,10 @@ trait LinkBlog_Admin_Dashboard {
         if ( $batch_result !== null ) {
             if ( $batch_result['success'] > 0 ) {
                 /* translators: 1: number of successfully processed links, 2: optional failure message */
-                $failed_msg = $batch_result['failed'] > 0 ? sprintf( __( '%d failed.', 'linkblog' ), $batch_result['failed'] ) : '';
+                $failed_msg = $batch_result['failed'] > 0 ? sprintf( __( '%d failed.', 'linkdigest' ), $batch_result['failed'] ) : '';
                 echo '<div class="notice notice-success"><p>';
                 /* translators: 1: number of successfully processed links, 2: optional failure message */
-                printf( esc_html__( 'Successfully processed %1$d link(s). %2$s', 'linkblog' ), (int) $batch_result['success'], esc_html( $failed_msg ) );
+                printf( esc_html__( 'Successfully processed %1$d link(s). %2$s', 'linkdigest' ), (int) $batch_result['success'], esc_html( $failed_msg ) );
                 echo '</p></div>';
             }
             if ( ! empty( $batch_result['messages'] ) ) {
@@ -150,7 +150,7 @@ trait LinkBlog_Admin_Dashboard {
         if ( $roundup_result !== null ) {
             if ( $roundup_result['success'] ) {
                 echo '<div class="notice notice-success"><p>' . esc_html( $roundup_result['message'] );
-                echo ' <a href="' . esc_url( get_permalink( $roundup_result['post_id'] ) ) . '" target="_blank">' . esc_html__( 'View Post', 'linkblog' ) . ' →</a></p></div>';
+                echo ' <a href="' . esc_url( get_permalink( $roundup_result['post_id'] ) ) . '" target="_blank">' . esc_html__( 'View Post', 'linkdigest' ) . ' →</a></p></div>';
             } else {
                 echo '<div class="notice notice-error"><p>' . esc_html( $roundup_result['message'] ) . '</p></div>';
             }
@@ -161,22 +161,22 @@ trait LinkBlog_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Recent Unpublished Links', 'linkblog' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recent_links ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkblog' ); ?></p>
+                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <ul class="lb-recent-links">
                         <?php foreach ( $recent_links as $link ) :
-                            $url             = get_post_meta( $link->ID, '_linkblog_url', true );
-                            $categories_list = get_the_terms( $link->ID, 'linkblog_category' );
+                            $url             = get_post_meta( $link->ID, '_linkdigest_url', true );
+                            $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
                             $category_name   = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
                         ?>
                             <li class="lb-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
                                 <div class="lb-link-item-header">
                                     <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                                    <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkblog' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
+                                    <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
                                 </div>
                                 <?php if ( $url ) : ?>
                                     <a href="<?php echo esc_url( $url ); ?>" class="lb-link-url" target="_blank" rel="noopener">
@@ -196,7 +196,7 @@ trait LinkBlog_Admin_Dashboard {
                     </ul>
                     <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
                         <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>" class="button">
-                            <?php esc_html_e( 'View All Links', 'linkblog' ); ?>
+                            <?php esc_html_e( 'View All Links', 'linkdigest' ); ?>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -209,11 +209,11 @@ trait LinkBlog_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'linkblog' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recently_published ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkblog' ); ?></p>
+                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <?php $this->renderRecentlyPublishedList( $recently_published ); ?>
                 <?php endif; ?>
@@ -226,33 +226,33 @@ trait LinkBlog_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Publish Links', 'linkblog' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Publish Links', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside">
                 <?php if ( $unpublished_count > 0 ) : ?>
                     <?php
                     /* translators: %d is the number of unpublished links */
-                    printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkblog' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
+                    printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkdigest' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
                     ?>
                     <form method="post" action="">
-                        <?php wp_nonce_field( 'linkblog_create_roundup', 'linkblog_roundup_nonce' ); ?>
+                        <?php wp_nonce_field( 'linkdigest_create_roundup', 'linkdigest_roundup_nonce' ); ?>
                         <p>
-                            <label for="roundup_title"><strong><?php esc_html_e( 'Post Title', 'linkblog' ); ?></strong></label><br>
+                            <label for="roundup_title"><strong><?php esc_html_e( 'Post Title', 'linkdigest' ); ?></strong></label><br>
                             <input type="text" id="roundup_title" name="roundup_title" class="regular-text"
                                 value="<?php
                                 /* translators: %s is the current date (e.g. "April 15, 2026") */
-                                echo esc_attr( sprintf( __( 'Links Roundup - %s', 'linkblog' ), gmdate( 'F j, Y' ) ) );
+                                echo esc_attr( sprintf( __( 'Links Roundup - %s', 'linkdigest' ), gmdate( 'F j, Y' ) ) );
                                 ?>">
                         </p>
                         <input type="hidden" name="roundup_as_draft" value="0">
                         <p>
-                            <button type="submit" name="linkblog_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'linkblog' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'linkdigest' ); ?></button>
                             &nbsp;
-                            <button type="submit" name="linkblog_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'linkblog' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'linkdigest' ); ?></button>
                         </p>
                     </form>
                 <?php else : ?>
-                    <p style="color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkblog' ); ?></p>
+                    <p style="color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -272,7 +272,7 @@ trait LinkBlog_Admin_Dashboard {
                     </div>
                     <?php if ( $meta['published_post_id'] ) : ?>
                         <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                            <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'linkblog' ) : esc_html__( 'View Post', 'linkblog' ); ?> ↗
+                            <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'linkdigest' ) : esc_html__( 'View Post', 'linkdigest' ); ?> ↗
                         </a>
                     <?php endif; ?>
                     <div class="lb-link-meta">
@@ -291,19 +291,19 @@ trait LinkBlog_Admin_Dashboard {
 
     private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
         if ( 'published' === $publish_status ) {
-            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'linkblog' ) . '</span>';
+            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'linkdigest' ) . '</span>';
         } elseif ( $is_draft ) {
-            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'linkblog' ) . '</span>';
+            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }
     }
 
     private function getRecentlyPublishedLinkMetadata( \WP_Post $link ): array {
-        $publish_status = get_post_meta( $link->ID, '_linkblog_publish_status', true );
-        $categories_list = get_the_terms( $link->ID, 'linkblog_category' );
+        $publish_status = get_post_meta( $link->ID, '_linkdigest_publish_status', true );
+        $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
         return [
-            'published_post_id' => get_post_meta( $link->ID, '_linkblog_published_post_id', true ),
+            'published_post_id' => get_post_meta( $link->ID, '_linkdigest_published_post_id', true ),
             'publish_status' => $publish_status,
-            'published_date' => get_post_meta( $link->ID, '_linkblog_published_date', true ),
+            'published_date' => get_post_meta( $link->ID, '_linkdigest_published_date', true ),
             'category_name' => $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '',
             'is_draft' => $publish_status === 'draft',
         ];
@@ -313,26 +313,26 @@ trait LinkBlog_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Quick Add', 'linkblog' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Quick Add', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside">
                 <?php if ( $quick_add_success ) : ?>
-                    <div class="notice notice-success inline"><p><?php esc_html_e( 'Link added successfully!', 'linkblog' ); ?></p></div>
+                    <div class="notice notice-success inline"><p><?php esc_html_e( 'Link added successfully!', 'linkdigest' ); ?></p></div>
                 <?php endif; ?>
                 <form method="post" action="">
-                    <?php wp_nonce_field( 'linkblog_quick_add_link', 'linkblog_quick_nonce' ); ?>
+                    <?php wp_nonce_field( 'linkdigest_quick_add_link', 'linkdigest_quick_nonce' ); ?>
                     <p>
-                        <label for="quick_title"><strong><?php esc_html_e( 'Title', 'linkblog' ); ?> *</strong></label><br>
+                        <label for="quick_title"><strong><?php esc_html_e( 'Title', 'linkdigest' ); ?> *</strong></label><br>
                         <input type="text" id="quick_title" name="quick_title" class="regular-text"
-                            placeholder="<?php esc_attr_e( 'Enter link title', 'linkblog' ); ?>" required>
+                            placeholder="<?php esc_attr_e( 'Enter link title', 'linkdigest' ); ?>" required>
                     </p>
                     <p>
-                        <label for="quick_url"><strong><?php esc_html_e( 'URL', 'linkblog' ); ?></strong></label><br>
+                        <label for="quick_url"><strong><?php esc_html_e( 'URL', 'linkdigest' ); ?></strong></label><br>
                         <input type="url" id="quick_url" name="quick_url" class="regular-text"
                             placeholder="https://example.com">
                     </p>
                     <p>
-                        <button type="submit" name="linkblog_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkblog' ); ?></button>
+                        <button type="submit" name="linkdigest_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkdigest' ); ?></button>
                     </p>
                 </form>
             </div>
@@ -342,17 +342,17 @@ trait LinkBlog_Admin_Dashboard {
 
     public function renderDashboardJs(): void {
         $js_data = wp_json_encode( array(
-            'restUrl' => rest_url( LINKBLOG_REST_NAMESPACE . '/links/' ),
+            'restUrl' => rest_url( LINKDIGEST_REST_NAMESPACE . '/links/' ),
             'nonce'   => wp_create_nonce( 'wp_rest' ),
             'labels'  => array(
-                'delete' => __( 'Delete?', 'linkblog' ),
-                'yes'    => __( 'Yes', 'linkblog' ),
-                'cancel' => __( 'Cancel', 'linkblog' ),
+                'delete' => __( 'Delete?', 'linkdigest' ),
+                'yes'    => __( 'Yes', 'linkdigest' ),
+                'cancel' => __( 'Cancel', 'linkdigest' ),
             ),
         ) );
         ?>
         <script>
-        var linkblogDash = <?php echo $js_data; ?>;
+        var linkdigestDash = <?php echo $js_data; ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.lb-date-time').forEach(function(element) {
@@ -380,10 +380,10 @@ trait LinkBlog_Admin_Dashboard {
                 btn.disabled = true;
                 btn.textContent = '...';
                 try {
-                    const res = await fetch(linkblogDash.restUrl + li.dataset.linkId, {
+                    const res = await fetch(linkdigestDash.restUrl + li.dataset.linkId, {
                         method: 'DELETE',
                         credentials: 'same-origin',
-                        headers: { 'X-WP-Nonce': linkblogDash.nonce }
+                        headers: { 'X-WP-Nonce': linkdigestDash.nonce }
                     });
                     if (res.ok || res.status === 204) {
                         li.remove();
@@ -407,13 +407,13 @@ trait LinkBlog_Admin_Dashboard {
             row.className = 'lb-delete-confirm-row';
             const lbl = document.createElement('span');
             lbl.className = 'lb-delete-confirm-label';
-            lbl.textContent = linkblogDash.labels.delete;
+            lbl.textContent = linkdigestDash.labels.delete;
             const yes = document.createElement('button');
             yes.className = 'lb-delete-confirm-yes';
-            yes.textContent = linkblogDash.labels.yes;
+            yes.textContent = linkdigestDash.labels.yes;
             const no = document.createElement('button');
             no.className = 'lb-delete-cancel';
-            no.textContent = linkblogDash.labels.cancel;
+            no.textContent = linkdigestDash.labels.cancel;
             row.append(lbl, yes, no);
             btn.parentElement.appendChild(row);
         });
@@ -430,35 +430,35 @@ trait LinkBlog_Admin_Dashboard {
         $total_links       = $publish_stats['total_links'];
         $published_links   = $publish_stats['published_links'];
         $unpublished_links = $publish_stats['unpublished_links'];
-        $total_categories  = count( get_terms( array( 'taxonomy' => 'linkblog_category', 'hide_empty' => false ) ) );
+        $total_categories  = count( get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) ) );
 
         $recent_links = get_posts( array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => 5,
             'orderby'        => 'date',
             'order'          => 'DESC',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
-                array( 'key' => '_linkblog_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
+                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
             ),
         ) );
 
         $recently_published = get_posts( array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => 5,
             'orderby'        => 'meta_value',
             'order'          => 'DESC',
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-            'meta_key'       => '_linkblog_published_date',
+            'meta_key'       => '_linkdigest_published_date',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                array( 'key' => '_linkblog_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'IN' ),
+                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'IN' ),
             ),
         ) );
 
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'linkblog', 'linkblog' ); ?></h1>
+            <h1><?php esc_html_e( 'linkdigest', 'linkdigest' ); ?></h1>
 
             <?php $this->renderDashboardNotices( $batch_result, $roundup_result ); ?>
 
@@ -467,22 +467,22 @@ trait LinkBlog_Admin_Dashboard {
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkblog' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-category lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_categories )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkblog' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $published_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkblog' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $unpublished_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkblog' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
                 </div>
             </div>
 

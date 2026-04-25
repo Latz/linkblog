@@ -9,7 +9,7 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblog_get_schedule() and linkblog_save_schedule()
+ * Tests for linkdigest_get_schedule() and linkdigest_save_schedule()
  */
 
 beforeEach(function (): void {
@@ -49,7 +49,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
     });
 
     it('returns a 400 WP_Error when the request body is empty', function (): void {
-        $request = linkblog_make_request(); // no JSON body
+        $request = linkdigest_make_request(); // no JSON body
 
         $result = $this->plugin->saveSchedule($request);
 
@@ -59,7 +59,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
     });
 
     it('returns a 400 WP_Error when mode key is missing', function (): void {
-        $request = linkblog_make_request(['recurrence' => []]);
+        $request = linkdigest_make_request(['recurrence' => []]);
 
         $result = $this->plugin->saveSchedule($request);
 
@@ -69,7 +69,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
 
     it('saves valid schedule data and returns success', function (): void {
         $data    = ['mode' => 'daily', 'times' => ['09:00']];
-        $request = linkblog_make_request($data);
+        $request = linkdigest_make_request($data);
 
         $savedKey = null;
         $savedVal = null;
@@ -84,7 +84,7 @@ describe('LinkBlog::saveSchedule()', function (): void {
         $result = $this->plugin->saveSchedule($request);
 
         expect($result['success'])->toBeTrue();
-        expect($savedKey)->toBe('linkblog_schedule');
+        expect($savedKey)->toBe('linkdigest_schedule');
         expect($savedVal)->toBe($data);
     });
 });

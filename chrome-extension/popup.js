@@ -75,7 +75,7 @@ function renderCategories(categories) {
     categories.forEach(category => {
         const radio = document.createElement('input');
         radio.type = 'radio';
-        radio.name = 'linkblog_category';
+        radio.name = 'linkdigest_category';
         radio.id = `cat-${category.id}`;
         radio.value = category.name;
         radio.className = 'category-checkbox';

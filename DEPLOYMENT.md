@@ -1,10 +1,10 @@
-# LinkBlog Plugin — Deployment Guide
+# LinkDigest Plugin — Deployment Guide
 
 ## Package Contents
 
-The deployable plugin package (`dist/linkblog.zip`) includes:
+The deployable plugin package (`dist/linkdigest.zip`) includes:
 
-- **linkblog.php** — Main plugin file with headers and initialization
+- **linkdigest.php** — Main plugin file with headers and initialization
 - **readme.txt** — WordPress.org-compatible plugin metadata and changelog
 - **src/php/** — All PHP class and trait files
 - **src/js/** — Browser extension JavaScript utilities
@@ -17,12 +17,12 @@ The deployable plugin package (`dist/linkblog.zip`) includes:
 To build a fresh deployment package:
 
 ```bash
-cd /path/to/plugins/LinkBlog
-rm dist/linkblog.zip
+cd /path/to/plugins/LinkDigest
+rm dist/linkdigest.zip
 
-mkdir -p /tmp/linkblog-build
-cp -r . /tmp/linkblog-build/
-cd /tmp/linkblog-build
+mkdir -p /tmp/linkdigest-build
+cp -r . /tmp/linkdigest-build/
+cd /tmp/linkdigest-build
 
 # Remove files listed in .distignore
 while IFS= read -r line; do
@@ -31,15 +31,15 @@ while IFS= read -r line; do
 done < .distignore
 
 cd /tmp
-zip -r /path/to/plugins/LinkBlog/dist/linkblog.zip linkblog-build/
-rm -rf /tmp/linkblog-build
+zip -r /path/to/plugins/LinkDigest/dist/linkdigest.zip linkdigest-build/
+rm -rf /tmp/linkdigest-build
 ```
 
 **The package is ~1.4 MB** (includes node_modules by default; update .distignore if needed).
 
 ## Installation
 
-1. Download `dist/linkblog.zip`
+1. Download `dist/linkdigest.zip`
 2. Go to WordPress Admin → Plugins → Add New
 3. Upload the ZIP file
 4. Click "Install Now"
@@ -57,7 +57,7 @@ For submission to the official WordPress.org plugin directory:
 2. Run [Plugin Check](https://github.com/WordPress/plugin-check):
    ```bash
    wp plugin list
-   wp plugin-check linkblog --plugins=linkblog
+   wp plugin-check linkdigest --plugins=linkdigest
    ```
 
 3. Address any issues and rebuild the package
@@ -68,7 +68,7 @@ For submission to the official WordPress.org plugin directory:
 
 ### REST API Access
 
-Settings stored in `option('linkblog_schedule')`:
+Settings stored in `option('linkdigest_schedule')`:
 - `mode`: 'daily', 'weekly', 'monthly', 'count', 'age', or 'manual'
 - `trigger`: Trigger conditions (count threshold, age in days)
 - `times`: Array of HH:MM times to publish
@@ -100,10 +100,10 @@ The plugin uses WordPress's WP-Cron system:
 
 The plugin includes API endpoints for the companion Chrome extension:
 
-- GET `/linkblog/v1/auth/key` — Get API key
-- POST `/linkblog/v1/links` — Add a link
-- DELETE `/linkblog/v1/links/{id}` — Delete a link
-- GET `/linkblog/v1/categories` — List categories
+- GET `/linkdigest/v1/auth/key` — Get API key
+- POST `/linkdigest/v1/links` — Add a link
+- DELETE `/linkdigest/v1/links/{id}` — Delete a link
+- GET `/linkdigest/v1/categories` — List categories
 
 Generate an API key in the plugin settings dashboard.
 

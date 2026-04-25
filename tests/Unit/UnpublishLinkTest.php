@@ -40,7 +40,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
 
     it('returns success and removes all three meta keys on success', function (): void {
         Functions\when('get_post_meta')->justReturn(50);
-        Functions\when('wp_trash_post')->justReturn(linkblog_make_post(50, 'Blog Post', 'post'));
+        Functions\when('wp_trash_post')->justReturn(linkdigest_make_post(50, 'Blog Post', 'post'));
 
         $deleted = [];
         Functions\when('delete_post_meta')
@@ -52,9 +52,9 @@ describe('LinkBlog::unpublishLink()', function (): void {
         $result = $this->plugin->unpublishLink(1);
 
         expect($result['success'])->toBeTrue();
-        expect($deleted)->toContain('_linkblog_published_post_id');
-        expect($deleted)->toContain('_linkblog_publish_status');
-        expect($deleted)->toContain('_linkblog_published_date');
+        expect($deleted)->toContain('_linkdigest_published_post_id');
+        expect($deleted)->toContain('_linkdigest_publish_status');
+        expect($deleted)->toContain('_linkdigest_published_date');
     });
 
     it('trashes the correct blog post ID', function (): void {
@@ -65,7 +65,7 @@ describe('LinkBlog::unpublishLink()', function (): void {
         Functions\when('wp_trash_post')->alias(
             function (int $id) use (&$trashedId): WP_Post|false|null {
                 $trashedId = $id;
-                return linkblog_make_post($id, 'Post', 'post');
+                return linkdigest_make_post($id, 'Post', 'post');
             }
         );
 

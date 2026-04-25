@@ -1,0 +1,270 @@
+<?php
+
+declare(strict_types=1);
+
+trait LinkBlog_RestApi {
+
+    public function registerRestRoutes(): void {
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/add-link', array(
+            'methods' => 'POST',
+            'callback' => [$this, 'restAddLink'],
+            'permission_callback' => [$this, 'restPermissionCheck'],
+            'args' => array(
+                'title' => array(
+                    'required' => true,
+                    'type' => 'string',
+                    'sanitize_callback' => 'sanitize_text_field',
+                ),
+                'url' => array(
+                    'required' => false,
+                    'type' => 'string',
+                    'sanitize_callback' => 'esc_url_raw',
+                ),
+                'content' => array(
+                    'required' => false,
+                    'type' => 'string',
+                    'sanitize_callback' => 'wp_kses_post',
+                ),
+                'categories' => array(
+                    'required' => false,
+                    'type' => 'array',
+                ),
+                'tags' => array(
+                    'required' => false,
+                    'type' => 'string',
+                ),
+            ),
+        ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/categories', array(
+            'methods' => 'GET',
+            'callback' => [$this, 'restGetCategories'],
+            'permission_callback' => [$this, 'restPermissionCheck'],
+        ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/links/(?P<id>\d+)', array(
+            'methods'             => 'DELETE',
+            'callback'            => [$this, 'restDeleteLink'],
+            'permission_callback' => function() { return current_user_can('delete_posts'); },
+        ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/schedule', array(
+            array(
+                'methods'             => 'GET',
+                'callback'            => [$this, 'getSchedule'],
+                'permission_callback' => function() { return current_user_can('manage_options'); },
+            ),
+            array(
+                'methods'             => 'POST',
+                'callback'            => [$this, 'saveSchedule'],
+                'permission_callback' => function() { return current_user_can('manage_options'); },
+            ),
+        ));
+
+        register_rest_route(LINKBLOG_REST_NAMESPACE, '/schedule/run', array(
+            'methods'             => 'POST',
+            'callback'            => [$this, 'runScheduleNow'],
+            'permission_callback' => function() { return current_user_can('manage_options'); },
+        ));
+    }
+
+    public function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
+        $link_id = (int) $request['id'];
+        if (get_post_type($link_id) !== 'linkblog') {
+            return new \WP_Error('invalid_link', 'Link not found', array('status' => 404));
+        }
+        $result = wp_delete_post($link_id, true);
+        if (!$result) {
+            return new \WP_Error('delete_failed', 'Could not delete link', array('status' => 500));
+        }
+        return new \WP_REST_Response(null, 204);
+    }
+
+    public function getSchedule(): mixed {
+        $default = array(
+            'mode'       => 'daily',
+            'recurrence' => array(
+                'interval'  => 1,
+                'weekdays'  => array(),
+                'monthDays' => array(array('type' => 'day', 'value' => 1, 'nth' => 1, 'weekday' => 'MO')),
+                'nthWeek'   => null,
+            ),
+            'trigger' => array('count' => 10, 'tag_id' => null, 'days' => 7),
+            'times'   => array('09:00'),
+        );
+        $config = get_option('linkblog_schedule', $default);
+        return rest_ensure_response($config);
+    }
+
+    public function saveSchedule(\WP_REST_Request $request): mixed {
+        $data = $request->get_json_params();
+        if (empty($data) || !isset($data['mode'])) {
+            return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkblog'), array('status' => 400));
+        }
+        update_option('linkblog_schedule', $data);
+        $this->scheduleNextEvent();
+        return rest_ensure_response(array('success' => true));
+    }
+
+    public function runScheduleNow(): \WP_REST_Response {
+        $this->executeSchedule();
+        return rest_ensure_response(array('success' => true));
+    }
+
+    public function restPermissionCheck(\WP_REST_Request $request): bool {
+        // Check for API key in header
+        $api_key = $request->get_header('X-LinkBlog-API-Key');
+        $stored_key = get_option('linkblog_api_key');
+
+        if (!empty($api_key) && !empty($stored_key) && hash_equals($stored_key, $api_key)) {
+            return true;
+        }
+
+        // Fallback to WordPress authentication
+        return current_user_can('edit_posts');
+    }
+
+    public function restAddLink(\WP_REST_Request $request): mixed {
+        $title = $request->get_param('title');
+        $url = $request->get_param('url');
+        $content = $request->get_param('content') ?? '';
+        $categories = $request->get_param('categories');
+        $tags = $request->get_param('tags');
+
+        $validation = $this->validateRestLink($title, $url);
+        if (is_wp_error($validation)) {
+            return $validation;
+        }
+
+        $post_data = array(
+            'post_title'   => $title,
+            'post_content' => $content,
+            'post_type'    => 'linkblog',
+            'post_status'  => 'publish',
+        );
+
+        $post_id = wp_insert_post($post_data);
+        if (is_wp_error($post_id)) {
+            return new \WP_Error('insert_failed', __('Failed to create link.', 'linkblog'), array('status' => 500));
+        }
+
+        if (!empty($url)) {
+            update_post_meta($post_id, '_linkblog_url', $url);
+        }
+
+        $this->applyLinkTaxonomies($post_id, $categories, $tags);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'post_id' => $post_id,
+            'message' => __('Link added successfully!', 'linkblog'),
+        ));
+    }
+
+    private function validateRestLink(string $title, string $url): bool|\WP_Error {
+        if (empty($title)) {
+            return new \WP_Error('missing_title', __('Title is required.', 'linkblog'), array('status' => 400));
+        }
+
+        if (!empty($url)) {
+            $existing = get_posts(array(
+                'post_type'   => 'linkblog',
+                'post_status' => 'any',
+                'meta_key'    => '_linkblog_url',
+                'meta_value'  => $url,
+                'numberposts' => 1,
+                'fields'      => 'ids',
+            ));
+            if (!empty($existing)) {
+                return new \WP_Error('duplicate_url', __('This URL has already been saved.', 'linkblog'), array('status' => 409));
+            }
+        }
+
+        return true;
+    }
+
+    private function resolveOrCreateCategories(array $categories): array {
+        $ids = array();
+        foreach ($categories as $cat_name) {
+            $term = get_term_by('name', $cat_name, 'linkblog_category');
+            if (!$term) {
+                $result = wp_insert_term($cat_name, 'linkblog_category');
+                if (!is_wp_error($result)) {
+                    $ids[] = $result['term_id'];
+                }
+            } else {
+                $ids[] = $term->term_id;
+            }
+        }
+        return $ids;
+    }
+
+    private function applyLinkTaxonomies(int $post_id, mixed $categories, mixed $tags): void {
+        if (!empty($categories) && is_array($categories)) {
+            $ids = $this->resolveOrCreateCategories($categories);
+            if (!empty($ids)) {
+                wp_set_object_terms($post_id, $ids, 'linkblog_category');
+            }
+        }
+        if (!empty($tags)) {
+            $tag_names = array_map('trim', explode(',', $tags));
+            wp_set_object_terms($post_id, $tag_names, 'linkblog_tag');
+        }
+    }
+
+    public function restGetCategories(): mixed {
+        $cache_key = 'linkblog_api_categories_list';
+        $category_list = get_transient($cache_key);
+
+        if (false === $category_list) {
+            $categories = get_terms(array(
+                'taxonomy'   => 'linkblog_category',
+                'hide_empty' => false,
+            ));
+
+            if (is_wp_error($categories)) {
+                return new \WP_Error('fetch_failed', __('Failed to fetch categories.', 'linkblog'), array('status' => 500));
+            }
+
+            $category_list = array();
+            foreach ($categories as $category) {
+                $category_list[] = array(
+                    'id'   => $category->term_id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                );
+            }
+            set_transient($cache_key, $category_list, HOUR_IN_SECONDS);
+        }
+        return rest_ensure_response($category_list);
+    }
+
+    public function invalidateCategoriesCache(): void {
+        delete_transient('linkblog_api_categories_list');
+    }
+
+    public function addCorsHeaders(bool $served): bool {
+        $origin = get_http_origin();
+        if (is_string($origin) && strpos($origin, 'chrome-extension://') === 0) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: POST, GET, OPTIONS, DELETE');
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+        }
+        return $served;
+    }
+
+    public function handlePreflight(): void {
+        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            $origin = get_http_origin();
+            if (strpos($origin, 'chrome-extension://') === 0) {
+                header('Access-Control-Allow-Origin: ' . $origin);
+                header('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+                header('Access-Control-Allow-Credentials: true');
+                header('Access-Control-Allow-Headers: Content-Type, X-LinkBlog-API-Key, Authorization');
+                header('Access-Control-Max-Age: 86400');
+                exit;
+            }
+        }
+    }
+}

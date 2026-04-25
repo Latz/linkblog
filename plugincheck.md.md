@@ -1,6 +1,6 @@
 # Plugin Check Report
 
-**Plugin:** LinkBlog
+**Plugin:** LinkDigest
 **Generated at:** 2026-04-17 21:39:58
 
 
@@ -12,7 +12,7 @@
 | 29 | 24 | ERROR | WordPress.WP.I18n.UnorderedPlaceholdersText | Multiple placeholders in translatable strings should be ordered. Expected "%1$s, %2$s", but got "%s, %s" in 'Failed to publish "%s": %s'. | [Docs](https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#variables) |
 | 93 | 37 | ERROR | WordPress.WP.I18n.MissingTranslatorsComment | A function call to __() with texts containing placeholders was found, but was not accompanied by a "translators:" comment on the line above to clarify the meaning of the placeholders. | [Docs](https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/#descriptions) |
 
-## `dist/linkblog.zip`
+## `dist/linkdigest.zip`
 
 | Line | Column | Type | Code | Message | Docs |
 | --- | --- | --- | --- | --- | --- |
@@ -264,11 +264,11 @@
 | --- | --- | --- | --- | --- | --- |
 | 0 | 0 | WARNING | unexpected_markdown_file | Unexpected markdown file "DEPLOYMENT.md" detected in plugin root. Only specific markdown files are expected in production plugins. |  |
 
-## `linkblog-linkblog-php-20260414-213639.md`
+## `linkdigest-linkdigest-php-20260414-213639.md`
 
 | Line | Column | Type | Code | Message | Docs |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0 | WARNING | unexpected_markdown_file | Unexpected markdown file "linkblog-linkblog-php-20260414-213639.md" detected in plugin root. Only specific markdown files are expected in production plugins. |  |
+| 0 | 0 | WARNING | unexpected_markdown_file | Unexpected markdown file "linkdigest-linkdigest-php-20260414-213639.md" detected in plugin root. Only specific markdown files are expected in production plugins. |  |
 
 ## `CLAUDE.local.md`
 
@@ -276,11 +276,11 @@
 | --- | --- | --- | --- | --- | --- |
 | 0 | 0 | WARNING | unexpected_markdown_file | Unexpected markdown file "CLAUDE.local.md" detected in plugin root. Only specific markdown files are expected in production plugins. |  |
 
-## `linkblog.php`
+## `linkdigest.php`
 
 | Line | Column | Type | Code | Message | Docs |
 | --- | --- | --- | --- | --- | --- |
-| 0 | 0 | WARNING | textdomain_mismatch | The "Text Domain" header in the plugin file does not match the slug. Found "linkblog", expected "LinkBlog". | [Docs](https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/) |
+| 0 | 0 | WARNING | textdomain_mismatch | The "Text Domain" header in the plugin file does not match the slug. Found "linkdigest", expected "LinkDigest". | [Docs](https://developer.wordpress.org/plugins/internationalization/how-to-internationalize-your-plugin/) |
 
 ## `docs/plans/single-event-scheduling.php`
 

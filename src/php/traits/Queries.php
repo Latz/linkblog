@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-trait LinkBlog_Queries {
+trait LinkDigest_Queries {
 
     public function getPublishStatistics(): array {
-        $counts = wp_count_posts('linkblog');
+        $counts = wp_count_posts('linkdigest');
         $total_links = (int) ($counts->publish ?? 0);
 
         // Count published links
         $published_args = array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => -1,
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => 'published',
                     'compare' => '='
                 )
@@ -25,12 +25,12 @@ trait LinkBlog_Queries {
 
         // Count draft links
         $draft_args = array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => -1,
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 array(
-                    'key'     => '_linkblog_publish_status',
+                    'key'     => '_linkdigest_publish_status',
                     'value'   => 'draft',
                     'compare' => '='
                 )
@@ -51,7 +51,7 @@ trait LinkBlog_Queries {
     public function getLinksGroupedByCategory(): array {
         // Get all categories
         $categories = get_terms(array(
-            'taxonomy'   => 'linkblog_category',
+            'taxonomy'   => 'linkdigest_category',
             'hide_empty' => false,
         ));
 
@@ -61,13 +61,13 @@ trait LinkBlog_Queries {
         if (!empty($categories) && !is_wp_error($categories)) {
             foreach ($categories as $category) {
                 $category_links = get_posts(array(
-                    'post_type'      => 'linkblog',
+                    'post_type'      => 'linkdigest',
                     'posts_per_page' => -1,
                     'orderby'        => 'date',
                     'order'          => 'DESC',
                     'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                         array(
-                            'taxonomy' => 'linkblog_category',
+                            'taxonomy' => 'linkdigest_category',
                             'field'    => 'term_id',
                             'terms'    => $category->term_id,
                         ),
@@ -82,20 +82,20 @@ trait LinkBlog_Queries {
 
         // Get uncategorized links
         $uncategorized_links = get_posts(array(
-            'post_type'      => 'linkblog',
+            'post_type'      => 'linkdigest',
             'posts_per_page' => -1,
             'orderby'        => 'date',
             'order'          => 'DESC',
             'tax_query'      => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
                 array(
-                    'taxonomy' => 'linkblog_category',
+                    'taxonomy' => 'linkdigest_category',
                     'operator' => 'NOT EXISTS',
                 ),
             ),
         ));
 
         if (!empty($uncategorized_links)) {
-            $grouped_links[__('Uncategorized', 'linkblog')] = $uncategorized_links;
+            $grouped_links[__('Uncategorized', 'linkdigest')] = $uncategorized_links;
         }
 
         return $grouped_links;
@@ -103,12 +103,12 @@ trait LinkBlog_Queries {
 
     public function unpublishLink(int $link_id): array {
         // Get published post ID
-        $published_post_id = get_post_meta($link_id, '_linkblog_published_post_id', true);
+        $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);
 
         if (!$published_post_id) {
             return array(
                 'success' => false,
-                'message' => __('This link has not been published.', 'linkblog')
+                'message' => __('This link has not been published.', 'linkdigest')
             );
         }
 
@@ -118,18 +118,18 @@ trait LinkBlog_Queries {
         if (!$trashed) {
             return array(
                 'success' => false,
-                'message' => __('Failed to unpublish link.', 'linkblog')
+                'message' => __('Failed to unpublish link.', 'linkdigest')
             );
         }
 
         // Reset meta fields
-        delete_post_meta($link_id, '_linkblog_published_post_id');
-        delete_post_meta($link_id, '_linkblog_publish_status');
-        delete_post_meta($link_id, '_linkblog_published_date');
+        delete_post_meta($link_id, '_linkdigest_published_post_id');
+        delete_post_meta($link_id, '_linkdigest_publish_status');
+        delete_post_meta($link_id, '_linkdigest_published_date');
 
         return array(
             'success' => true,
-            'message' => __('Link unpublished successfully.', 'linkblog')
+            'message' => __('Link unpublished successfully.', 'linkdigest')
         );
     }
 }

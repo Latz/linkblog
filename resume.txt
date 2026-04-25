@@ -1,1 +1,1 @@
-claude --resume "fix-plugin-check-issues"
+claude --resume "settings-x-card-grid-page"

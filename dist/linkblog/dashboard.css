@@ -1,0 +1,276 @@
+/**
+ * LinkBlog Dashboard Styles — WordPress native integration
+ */
+
+/* ── Stats Grid ──────────────────────────────────────────── */
+.lb-stats-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 0 0 16px;
+}
+
+.lb-stat-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	padding: 10px 14px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex: 1;
+	min-width: 130px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.lb-stat-icon {
+	color: #2271b1;
+	font-size: 20px;
+	width: 20px;
+	height: 20px;
+	flex-shrink: 0;
+}
+
+.lb-stat-value {
+	display: block;
+	font-size: 22px;
+	font-weight: 600;
+	color: #1d2327;
+	line-height: 1.1;
+}
+
+.lb-stat-label {
+	display: block;
+	font-size: 11px;
+	color: #646970;
+	margin: 1px 0 0;
+}
+
+/* ── Two-column layout ───────────────────────────────────── */
+#postbox-container-1 {
+	width: 65%;
+	float: left;
+	padding-right: 8px;
+	box-sizing: border-box;
+}
+
+#postbox-container-2 {
+	width: 35%;
+	float: left;
+	padding-left: 8px;
+	box-sizing: border-box;
+}
+
+.metabox-holder::after {
+	content: '';
+	display: table;
+	clear: both;
+}
+
+/* ── Recent links list ───────────────────────────────────── */
+.lb-recent-links {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.lb-link-item {
+	padding: 8px 12px;
+	border-bottom: 1px solid #f0f0f1;
+	position: relative;
+}
+
+.lb-link-item:last-child {
+	border-bottom: none;
+}
+
+.lb-link-item-header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.lb-link-title {
+	font-size: 13px;
+	color: #1d2327;
+	margin: 0 0 3px;
+	line-height: 1.4;
+}
+
+.lb-link-url {
+	font-size: 12px;
+	color: #2271b1;
+	text-decoration: none;
+	display: inline-block;
+	margin-bottom: 3px;
+}
+
+.lb-link-url:hover {
+	text-decoration: underline;
+	color: #135e96;
+}
+
+.lb-link-meta {
+	display: flex;
+	gap: 10px;
+	font-size: 11px;
+	color: #646970;
+	flex-wrap: wrap;
+}
+
+/* ── Delete button ───────────────────────────────────────── */
+.lb-delete-btn {
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 2px 4px;
+	border-radius: 3px;
+	opacity: 0;
+	transition: opacity .15s, background .15s;
+	flex-shrink: 0;
+	color: #b32d2e;
+	display: flex;
+	align-items: center;
+	line-height: 1;
+}
+
+.lb-delete-btn .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.lb-link-item:hover .lb-delete-btn {
+	opacity: 1;
+}
+
+.lb-delete-btn:hover {
+	background: #fce8e8;
+}
+
+/* ── Inline confirm ──────────────────────────────────────── */
+.lb-delete-confirm-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 3px;
+}
+
+.lb-delete-confirm-label {
+	font-size: 12px;
+	color: #646970;
+}
+
+.lb-delete-confirm-yes,
+.lb-delete-cancel {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 3px;
+	border: 1px solid;
+	cursor: pointer;
+}
+
+.lb-delete-confirm-yes {
+	background: #b32d2e;
+	border-color: #b32d2e;
+	color: #fff;
+}
+
+.lb-delete-cancel {
+	background: #f6f7f7;
+	border-color: #c3c4c7;
+	color: #1d2327;
+}
+
+.lb-delete-cancel:hover {
+	background: #f0f0f1;
+}
+
+/* ── Status badges ───────────────────────────────────────── */
+.lb-status-badge {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 2px;
+	font-size: 10px;
+	font-weight: 600;
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.lb-status-published {
+	background: #005a12;
+	color: #fff;
+}
+
+.lb-status-draft {
+	background: #646970;
+	color: #fff;
+}
+
+/* ── Category distribution bar ───────────────────────────── */
+.lb-category-item {
+	padding: 8px 0;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.lb-category-item:last-child {
+	border-bottom: none;
+}
+
+.lb-category-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 4px;
+}
+
+.lb-category-name {
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.lb-category-count {
+	font-size: 13px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+.lb-category-bar-container {
+	height: 4px;
+	background: #f0f0f1;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.lb-category-bar {
+	height: 100%;
+	background: #2271b1;
+	border-radius: 2px;
+}
+
+/* ── Category heading (roundup post preview) ─────────────── */
+.lb-category-heading {
+	font-size: 16px;
+	font-weight: 600;
+	color: #1d2327;
+	margin: 16px 0 8px;
+	padding-bottom: 6px;
+	border-bottom: 2px solid #2271b1;
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 900px) {
+	#postbox-container-1,
+	#postbox-container-2 {
+		width: 100%;
+		padding: 0;
+	}
+}
+
+@media (max-width: 600px) {
+	.lb-stats-grid {
+		flex-direction: column;
+	}
+}

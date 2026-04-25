@@ -1,6 +1,6 @@
 # Plugin Check Report
 
-**Plugin:** LinkBlog
+**Plugin:** LinkDigest
 **Generated at:** 2026-04-17 21:58:44
 
 

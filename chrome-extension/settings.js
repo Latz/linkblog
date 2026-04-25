@@ -118,7 +118,7 @@ async function checkWpLogin(url) {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'action=linkblog_get_rest_nonce',
+            body: 'action=linkdigest_get_rest_nonce',
         });
         const nonceData = await nonceRes.json();
         if (!nonceData.success) throw new Error(`nonce: ${nonceRes.status}`);
@@ -126,7 +126,7 @@ async function checkWpLogin(url) {
         // Fetch the API key using the nonce
         status.textContent = '✓ Logged in — fetching API key…';
         const endpoint = document.getElementById('apiEndpoint').value.trim()
-            || `${wpBase}/wp-json/linkblog/v1`;
+            || `${wpBase}/wp-json/linkdigest/v1`;
         const keyRes = await fetch(`${endpoint}/api-key`, {
             credentials: 'include',
             headers: { 'X-WP-Nonce': nonceData.data.nonce },
@@ -155,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('createEndpointBtn').addEventListener('click', () => {
         const wp = wpInput.value.trim().replace(/\/$/, '');
         if (wp) {
-            document.getElementById('apiEndpoint').value = `${wp}/wp-json/linkblog/v1`;
+            document.getElementById('apiEndpoint').value = `${wp}/wp-json/linkdigest/v1`;
         }
     });
 });

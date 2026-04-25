@@ -9,7 +9,7 @@ if (!defined("ABSPATH")) {
 use Brain\Monkey\Functions;
 
 /**
- * Tests for linkblog_rest_permission_check()
+ * Tests for linkdigest_rest_permission_check()
  *
  * Two auth paths:
  *  1. API key in X-LinkBlog-API-Key header — compared with stored key via hash_equals
@@ -26,9 +26,9 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         $key = 'super-secret-key-abc123';
 
         Functions\when('get_option')
-            ->alias(fn($opt) => $opt === 'linkblog_api_key' ? $key : false);
+            ->alias(fn($opt) => $opt === 'linkdigest_api_key' ? $key : false);
 
-        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => $key]);
+        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => $key]);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -37,10 +37,10 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
 
     it('denies access when the API key does not match the stored key', function (): void {
         Functions\when('get_option')
-            ->alias(fn($opt) => $opt === 'linkblog_api_key' ? 'correct-key' : false);
+            ->alias(fn($opt) => $opt === 'linkdigest_api_key' ? 'correct-key' : false);
         Functions\when('current_user_can')->justReturn(false);
 
-        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => 'wrong-key']);
+        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => 'wrong-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -51,7 +51,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn('some-stored-key');
         Functions\when('current_user_can')->justReturn(true);
 
-        $request = linkblog_make_request(); // no API key header
+        $request = linkdigest_make_request(); // no API key header
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -62,7 +62,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn(''); // empty stored key
         Functions\when('current_user_can')->justReturn(true);
 
-        $request = linkblog_make_request([], ['X-LinkBlog-API-Key' => 'any-key']);
+        $request = linkdigest_make_request([], ['X-LinkBlog-API-Key' => 'any-key']);
 
         $result = $this->plugin->restPermissionCheck($request);
 
@@ -73,7 +73,7 @@ describe('LinkBlog::restPermissionCheck()', function (): void {
         Functions\when('get_option')->justReturn('');
         Functions\when('current_user_can')->justReturn(false);
 
-        $request = linkblog_make_request();
+        $request = linkdigest_make_request();
 
         $result = $this->plugin->restPermissionCheck($request);
 

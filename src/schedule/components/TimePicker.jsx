@@ -15,12 +15,12 @@ export default function TimePicker({ times, onChange }) {
   }
 
   return (
-    <div className="linkblog-timepicker">
+    <div className="linkdigest-timepicker">
       {times.map((t, i) => (
-        <div key={`time-${t}`} className="linkblog-time-row">
+        <div key={`time-${t}`} className="linkdigest-time-row">
           <input
             type="time"
-            className="linkblog-time-input"
+            className="linkdigest-time-input"
             value={t}
             onChange={e => updateTime(i, e.target.value)}
           />
@@ -29,7 +29,7 @@ export default function TimePicker({ times, onChange }) {
               variant="destructive"
               size="compact"
               onClick={() => removeTime(i)}
-              aria-label={__('Remove time', 'linkblog')}
+              aria-label={__('Remove time', 'linkdigest')}
             >
               ✕
             </Button>
@@ -37,7 +37,7 @@ export default function TimePicker({ times, onChange }) {
         </div>
       ))}
       <Button variant="secondary" size="compact" onClick={addTime}>
-        + {__('Add time', 'linkblog')}
+        + {__('Add time', 'linkdigest')}
       </Button>
     </div>
   );

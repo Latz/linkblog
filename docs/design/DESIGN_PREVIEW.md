@@ -1,8 +1,8 @@
-# LinkBlog Dashboard - Design Preview
+# LinkDigest Dashboard - Design Preview
 
 ## Visual Design Description
 
-This document describes the visual appearance of the LinkBlog Dashboard for reference and documentation.
+This document describes the visual appearance of the LinkDigest Dashboard for reference and documentation.
 
 ---
 
@@ -12,7 +12,7 @@ This document describes the visual appearance of the LinkBlog Dashboard for refe
 ┌─────────────────────────────────────────────────────────────┐
 │                     DASHBOARD HEADER                         │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │  LinkBlog Dashboard                     [gradient bg]  │  │
+│  │  LinkDigest Dashboard                     [gradient bg]  │  │
 │  │  Manage and track your curated link collection         │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘

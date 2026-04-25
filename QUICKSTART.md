@@ -1,16 +1,16 @@
-# LinkBlog Dashboard - Quick Start Guide
+# LinkDigest Dashboard - Quick Start Guide
 
 ## 🚀 Getting Started
 
-Your LinkBlog plugin now features a beautiful, modern dashboard! Here's how to use it:
+Your LinkDigest plugin now features a beautiful, modern dashboard! Here's how to use it:
 
 ### Accessing the Dashboard
 
 1. Log in to WordPress Admin
-2. Look for "**LinkBlog**" in the left sidebar (link icon 🔗)
+2. Look for "**LinkDigest**" in the left sidebar (link icon 🔗)
 3. Click it to open the dashboard
 
-The dashboard is now your default landing page for LinkBlog!
+The dashboard is now your default landing page for LinkDigest!
 
 ---
 
@@ -95,7 +95,7 @@ Visual breakdown of your most-used categories:
 ### Sidebar Menu Structure
 
 ```
-LinkBlog
+LinkDigest
 ├─ Dashboard       ← You are here
 ├─ All Links       ← Complete link list (table view)
 ├─ Add Link        ← Full form with all options
@@ -224,7 +224,7 @@ Want to personalize your dashboard? See `DASHBOARD.md` for:
 
 ### Category Chart Empty?
 
-1. Navigate to **LinkBlog > Categories**
+1. Navigate to **LinkDigest > Categories**
 2. Create at least one category
 3. Assign it to a link (via Edit or Add Link)
 4. Return to dashboard - chart will populate
@@ -254,10 +254,10 @@ Now that you're familiar with the dashboard:
 
 - **DASHBOARD.md**: Complete feature documentation
 - **DESIGN_PREVIEW.md**: Visual design specifications
-- **linkblog.php**: Source code with inline comments
+- **linkdigest.php**: Source code with inline comments
 
 ---
 
-**Enjoy your beautiful LinkBlog Dashboard!** ✨
+**Enjoy your beautiful LinkDigest Dashboard!** ✨
 
 Made with careful attention to design, typography, and user experience.

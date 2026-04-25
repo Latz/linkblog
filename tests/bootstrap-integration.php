@@ -22,24 +22,24 @@ if (!defined('ABSPATH')) {
  *   vendor/bin/pest --testsuite=Integration
  */
 
-$linkblog_wp_tests_dir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
+$linkdigest_wp_tests_dir = getenv('WP_TESTS_DIR') ?: '/tmp/wordpress-tests-lib';
 
-if (! is_dir($linkblog_wp_tests_dir)) {
+if (! is_dir($linkdigest_wp_tests_dir)) {
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-    echo "\nERROR: WP test suite not found at {$linkblog_wp_tests_dir}.\n";
+    echo "\nERROR: WP test suite not found at {$linkdigest_wp_tests_dir}.\n";
     echo "Run bin/install-wp-tests.sh or set WP_TESTS_DIR.\n\n";
     exit(1);
 }
 
 // Load the plugin under test before WP boots.
-define('LINKBLOG_TESTS_DIR', dirname(__DIR__));
-require_once $linkblog_wp_tests_dir . '/includes/functions.php';
+define('LINKDIGEST_TESTS_DIR', dirname(__DIR__));
+require_once $linkdigest_wp_tests_dir . '/includes/functions.php';
 
 // WP test suite bootstrap — this loads WordPress and creates the test DB.
 require_once $wpTestsDir . '/includes/functions.php';
 
 tests_add_filter('muplugins_loaded', static function (): void {
-    require_once LINKBLOG_TESTS_DIR . '/linkblog.php';
+    require_once LINKDIGEST_TESTS_DIR . '/linkdigest.php';
 });
 
 require_once $wpTestsDir . '/includes/bootstrap.php';
