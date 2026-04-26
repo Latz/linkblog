@@ -71,6 +71,10 @@ sed -i \
     -e "s|src/php/class-linkdigest\.php|includes/class-linkdigest.php|g" \
     "$STAGE_DIR/linkdigest.php"
 
+# Rename build/ → schedule/ in the staging dir
+mv "$STAGE_DIR/build" "$STAGE_DIR/schedule"
+sed -i "s|'build/|'schedule/|g" "$STAGE_DIR/includes/Menu.php"
+
 # Zip the staging directory
 echo "Creating archive..."
 (cd "$DIST_DIR" && zip -r -q "$ZIP_PATH" "$PLUGIN_NAME")
