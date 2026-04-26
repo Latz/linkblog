@@ -12,8 +12,7 @@ trait LinkDigest_Queries {
 
         $cached = get_transient('linkdigest_publish_stats');
         if ($cached !== false) {
-            $cache = $cached;
-            return $cache;
+            return $cache = $cached;
         }
 
         $counts = wp_count_posts('linkdigest');
