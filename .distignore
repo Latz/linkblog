@@ -1,6 +1,7 @@
 # Development and test files — excluded from the distributed plugin package
 tests/
 bin/
+src/
 docs/
 vendor/
 node_modules/
