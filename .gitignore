@@ -41,7 +41,11 @@ CLAUDE.local.md
 .scannerwork/
 # Never commit tokens — use: .env file
 .sonarcloud.properties
-/sonar-project.properties
+
+# Build artifacts
+bin/reports/
+bin/*~
+bin/*.bak
 
 # Personal notes / context
 /docs/resume.txt
@@ -49,5 +53,4 @@ CLAUDE.local.md
 # Planning & design notes (archived, not tracked)
 /docs/plans/
 /docs/design/.env
-/bin
 /ftp.login
