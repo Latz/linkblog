@@ -41,13 +41,18 @@ if [[ -z "${SONAR_TOKEN:-}" ]]; then
 fi
 
 # Run unit tests and collect coverage (test failures don't abort the scan)
-echo "Running unit tests with coverage..."
+echo "Running PHP unit tests with coverage..."
 PEST_EXIT=0
 php vendor/bin/pest \
   --bootstrap tests/bootstrap-unit.php \
   tests/Unit \
   --coverage-clover "$REPORT_DIR/coverage.xml" \
   || PEST_EXIT=$?
+
+echo "Running JS unit tests with coverage..."
+JS_EXIT=0
+npm --prefix "$PROJECT_ROOT" run test:js:coverage \
+  || JS_EXIT=$?
 
 # Run analysis
 echo "Running SonarCloud analysis..."
