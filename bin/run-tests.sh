@@ -44,6 +44,20 @@ npm run test:e2e || EXIT_CODES+=(1)
 
 echo ""
 echo "=========================================="
+
+# Run WordPress Plugin Check (excluding Plugin Repo tests)
+echo "Running WordPress Plugin Check..."
+echo ""
+if command -v wp &> /dev/null; then
+  wp plugin check LinkDigest \
+    --exclude-checks=code_obfuscation,plugin_content,file_type,plugin_header_fields,plugin_updater,plugin_uninstall,plugin_review_phpcs,plugin_readme,localhost,no_unfiltered_uploads,trademarks,offloading_files \
+    || EXIT_CODES+=(1)
+else
+  echo "⚠ WP-CLI not found, skipping WordPress plugin validation"
+fi
+
+echo ""
+echo "=========================================="
 echo "Test Results Summary"
 echo "=========================================="
 
