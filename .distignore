@@ -14,6 +14,9 @@ node_modules/
 .gitignore
 .npmrc
 .distignore
+.env
+.env~
+.env.example
 pest.php
 phpunit.xml
 phpcs.xml
@@ -27,14 +30,28 @@ webpack.config.js
 vitest.config.js
 playwright.config.mjs
 playwright.config.js
-QWEN.md
-QUICKSTART.md
-CLAUDE.local.md
-linkblog-linkblog-php-*.md
-linkblog-linkblog-php-*.json
 test-results/
 dist/
+# Personal / workspace files
+resume.txt
+resume.txt~
+ftp.login
+Desktop.ini
+Thumbs.db
+ehthumbs.db
 .sync_8cb9c76aa208.db
+# Marketing / design assets (not needed at runtime)
+header.png
+linkblog.png
+schedule.png
+wordpress_card_grid_ui.pdf
+wordpress_card_grid_ui.pdf:Zone.Identifier
+chrome-extension/ICONS_NEEDED.txt
+# Planning docs
+bottleneck.md
+plugincheck.md
+settingsplan.md
+QUICKSTART.md
 DEPLOYMENT.md
-plugincheck.md.md
-src/php/wp-config.php
+CLAUDE.local.md
+QWEN.md

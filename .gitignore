@@ -43,6 +43,7 @@ CLAUDE.local.md
 .sonarcloud.properties
 
 # Build artifacts
+dist/
 bin/reports/
 bin/*~
 bin/*.bak
