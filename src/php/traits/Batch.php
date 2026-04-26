@@ -77,6 +77,7 @@ trait LinkDigest_Batch {
     }
 
     private function executeRoundupInsertion(string $post_title, bool $as_draft, array $links_by_category, array $uncategorized_links, int $count, array $link_ids): array {
+        // post_type 'post': the roundup is a normal blog post, not a linkdigest CPT entry.
         $post_id = wp_insert_post(array(
             'post_title'   => $post_title,
             'post_content' => $this->buildRoundupContent($links_by_category, $uncategorized_links),
@@ -162,6 +163,8 @@ trait LinkDigest_Batch {
     }
 
     private function assignRoundupCategories(int $post_id, array $links_by_category): void {
+        // Mirrors linkdigest_category terms into native WP categories so the roundup
+        // appears in standard category archives; creates the WP category if it doesn't exist.
         $all_cats = $this->collectCategoryTerms($links_by_category);
 
         if (empty($all_cats)) {

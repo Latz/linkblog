@@ -5,11 +5,13 @@ declare(strict_types=1);
 trait LinkDigest_Queries {
 
     public function getPublishStatistics(): array {
+        // Static prevents repeated DB hits within a single request (e.g., widget + dashboard page).
         static $cache = null;
         if ($cache !== null) {
             return $cache;
         }
 
+        // Transient caches across requests; invalidated by markLinksAsPublished() and unpublishLink().
         $cached = get_transient('linkdigest_publish_stats');
         if ($cached !== false) {
             return $cache = $cached;
@@ -18,6 +20,7 @@ trait LinkDigest_Queries {
         $counts = wp_count_posts('linkdigest');
         $total_links = (int) ($counts->publish ?? 0);
 
+        // posts_per_page=1 + no_found_rows=false: skip fetching rows, use found_posts for the count.
         $q_published = new \WP_Query([
             'post_type'                  => 'linkdigest',
             'posts_per_page'             => 1,
@@ -75,6 +78,7 @@ trait LinkDigest_Queries {
         }
 
         $link_ids = wp_list_pluck($all_links, 'ID');
+        // One batch query primes the term cache; every get_the_terms() call below becomes a cache hit.
         update_object_term_cache($link_ids, 'linkdigest');
 
         $grouped = [];

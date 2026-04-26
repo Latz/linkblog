@@ -30,6 +30,8 @@ trait LinkDigest_Scheduler {
 
         $link_ids = $this->getUnpublishedLinkIds();
 
+        // Cap per-run to prevent max_execution_time / OOM on large queues.
+        // Remaining links are handled by an immediate reschedule below.
         $max_per_run = 200;
         $has_more = count($link_ids) > $max_per_run;
         if ($has_more) {
@@ -86,6 +88,8 @@ trait LinkDigest_Scheduler {
         $now = new \DateTime('now', $tz);
         sort($times);
 
+        // 367-day window handles monthly schedules where no day matches in the current
+        // month (e.g., 31st in a 30-day month) and leap-year edge cases.
         for ($i = 0; $i <= 366; $i++) {
             $day = (clone $now)->modify("+{$i} days");
 

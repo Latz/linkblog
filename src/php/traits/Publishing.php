@@ -20,6 +20,7 @@ trait LinkDigest_Publishing {
             return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'LinkDigest'), 'error_code' => 'missing_title');
         }
         $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);
+        // get_post() check: re-publish is allowed when the blog post was manually deleted.
         if ($published_post_id && get_post($published_post_id)) {
             return array('success' => false, 'post_id' => 0, 'message' => __('This link has already been published.', 'LinkDigest'), 'error_code' => 'already_published');
         }
@@ -34,6 +35,7 @@ trait LinkDigest_Publishing {
         if (!empty($url)) {
             $post_content .= "\n\n" . '<p>Read more: <a href="' . esc_url($url) . '">' . esc_html($url) . '</a></p>';
         }
+        // Allows themes/plugins to override or extend the generated post HTML.
         return apply_filters('linkdigest_blog_post_content', $post_content, $link_id, $url, $description);
     }
 

@@ -137,7 +137,8 @@ trait LinkDigest_RestApi {
     }
 
     public function restPermissionCheck(\WP_REST_Request $request): bool {
-        // Check for API key in header
+        // API key first: used by the Chrome extension and external callers that can't
+        // hold a WP session cookie. Falls back to standard WP capability check.
         $api_key = $request->get_header('X-LinkDigest-API-Key');
         $stored_key = get_option('linkdigest_api_key');
 
@@ -145,7 +146,6 @@ trait LinkDigest_RestApi {
             return true;
         }
 
-        // Fallback to WordPress authentication
         return current_user_can('edit_posts');
     }
 

@@ -44,7 +44,7 @@ trait LinkDigest_PostType {
             'hierarchical'          => false,
             'public'                => true,
             'show_ui'               => true,
-            'show_in_menu'          => false,
+            'show_in_menu'          => false,      // suppressed: plugin uses a custom admin menu
             'menu_position'         => 5,
             'menu_icon'             => plugins_url('assets/icon-20x20.png', LINKDIGEST_PLUGIN_FILE),
             'show_in_admin_bar'     => true,
@@ -59,6 +59,8 @@ trait LinkDigest_PostType {
 
         register_post_type('linkdigest', $args);
 
+        // Expose publish status in REST so the block editor and external tools can read it.
+        // auth_callback '__return_true' is safe: the field is non-sensitive tracking data.
         register_post_meta('linkdigest', '_linkdigest_publish_status', array(
             'show_in_rest'  => true,
             'single'        => true,
