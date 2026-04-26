@@ -2,14 +2,34 @@ import { useMemo } from '@wordpress/element';
 import { RRule } from 'rrule';
 import { __ } from '@wordpress/i18n';
 
+/**
+ * Sidebar panel showing the next 10 scheduled execution dates.
+ */
+
 const SCHEDULE_MODES = new Set(['daily', 'weekly', 'monthly']);
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/**
+ * Formats a UTC date as "Day DD Mon YYYY".
+ *
+ * @param {Date} d - Date to format.
+ * @returns {string}
+ */
 function formatDate(d) {
   return `${DAYS[d.getUTCDay()]} ${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
 }
 
+/**
+ * Sidebar panel showing the next 10 scheduled execution dates.
+ *
+ * @param {object}      config         - Resolved schedule config from App.
+ * @param {string|null} config.rrule   - RFC 5545 recurrence rule string.
+ * @param {string[]}    config.times   - HH:MM execution times.
+ * @param {object|null} config.trigger - Trigger config (null for time-based modes).
+ * @param {object}      form           - Current form state (used to read mode and times).
+ * @returns {JSX.Element|null}
+ */
 export default function NextSchedules({ config, form }) {
   const isSchedule = SCHEDULE_MODES.has(form.mode);
 
@@ -17,6 +37,10 @@ export default function NextSchedules({ config, form }) {
     if (!isSchedule || !config.rrule) return [];
     try {
       const now = new Date();
+
+      // If every configured time for today has already passed, the next
+      // occurrence can only start from tomorrow — skip today to avoid showing
+      // a "next run" that has already been missed.
       const allTimesPast = form.times.every(t => {
         const [h, m] = t.split(':').map(Number);
         const todayAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
@@ -25,8 +49,11 @@ export default function NextSchedules({ config, form }) {
       const dtstart = allTimesPast
         ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
         : now;
+
+      // Re-parse so we can override dtstart without mutating the cached rule.
       const parsed = RRule.fromString(config.rrule);
       const rule = new RRule({ ...parsed.options, dtstart });
+      // rule.all() callback returns false to stop iteration; limit to 10 dates.
       return rule.all((_, i) => i < 10);
     } catch {
       return [];

@@ -1,3 +1,7 @@
+/**
+ * Renders the recurrence configuration UI for daily, weekly, and monthly modes.
+ */
+
 import { __experimentalNumberControl as NumberControl, SelectControl, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -23,10 +27,25 @@ const NTH_OPTIONS = [
 
 const WEEKDAY_OPTIONS = WEEKDAYS.map(d => ({ label: WEEKDAY_SHORT[d.value], value: d.value }));
 
+/**
+ * Toggles a weekday code in/out of the given array.
+ *
+ * @param {string[]} weekdays - Current selected weekday codes (e.g. ['MO', 'FR']).
+ * @param {string}   day      - Weekday code to toggle.
+ * @returns {string[]}
+ */
 function toggleDay(weekdays, day) {
   return weekdays.includes(day) ? weekdays.filter(d => d !== day) : [...weekdays, day];
 }
 
+/**
+ * Renders recurrence configuration controls for daily, weekly, and monthly modes.
+ *
+ * @param {'daily'|'weekly'|'monthly'} type     - Schedule frequency type.
+ * @param {object}                     value    - Current recurrence config.
+ * @param {Function}                   onChange - Called with the updated recurrence config on change.
+ * @returns {JSX.Element|null}
+ */
 export default function RecurrenceConfig({ type, value, onChange }) {
   if (type === 'daily') {
     return (
@@ -74,17 +93,33 @@ export default function RecurrenceConfig({ type, value, onChange }) {
   }
 
   if (type === 'monthly') {
+    // Each entry represents one trigger day inside the month. The user can
+    // choose between two modes per entry:
+    //   type:'day'  → a fixed calendar date (value = 1–31)
+    //   type:'nth'  → an ordinal weekday (nth = 1–4, weekday = 'MO'…'SU')
     const monthDays = value.monthDays ?? [{ type: 'day', value: 1, nth: 1, weekday: 'MO' }];
 
+    /**
+     * Merges patch into the month-day entry at position i.
+     *
+     * @param {number} i     - Entry index.
+     * @param {object} patch - Partial entry fields to apply.
+     */
     function updateEntry(i, patch) {
       onChange({ ...value, monthDays: monthDays.map((e, idx) => idx === i ? { ...e, ...patch } : e) });
     }
 
+    /** Appends a new month-day entry cloned from the last entry, incrementing its value. */
     function addDay() {
       const last = monthDays.at(-1) ?? { type: 'day', value: 1, nth: 1, weekday: 'MO' };
       onChange({ ...value, monthDays: [...monthDays, { id: Date.now(), ...last, value: Math.min(31, last.value + 1) }] });
     }
 
+    /**
+     * Removes the month-day entry at position i.
+     *
+     * @param {number} i - Entry index.
+     */
     function removeDay(i) {
       onChange({ ...value, monthDays: monthDays.filter((_, idx) => idx !== i) });
     }
@@ -104,9 +139,14 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
         <div className="linkdigest-month-days">
           {monthDays.map((entry, i) => (
+            // entry.id is assigned when a row is added dynamically (Date.now());
+            // fall back to index for the initial row loaded from the API.
             <div key={entry.id ?? i} className="linkdigest-month-day-row">
               <span className="linkdigest-day-index">{String(i + 1).padStart(2, '0')}</span>
 
+              {/* Outer <button> acts as a clickable selection zone that also
+                  activates the 'day' mode. Clicking when already active is a
+                  no-op so the inner NumberControl stays interactive. */}
               <button
                 className={`linkdigest-opt ${entry.type === 'day' ? 'linkdigest-opt--on' : 'linkdigest-opt--off'}`}
                 onClick={() => entry.type !== 'day' && updateEntry(i, { type: 'day' })}
@@ -123,6 +163,8 @@ export default function RecurrenceConfig({ type, value, onChange }) {
 
               <span className="linkdigest-opt-sep">{__('or', 'linkdigest')}</span>
 
+              {/* Same pattern for 'nth' mode — clicking activates it; the inner
+                  SelectControls remain interactive once the mode is active. */}
               <button
                 className={`linkdigest-opt ${entry.type === 'nth' ? 'linkdigest-opt--on' : 'linkdigest-opt--off'}`}
                 onClick={() => entry.type !== 'nth' && updateEntry(i, { type: 'nth' })}

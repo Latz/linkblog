@@ -1,5 +1,20 @@
+/**
+ * Converts schedule form state to/from RFC 5545 recurrence rule strings.
+ */
+
 const FREQ = { daily: 'DAILY', weekly: 'WEEKLY', monthly: 'MONTHLY' }
 
+/**
+ * Builds an RFC 5545 RRULE string from schedule form state.
+ *
+ * @param {object}   config           - Schedule config.
+ * @param {string}   config.type      - Frequency type (daily | weekly | monthly).
+ * @param {number}   [config.interval=1]  - Recurrence interval.
+ * @param {string[]} [config.weekdays=[]] - Selected weekday codes for weekly mode.
+ * @param {Array}    [config.monthDays=[1]] - Month-day entries for monthly mode.
+ * @param {number|null} [config.nthWeek=null] - Nth-week prefix for weekly BYDAY.
+ * @returns {string}
+ */
 export function buildRRule({ type, interval = 1, weekdays = [], monthDays = [1], nthWeek = null }) {
   const parts = [`FREQ=${FREQ[type] ?? 'DAILY'}`]
 
@@ -21,6 +36,17 @@ export function buildRRule({ type, interval = 1, weekdays = [], monthDays = [1],
   return parts.join(';')
 }
 
+/**
+ * Returns a human-readable description of the schedule (e.g. "Every week on Monday").
+ *
+ * @param {object}   config              - Schedule config (same shape as buildRRule).
+ * @param {string}   config.type         - Frequency type.
+ * @param {number}   [config.interval=1]
+ * @param {string[]} [config.weekdays=[]]
+ * @param {Array}    [config.monthDays=[1]]
+ * @param {number|null} [config.nthWeek=null]
+ * @returns {string}
+ */
 export function describeSchedule({ type, interval = 1, weekdays = [], monthDays = [1], nthWeek = null }) {
   const DAY_NAMES = { MO: 'Monday', TU: 'Tuesday', WE: 'Wednesday', TH: 'Thursday', FR: 'Friday', SA: 'Saturday', SU: 'Sunday' }
 
