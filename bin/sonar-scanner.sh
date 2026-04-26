@@ -57,7 +57,9 @@ npm --prefix "$PROJECT_ROOT" run test:js:coverage \
 # Run analysis
 echo "Running SonarCloud analysis..."
 SCANNER_EXIT=0
-sonar-scanner -Dproject.settings="$SCRIPT_DIR/sonar-project.properties" \
+sonar-scanner \
+  -Dproject.settings="$SCRIPT_DIR/sonar-project.properties" \
+  -Dsonar.token="${SONAR_TOKEN}" \
   || SCANNER_EXIT=$?
 
 # Download report if requested (always runs, even when quality gate fails)
