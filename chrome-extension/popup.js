@@ -1,5 +1,5 @@
 // Check if settings are configured
-async function checkSettings() {
+export async function checkSettings() {
     const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
 
     if (!settings.apiEndpoint || !settings.apiKey) {
@@ -14,7 +14,7 @@ async function checkSettings() {
 }
 
 // Extract description from page meta tags (runs inside the tab's context)
-function extractPageDescription() {
+export function extractPageDescription() {
     const candidates = [
         ['property', 'og:description'],
         ['name',     'description'],
@@ -34,7 +34,7 @@ function extractPageDescription() {
 }
 
 // Load current page info
-async function loadPageInfo() {
+export async function loadPageInfo() {
     try {
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
@@ -61,7 +61,7 @@ async function loadPageInfo() {
 }
 
 // Render categories to DOM
-function renderCategories(categories) {
+export function renderCategories(categories) {
     const categoriesList = document.getElementById('categoriesList');
 
     if (!categories || categories.length === 0) {
@@ -93,7 +93,7 @@ function renderCategories(categories) {
 }
 
 // Load categories from WordPress
-async function loadCategories() {
+export async function loadCategories() {
     const categoriesList = document.getElementById('categoriesList');
 
     // Show cached data immediately if available (optimistic)
@@ -125,7 +125,7 @@ async function loadCategories() {
 }
 
 // Show message
-function showMessage(text, type) {
+export function showMessage(text, type) {
     const messageEl = document.getElementById('message');
     messageEl.textContent = text;
     messageEl.className = `message ${type} show`;
@@ -136,7 +136,7 @@ function showMessage(text, type) {
 }
 
 // Handle form submission
-async function handleSubmit(e) {
+export async function handleSubmit(e) {
     e.preventDefault();
 
     const saveBtn = document.getElementById('saveBtn');
@@ -215,7 +215,7 @@ async function handleSubmit(e) {
 }
 
 // Open settings page
-function openSettings() {
+export function openSettings() {
     chrome.runtime.openOptionsPage();
 }
 

@@ -1,5 +1,5 @@
 // Load saved settings
-async function loadSettings() {
+export async function loadSettings() {
     const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
 
     if (settings.apiEndpoint) {
@@ -12,7 +12,7 @@ async function loadSettings() {
 }
 
 // Show message
-function showMessage(text, type) {
+export function showMessage(text, type) {
     const messageEl = document.getElementById('message');
     messageEl.textContent = text;
     messageEl.className = `message ${type}`;
@@ -24,7 +24,7 @@ function showMessage(text, type) {
 }
 
 // Test API connection — returns categories array on success, null on failure
-async function testConnection(apiEndpoint, apiKey) {
+export async function testConnection(apiEndpoint, apiKey) {
     try {
         const response = await fetch(`${apiEndpoint}/categories`, {
             method: 'GET',
@@ -43,7 +43,7 @@ async function testConnection(apiEndpoint, apiKey) {
 }
 
 // Handle form submission
-async function handleSubmit(e) {
+export async function handleSubmit(e) {
     e.preventDefault();
 
     const apiEndpoint = document.getElementById('apiEndpoint').value.trim();
@@ -77,7 +77,7 @@ async function handleSubmit(e) {
     }
 }
 
-async function checkWpLogin(url) {
+export async function checkWpLogin(url) {
     const status = document.getElementById('wpLoginStatus');
     if (!url) { status.style.display = 'none'; return; }
 

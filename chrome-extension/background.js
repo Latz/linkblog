@@ -1,7 +1,7 @@
 const MENU_ID = 'linkdigest-admin';
 const MENU_ID_REFRESH = 'linkdigest-refresh-categories';
 
-async function refreshCategories() {
+export async function refreshCategories() {
     const { apiEndpoint, apiKey } = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
     if (!apiEndpoint || !apiKey) return;
 
@@ -44,7 +44,7 @@ chrome.runtime.onInstalled.addListener(() => {
     refreshCategories();
 });
 
-chrome.contextMenus.onClicked.addListener(async (info) => {
+export async function handleContextMenuClick(info) {
     if (info.menuItemId === MENU_ID_REFRESH) {
         refreshCategories();
         return;
@@ -61,4 +61,6 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 
     const wpBase = apiEndpoint.split('/wp-json/')[0];
     chrome.tabs.create({ url: `${wpBase}/wp-admin/admin.php?page=linkdigest-dashboard` });
-});
+}
+
+chrome.contextMenus.onClicked.addListener(handleContextMenuClick);
