@@ -279,7 +279,8 @@ trait LinkDigest_RestApi {
     }
 
     public function handlePreflight(): void {
-        if (!isset($_SERVER['REQUEST_URI']) || strpos($_SERVER['REQUEST_URI'], '/wp-json/') === false) {
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+        if (!$request_uri || strpos($request_uri, '/wp-json/') === false) {
             return;
         }
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

@@ -95,7 +95,7 @@ trait LinkDigest_Admin_Dashboard {
         if ( ! wp_verify_nonce( $nonce, 'linkdigest_batch_publish' ) ) {
             return null;
         }
-        $as_draft = isset( $_POST['publish_as_draft'] ) && wp_unslash( $_POST['publish_as_draft'] ) === '1';
+        $as_draft = isset( $_POST['publish_as_draft'] ) && sanitize_text_field( wp_unslash( $_POST['publish_as_draft'] ) ) === '1';
         return $this->batchPublishLinks( $this->getUnpublishedLinkIds(), $as_draft );
     }
 
@@ -108,7 +108,7 @@ trait LinkDigest_Admin_Dashboard {
             return null;
         }
         $roundup_title = isset( $_POST['roundup_title'] ) ? sanitize_text_field( wp_unslash( $_POST['roundup_title'] ) ) : '';
-        $as_draft      = isset( $_POST['roundup_as_draft'] ) && wp_unslash( $_POST['roundup_as_draft'] ) === '1';
+        $as_draft      = isset( $_POST['roundup_as_draft'] ) && sanitize_text_field( wp_unslash( $_POST['roundup_as_draft'] ) ) === '1';
         return $this->createRoundupPost( $this->getUnpublishedLinkIds(), $roundup_title, $as_draft );
     }
 

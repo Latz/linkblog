@@ -147,7 +147,10 @@ if (!function_exists('sanitize_text_field')) {
     function sanitize_text_field(string $s): string { return trim(wp_strip_all_tags($s)); }
 }
 if (!function_exists('wp_strip_all_tags')) {
-    function wp_strip_all_tags(string $s): string { return strip_tags($s); }
+    function wp_strip_all_tags(string $s, bool $remove_breaks = false): string {
+        $s = preg_replace('@<(script|style)[^>]*?>.*?</\\1>@si', '', (string)$s);
+        return strip_tags($s);
+    }
 }
 
 // ---------------------------------------------------------------------------

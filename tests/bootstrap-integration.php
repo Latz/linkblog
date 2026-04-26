@@ -1,11 +1,11 @@
 <?php
+declare(strict_types=1);
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
 // phpcs:disable WordPress.WP.GlobalVariablesOverride,WordPress.Security.EscapeOutput.OutputNotEscaped -- test bootstrap file
-
-declare(strict_types=1);
 
 /**
  * Bootstrap for Integration tests.
@@ -34,10 +34,12 @@ if (! is_dir($linkdigest_wp_tests_dir)) {
 define('LINKDIGEST_TESTS_DIR', dirname(__DIR__));
 
 // Point WP test bootstrap to the Composer-installed polyfills.
-define(
-    'WP_TESTS_PHPUNIT_POLYFILLS_PATH',
-    dirname(__DIR__) . '/vendor/yoast/phpunit-polyfills'
-);
+if (!defined('WP_TESTS_PHPUNIT_POLYFILLS_PATH')) {
+    define(
+        'WP_TESTS_PHPUNIT_POLYFILLS_PATH',
+        dirname(__DIR__) . '/vendor/yoast/phpunit-polyfills'
+    );
+}
 
 require_once $linkdigest_wp_tests_dir . '/includes/functions.php';
 
