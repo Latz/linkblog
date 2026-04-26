@@ -39,6 +39,10 @@ Navigate to LinkDigest > Add New Link in the WordPress admin dashboard.
 
 Yes. Generate an API key in LinkDigest > Settings and configure it in the Chrome extension.
 
+= How do I install the Chrome extension? =
+
+The Chrome extension is not currently available in the Chrome Web Store. To install it, open Chrome and go to chrome://extensions, enable Developer mode, click "Load unpacked", and select the `chrome-extension` folder from the plugin directory.
+
 == Changelog ==
 
 = 1.0.0 =
