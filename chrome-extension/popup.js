@@ -72,7 +72,7 @@ function renderCategories(categories) {
     categoriesList.innerHTML = '';
     const fragment = document.createDocumentFragment();
 
-    categories.forEach(category => {
+    [...categories].sort((a, b) => a.name.localeCompare(b.name)).forEach(category => {
         const radio = document.createElement('input');
         radio.type = 'radio';
         radio.name = 'linkdigest_category';
