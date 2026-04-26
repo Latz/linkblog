@@ -33,7 +33,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: MENU_ID,
-        title: 'Open LinkBlog Admin',
+        title: 'Open LinkDigest Admin',
         contexts: ['action']
     });
     chrome.contextMenus.create({

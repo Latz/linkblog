@@ -13,7 +13,7 @@ export function normalizeEndpoint(url) {
 }
 
 /**
- * Build the headers object for a LinkBlog API request.
+ * Build the headers object for a LinkDigest API request.
  *
  * @param {string} apiKey
  * @returns {Record<string, string>}
