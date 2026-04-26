@@ -113,6 +113,24 @@ trait LinkDigest_Admin_Menu {
         return $submenu_file ?? '';
     }
 
+    private function renderCopyableField(string $id, string $value): void {
+        ?>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input
+                type="text"
+                id="<?php echo esc_attr($id); ?>"
+                value="<?php echo esc_attr($value); ?>"
+                readonly
+                onclick="this.select();"
+                style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
+            >
+            <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="<?php echo esc_attr($id); ?>">
+                <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+            </button>
+        </div>
+        <?php
+    }
+
     public function settingsPage(): void {
         // Handle API key generation
         $nonce = isset($_POST['linkdigest_settings_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkdigest_settings_nonce'])) : '';
@@ -136,19 +154,7 @@ trait LinkDigest_Admin_Menu {
                     <label for="linkdigest-api-endpoint" style="display: block; margin-bottom: 8px; font-weight: 600;">
                         <?php esc_html_e('API Endpoint:', 'LinkDigest'); ?>
                     </label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <input
-                            type="text"
-                            id="linkdigest-api-endpoint"
-                            value="<?php echo esc_attr($site_url . '/wp-json/linkdigest/v1'); ?>"
-                            readonly
-                            onclick="this.select();"
-                            style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
-                        >
-                        <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-endpoint">
-                            <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
-                        </button>
-                    </div>
+                    <?php $this->renderCopyableField('linkdigest-api-endpoint', $site_url . '/wp-json/linkdigest/v1'); ?>
                     <p class="description">
                         <?php esc_html_e('Use this URL in the Chrome extension settings.', 'LinkDigest'); ?>
                         <a href="<?php echo esc_url($site_url . '/wp-json/linkdigest/v1'); ?>" target="_blank" style="margin-left: 8px;">
@@ -162,19 +168,7 @@ trait LinkDigest_Admin_Menu {
                         <label for="linkdigest-api-key" style="display: block; margin-bottom: 8px; font-weight: 600;">
                             <?php esc_html_e('API Key:', 'LinkDigest'); ?>
                         </label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <input
-                                type="text"
-                                id="linkdigest-api-key"
-                                value="<?php echo esc_attr($api_key); ?>"
-                                readonly
-                                onclick="this.select();"
-                                style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
-                            >
-                            <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-key">
-                                <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
-                            </button>
-                        </div>
+                        <?php $this->renderCopyableField('linkdigest-api-key', $api_key); ?>
                         <p class="description">
                             <?php esc_html_e('Click to select and copy this key. Keep it secure!', 'LinkDigest'); ?>
                         </p>
