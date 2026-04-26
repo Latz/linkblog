@@ -32,21 +32,21 @@ trait LinkDigest_Admin_Dashboard {
         <div class="linkdigest-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format($stats['total_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'LinkDigest'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format($stats['published_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'LinkDigest'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
                 <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format($stats['unpublished_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'LinkDigest'); ?></div>
+                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkdigest'); ?></div>
             </div>
         </div>
 
         <?php if (!empty($recent_unpublished)) : ?>
             <div style="margin-bottom: 12px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'LinkDigest'); ?></h4>
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'linkdigest'); ?></h4>
                 <ul style="margin: 0; padding: 0; list-style: none;">
                     <?php foreach ($recent_unpublished as $link) :
                         $url = get_post_meta($link->ID, '_linkdigest_url', true);
@@ -68,7 +68,7 @@ trait LinkDigest_Admin_Dashboard {
 
         <div style="text-align: center; padding-top: 8px; border-top: 1px solid #f0f0f1;">
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkdigest-dashboard')); ?>" class="button button-primary">
-                <?php esc_html_e('Go to LinkDigest', 'LinkDigest'); ?>
+                <?php esc_html_e('Go to LinkDigest', 'linkdigest'); ?>
             </a>
         </div>
         <?php
@@ -137,10 +137,10 @@ trait LinkDigest_Admin_Dashboard {
         if ( $batch_result !== null ) {
             if ( $batch_result['success'] > 0 ) {
                 /* translators: 1: number of successfully processed links, 2: optional failure message */
-                $failed_msg = $batch_result['failed'] > 0 ? sprintf( __( '%d failed.', 'LinkDigest' ), $batch_result['failed'] ) : '';
+                $failed_msg = $batch_result['failed'] > 0 ? sprintf( __( '%d failed.', 'linkdigest' ), $batch_result['failed'] ) : '';
                 echo '<div class="notice notice-success"><p>';
                 /* translators: 1: number of successfully processed links, 2: optional failure message */
-                printf( esc_html__( 'Successfully processed %1$d link(s). %2$s', 'LinkDigest' ), (int) $batch_result['success'], esc_html( $failed_msg ) );
+                printf( esc_html__( 'Successfully processed %1$d link(s). %2$s', 'linkdigest' ), (int) $batch_result['success'], esc_html( $failed_msg ) );
                 echo '</p></div>';
             }
             if ( ! empty( $batch_result['messages'] ) ) {
@@ -150,7 +150,7 @@ trait LinkDigest_Admin_Dashboard {
         if ( $roundup_result !== null ) {
             if ( $roundup_result['success'] ) {
                 echo '<div class="notice notice-success"><p>' . esc_html( $roundup_result['message'] );
-                echo ' <a href="' . esc_url( get_permalink( $roundup_result['post_id'] ) ) . '" target="_blank">' . esc_html__( 'View Post', 'LinkDigest' ) . ' →</a></p></div>';
+                echo ' <a href="' . esc_url( get_permalink( $roundup_result['post_id'] ) ) . '" target="_blank">' . esc_html__( 'View Post', 'linkdigest' ) . ' →</a></p></div>';
             } else {
                 echo '<div class="notice notice-error"><p>' . esc_html( $roundup_result['message'] ) . '</p></div>';
             }
@@ -161,11 +161,11 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Recent Unpublished Links', 'LinkDigest' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recent_links ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'LinkDigest' ); ?></p>
+                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <ul class="lb-recent-links">
                         <?php foreach ( $recent_links as $link ) :
@@ -176,7 +176,7 @@ trait LinkDigest_Admin_Dashboard {
                             <li class="lb-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
                                 <div class="lb-link-item-header">
                                     <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                                    <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'LinkDigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
+                                    <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
                                 </div>
                                 <?php if ( $url ) : ?>
                                     <a href="<?php echo esc_url( $url ); ?>" class="lb-link-url" target="_blank" rel="noopener">
@@ -196,7 +196,7 @@ trait LinkDigest_Admin_Dashboard {
                     </ul>
                     <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
                         <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>" class="button">
-                            <?php esc_html_e( 'View All Links', 'LinkDigest' ); ?>
+                            <?php esc_html_e( 'View All Links', 'linkdigest' ); ?>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -209,11 +209,11 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'LinkDigest' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recently_published ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'LinkDigest' ); ?></p>
+                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <?php $this->renderRecentlyPublishedList( $recently_published ); ?>
                 <?php endif; ?>
@@ -226,33 +226,33 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Publish Links', 'LinkDigest' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Publish Links', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside">
                 <?php if ( $unpublished_count > 0 ) : ?>
                     <?php
                     /* translators: %d is the number of unpublished links */
-                    printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'LinkDigest' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
+                    printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkdigest' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
                     ?>
                     <form method="post" action="">
                         <?php wp_nonce_field( 'linkdigest_create_roundup', 'linkdigest_roundup_nonce' ); ?>
                         <p>
-                            <label for="roundup_title"><strong><?php esc_html_e( 'Post Title', 'LinkDigest' ); ?></strong></label><br>
+                            <label for="roundup_title"><strong><?php esc_html_e( 'Post Title', 'linkdigest' ); ?></strong></label><br>
                             <input type="text" id="roundup_title" name="roundup_title" class="regular-text"
                                 value="<?php
                                 /* translators: %s is the current date (e.g. "April 15, 2026") */
-                                echo esc_attr( sprintf( __( 'Links Roundup - %s', 'LinkDigest' ), gmdate( 'F j, Y' ) ) );
+                                echo esc_attr( sprintf( __( 'Links Roundup - %s', 'linkdigest' ), gmdate( 'F j, Y' ) ) );
                                 ?>">
                         </p>
                         <input type="hidden" name="roundup_as_draft" value="0">
                         <p>
-                            <button type="submit" name="linkdigest_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'LinkDigest' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" class="button button-primary"><?php esc_html_e( 'Publish', 'linkdigest' ); ?></button>
                             &nbsp;
-                            <button type="submit" name="linkdigest_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'LinkDigest' ); ?></button>
+                            <button type="submit" name="linkdigest_create_roundup" value="1" onclick="this.form.elements['roundup_as_draft'].value='1';" class="button"><?php esc_html_e( 'Save as Draft', 'linkdigest' ); ?></button>
                         </p>
                     </form>
                 <?php else : ?>
-                    <p style="color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'LinkDigest' ); ?></p>
+                    <p style="color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -272,7 +272,7 @@ trait LinkDigest_Admin_Dashboard {
                     </div>
                     <?php if ( $meta['published_post_id'] ) : ?>
                         <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
-                            <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'LinkDigest' ) : esc_html__( 'View Post', 'LinkDigest' ); ?> ↗
+                            <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'linkdigest' ) : esc_html__( 'View Post', 'linkdigest' ); ?> ↗
                         </a>
                     <?php endif; ?>
                     <div class="lb-link-meta">
@@ -291,9 +291,9 @@ trait LinkDigest_Admin_Dashboard {
 
     private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
         if ( 'published' === $publish_status ) {
-            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'LinkDigest' ) . '</span>';
+            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'linkdigest' ) . '</span>';
         } elseif ( $is_draft ) {
-            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'LinkDigest' ) . '</span>';
+            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }
     }
 
@@ -313,26 +313,26 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Quick Add', 'LinkDigest' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Quick Add', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside">
                 <?php if ( $quick_add_success ) : ?>
-                    <div class="notice notice-success inline"><p><?php esc_html_e( 'Link added successfully!', 'LinkDigest' ); ?></p></div>
+                    <div class="notice notice-success inline"><p><?php esc_html_e( 'Link added successfully!', 'linkdigest' ); ?></p></div>
                 <?php endif; ?>
                 <form method="post" action="">
                     <?php wp_nonce_field( 'linkdigest_quick_add_link', 'linkdigest_quick_nonce' ); ?>
                     <p>
-                        <label for="quick_title"><strong><?php esc_html_e( 'Title', 'LinkDigest' ); ?> *</strong></label><br>
+                        <label for="quick_title"><strong><?php esc_html_e( 'Title', 'linkdigest' ); ?> *</strong></label><br>
                         <input type="text" id="quick_title" name="quick_title" class="regular-text"
-                            placeholder="<?php esc_attr_e( 'Enter link title', 'LinkDigest' ); ?>" required>
+                            placeholder="<?php esc_attr_e( 'Enter link title', 'linkdigest' ); ?>" required>
                     </p>
                     <p>
-                        <label for="quick_url"><strong><?php esc_html_e( 'URL', 'LinkDigest' ); ?></strong></label><br>
+                        <label for="quick_url"><strong><?php esc_html_e( 'URL', 'linkdigest' ); ?></strong></label><br>
                         <input type="url" id="quick_url" name="quick_url" class="regular-text"
                             placeholder="https://example.com">
                     </p>
                     <p>
-                        <button type="submit" name="linkdigest_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'LinkDigest' ); ?></button>
+                        <button type="submit" name="linkdigest_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkdigest' ); ?></button>
                     </p>
                 </form>
             </div>
@@ -345,9 +345,9 @@ trait LinkDigest_Admin_Dashboard {
             'restUrl' => rest_url( LINKDIGEST_REST_NAMESPACE . '/links/' ),
             'nonce'   => wp_create_nonce( 'wp_rest' ),
             'labels'  => array(
-                'delete' => __( 'Delete?', 'LinkDigest' ),
-                'yes'    => __( 'Yes', 'LinkDigest' ),
-                'cancel' => __( 'Cancel', 'LinkDigest' ),
+                'delete' => __( 'Delete?', 'linkdigest' ),
+                'yes'    => __( 'Yes', 'linkdigest' ),
+                'cancel' => __( 'Cancel', 'linkdigest' ),
             ),
         ) );
         ?>
@@ -459,7 +459,7 @@ trait LinkDigest_Admin_Dashboard {
 
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'linkdigest', 'LinkDigest' ); ?></h1>
+            <h1><?php esc_html_e( 'linkdigest', 'linkdigest' ); ?></h1>
 
             <?php $this->renderDashboardNotices( $batch_result, $roundup_result ); ?>
 
@@ -468,22 +468,22 @@ trait LinkDigest_Admin_Dashboard {
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'LinkDigest' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-category lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_categories )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'LinkDigest' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $published_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Published', 'LinkDigest' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
                 </div>
                 <div class="lb-stat-card">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
                     <div><span class="lb-stat-value"><?php echo esc_html(number_format( $unpublished_links )); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'LinkDigest' ); ?></span></div>
+                    <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
                 </div>
             </div>
 

@@ -33,12 +33,12 @@ chrome.storage.onChanged.addListener((changes, area) => {
 chrome.runtime.onInstalled.addListener(() => {
     chrome.contextMenus.create({
         id: MENU_ID,
-        title: 'Open LinkDigest Admin',
+        title: chrome.i18n.getMessage('menuOpenAdmin'),
         contexts: ['action']
     });
     chrome.contextMenus.create({
         id: MENU_ID_REFRESH,
-        title: 'Update categories',
+        title: chrome.i18n.getMessage('menuUpdateCategories'),
         contexts: ['action']
     });
     refreshCategories();

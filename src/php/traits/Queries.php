@@ -82,7 +82,7 @@ trait LinkDigest_Queries {
         update_object_term_cache($link_ids, 'linkdigest');
 
         $grouped = [];
-        $uncategorized_key = __('Uncategorized', 'LinkDigest');
+        $uncategorized_key = __('Uncategorized', 'linkdigest');
         foreach ($all_links as $link) {
             $cats = get_the_terms($link->ID, 'linkdigest_category');
             $group_name = ($cats && !is_wp_error($cats)) ? $cats[0]->name : $uncategorized_key;
@@ -98,7 +98,7 @@ trait LinkDigest_Queries {
         if (!$published_post_id) {
             return array(
                 'success' => false,
-                'message' => __('This link has not been published.', 'LinkDigest')
+                'message' => __('This link has not been published.', 'linkdigest')
             );
         }
 
@@ -108,7 +108,7 @@ trait LinkDigest_Queries {
         if (!$trashed) {
             return array(
                 'success' => false,
-                'message' => __('Failed to unpublish link.', 'LinkDigest')
+                'message' => __('Failed to unpublish link.', 'linkdigest')
             );
         }
 
@@ -120,7 +120,7 @@ trait LinkDigest_Queries {
 
         return array(
             'success' => true,
-            'message' => __('Link unpublished successfully.', 'LinkDigest')
+            'message' => __('Link unpublished successfully.', 'linkdigest')
         );
     }
 }

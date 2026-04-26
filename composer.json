@@ -29,6 +29,7 @@
     "scripts": {
         "test": "pest --testsuite=Unit",
         "test:unit": "pest --testsuite=Unit",
-        "test:integration": "pest --testsuite=Integration --bootstrap tests/bootstrap-integration.php"
+        "test:integration": "pest --testsuite=Integration --bootstrap tests/bootstrap-integration.php",
+        "i18n:pot": "wp i18n make-pot . languages/linkdigest.pot --domain=linkdigest --exclude=vendor,node_modules,tests,bin,dist,chrome-extension,memory"
     }
 }

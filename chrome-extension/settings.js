@@ -1,3 +1,5 @@
+import { applyI18n } from './i18n.js';
+
 // Load saved settings
 export async function loadSettings() {
     const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
@@ -56,7 +58,7 @@ export async function handleSubmit(e) {
     const categories = await testConnection(cleanEndpoint, apiKey);
 
     if (!categories) {
-        showMessage('Failed to connect to WordPress. Please check your credentials.', 'error');
+        showMessage(chrome.i18n.getMessage('msgConnectionFailed'), 'error');
         return;
     }
 
@@ -71,9 +73,9 @@ export async function handleSubmit(e) {
             await chrome.storage.local.set({ categories, categoriesTimestamp: Date.now() });
         }
 
-        showMessage('Settings saved successfully! Connection verified.', 'success');
+        showMessage(chrome.i18n.getMessage('msgSettingsSaved'), 'success');
     } catch {
-        showMessage('Failed to save settings. Please try again.', 'error');
+        showMessage(chrome.i18n.getMessage('msgSettingsFailed'), 'error');
     }
 }
 
@@ -81,7 +83,7 @@ export async function checkWpLogin(url) {
     const status = document.getElementById('wpLoginStatus');
     if (!url) { status.style.display = 'none'; return; }
 
-    status.textContent = 'Checking…';
+    status.textContent = chrome.i18n.getMessage('msgChecking');
     status.className = 'wp-login-status';
     status.style.display = 'block';
 
@@ -92,7 +94,7 @@ export async function checkWpLogin(url) {
         const data = await res.json();
         if (!res.ok || !Array.isArray(data.namespaces)) throw new Error('not wp');
     } catch {
-        status.textContent = '✗ No WordPress installation found at this URL';
+        status.textContent = chrome.i18n.getMessage('msgNoWp');
         status.className = 'wp-login-status logged-out';
         return;
     }
@@ -105,7 +107,7 @@ export async function checkWpLogin(url) {
         const loggedIn = cookies.some(c => c.name.startsWith('wordpress_logged_in_'));
 
         if (!loggedIn) {
-            status.textContent = '✗ Not logged in to WordPress';
+            status.textContent = chrome.i18n.getMessage('msgNotLoggedIn');
             status.className = 'wp-login-status logged-out';
             return;
         }
@@ -113,7 +115,7 @@ export async function checkWpLogin(url) {
         const wpBase = url.replace(/\/$/, '');
 
         // Get a WP REST nonce via admin-ajax
-        status.textContent = '✓ Logged in — fetching nonce…';
+        status.textContent = chrome.i18n.getMessage('msgFetchingNonce');
         const nonceRes = await fetch(`${wpBase}/wp-admin/admin-ajax.php`, {
             method: 'POST',
             credentials: 'include',
@@ -124,7 +126,7 @@ export async function checkWpLogin(url) {
         if (!nonceData.success) throw new Error(`nonce: ${nonceRes.status}`);
 
         // Fetch the API key using the nonce
-        status.textContent = '✓ Logged in — fetching API key…';
+        status.textContent = chrome.i18n.getMessage('msgFetchingKey');
         const endpoint = document.getElementById('apiEndpoint').value.trim()
             || `${wpBase}/wp-json/linkdigest/v1`;
         const keyRes = await fetch(`${endpoint}/api-key`, {
@@ -135,9 +137,9 @@ export async function checkWpLogin(url) {
         if (!keyRes.ok || !keyData.key) throw new Error(`key: ${keyRes.status}`);
 
         document.getElementById('apiKey').value = keyData.key;
-        status.textContent = '✓ Logged in — API key filled automatically';
+        status.textContent = chrome.i18n.getMessage('msgKeyFilled');
     } catch (err) {
-        status.textContent = `✓ Logged in — auto-fetch failed (${err.message})`;
+        status.textContent = chrome.i18n.getMessage('msgAutoFetchFailed', [err.message]);
         status.className = 'wp-login-status logged-in';
         status.style.display = 'block';
     }
@@ -145,6 +147,7 @@ export async function checkWpLogin(url) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    applyI18n();
     loadSettings();
     document.getElementById('settingsForm').addEventListener('submit', handleSubmit);
 

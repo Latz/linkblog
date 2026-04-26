@@ -7,7 +7,7 @@ trait LinkDigest_MetaBoxes {
     public function addMetaBoxes(): void {
         add_meta_box(
             'linkdigest_url',
-            __('Link URL', 'LinkDigest'),
+            __('Link URL', 'linkdigest'),
             [$this, 'urlMetaBoxCallback'],
             'linkdigest',
             'normal',
@@ -20,7 +20,7 @@ trait LinkDigest_MetaBoxes {
         $url = get_post_meta($post->ID, '_linkdigest_url', true);
         ?>
         <p>
-            <label for="linkdigest_url_meta"><?php esc_html_e('URL:', 'LinkDigest'); ?></label><br>
+            <label for="linkdigest_url_meta"><?php esc_html_e('URL:', 'linkdigest'); ?></label><br>
             <input type="url" id="linkdigest_url_meta" name="linkdigest_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" style="width: 100%;">
         </p>
         <?php

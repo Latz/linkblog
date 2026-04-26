@@ -177,24 +177,24 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>LinkDigest Settings</h1>
-            <p>Connect to your WordPress site</p>
+            <h1 data-i18n="settingsTitle">LinkDigest Settings</h1>
+            <p data-i18n="settingsSubtitle">Connect to your WordPress site</p>
         </div>
 
         <div class="content">
             <form id="settingsForm">
                 <div class="form-group">
-                    <label for="wpAddress">WordPress Address</label>
+                    <label for="wpAddress" data-i18n="labelWpAddress">WordPress Address</label>
                     <div style="display:flex;gap:8px;align-items:flex-start;">
                         <input type="url" id="wpAddress" placeholder="https://yoursite.com" style="flex:1;">
-                        <button type="button" id="createEndpointBtn" class="btn btn-inline">Create API endpoint</button>
+                        <button type="button" id="createEndpointBtn" class="btn btn-inline" data-i18n="btnCreateEndpoint">Create API endpoint</button>
                     </div>
-                    <p class="description">Your WordPress site URL. Used to auto-fill the endpoint below.</p>
+                    <p class="description" data-i18n="descWpAddress">Your WordPress site URL. Used to auto-fill the endpoint below.</p>
                     <div id="wpLoginStatus" class="wp-login-status"></div>
                 </div>
 
                 <div class="form-group">
-                    <label for="apiEndpoint">API Endpoint *</label>
+                    <label for="apiEndpoint" data-i18n="labelApiEndpoint">API Endpoint *</label>
                     <input
                         type="url"
                         id="apiEndpoint"
@@ -202,38 +202,39 @@
                         required
                         placeholder="https://yoursite.com/wp-json/linkdigest/v1"
                     >
-                    <p class="description">
+                    <p class="description" data-i18n="descApiEndpoint">
                         The API endpoint URL from your WordPress LinkDigest settings page.
                     </p>
                 </div>
 
                 <div class="form-group">
-                    <label for="apiKey">API Key *</label>
+                    <label for="apiKey" data-i18n="labelApiKey">API Key *</label>
                     <input
                         type="text"
                         id="apiKey"
                         name="apiKey"
                         required
+                        data-i18n-placeholder="placeholderApiKey"
                         placeholder="Your API key from WordPress"
                     >
-                    <p class="description">
+                    <p class="description" data-i18n="descApiKey">
                         The API key generated in your WordPress LinkDigest settings.
                     </p>
                 </div>
 
-                <button type="submit" class="btn">Save Settings</button>
+                <button type="submit" class="btn" data-i18n="btnSaveSettings">Save Settings</button>
             </form>
 
             <div id="message" class="message"></div>
 
             <div class="info-box">
-                <h3>How to get your API credentials:</h3>
+                <h3 data-i18n="infoBoxTitle">How to get your API credentials:</h3>
                 <ol>
-                    <li>Go to your WordPress admin panel</li>
-                    <li>Navigate to LinkDigest → Settings</li>
-                    <li>Generate an API Key if you haven't already</li>
-                    <li>Copy the API Endpoint and API Key</li>
-                    <li>Paste them into the fields above</li>
+                    <li data-i18n="infoStep1">Go to your WordPress admin panel</li>
+                    <li data-i18n="infoStep2">Navigate to LinkDigest → Settings</li>
+                    <li data-i18n="infoStep3">Generate an API Key if you haven't already</li>
+                    <li data-i18n="infoStep4">Copy the API Endpoint and API Key</li>
+                    <li data-i18n="infoStep5">Paste them into the fields above</li>
                 </ol>
             </div>
         </div>

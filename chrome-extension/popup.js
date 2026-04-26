@@ -1,3 +1,5 @@
+import { applyI18n } from './i18n.js';
+
 // Check if settings are configured
 export async function checkSettings() {
     const settings = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
@@ -65,7 +67,7 @@ export function renderCategories(categories) {
     const categoriesList = document.getElementById('categoriesList');
 
     if (!categories || categories.length === 0) {
-        categoriesList.innerHTML = '<div class="loading">No categories available</div>';
+        categoriesList.innerHTML = `<div class="loading">${chrome.i18n.getMessage('msgNoCategories')}</div>`;
         return;
     }
 
@@ -119,7 +121,7 @@ export async function loadCategories() {
         renderCategories(categories);
     } catch {
         if (!cached.categories) {
-            categoriesList.innerHTML = '<div class="loading">Failed to load categories</div>';
+            categoriesList.innerHTML = `<div class="loading">${chrome.i18n.getMessage('msgFailedCategories')}</div>`;
         }
     }
 }
@@ -155,7 +157,7 @@ export async function handleSubmit(e) {
         const selectedCategories = selectedRadio ? [selectedRadio.value] : [];
 
         if (selectedCategories.length === 0) {
-            showMessage('Please select at least one category before saving.', 'error');
+            showMessage(chrome.i18n.getMessage('msgSelectCategory'), 'error');
             saveBtn.disabled = false;
             btnText.style.display = 'inline';
             btnLoading.style.display = 'none';
@@ -188,25 +190,25 @@ export async function handleSubmit(e) {
             chrome.notifications.create({
                 type: 'basic',
                 iconUrl: 'icon48.png',
-                title: 'Already saved',
-                message: result.message || 'This URL has already been saved.'
+                title: chrome.i18n.getMessage('notifAlreadySavedTitle'),
+                message: result.message || chrome.i18n.getMessage('notifAlreadySavedBody')
             }, () => window.close());
             return;
         }
 
         if (!response.ok) {
-            throw new Error(result.message || 'Failed to save link');
+            throw new Error(result.message || chrome.i18n.getMessage('msgSaveFailed'));
         }
 
         chrome.notifications.create({
             type: 'basic',
             iconUrl: 'icon48.png',
-            title: 'Link saved',
-            message: formData.title || 'Link saved successfully!'
+            title: chrome.i18n.getMessage('notifLinkSavedTitle'),
+            message: formData.title || chrome.i18n.getMessage('notifLinkSavedBody')
         }, () => window.close());
 
     } catch (error) {
-        showMessage(error.message || 'Failed to save link. Please check your settings.', 'error');
+        showMessage(error.message || chrome.i18n.getMessage('msgSaveFailed'), 'error');
     } finally {
         saveBtn.disabled = false;
         btnText.style.display = 'inline';
@@ -224,6 +226,8 @@ let tagify;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
+    applyI18n();
+
     // Add event listeners immediately
     document.getElementById('linkForm')?.addEventListener('submit', handleSubmit);
     document.getElementById('settingsBtn')?.addEventListener('click', openSettings);

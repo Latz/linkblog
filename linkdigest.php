@@ -42,4 +42,8 @@ register_deactivation_hook(LINKDIGEST_PLUGIN_FILE, function() {
     wp_clear_scheduled_hook('linkdigest_execute_schedule');
 });
 
+add_action( 'plugins_loaded', function() {
+    load_plugin_textdomain( 'linkdigest', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+} );
+
 LinkDigest::register();

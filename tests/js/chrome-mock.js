@@ -1,4 +1,20 @@
 import { vi, afterEach } from 'vitest';
+import enMessages from '../../chrome-extension/_locales/en/messages.json';
+
+function getMessage(key, substitutions) {
+    const entry = enMessages[key];
+    if (!entry) return '';
+    let msg = entry.message;
+    if (substitutions && entry.placeholders) {
+        for (const [name, ph] of Object.entries(entry.placeholders)) {
+            const idx = parseInt(ph.content.replace('$', '')) - 1;
+            if (substitutions[idx] !== undefined) {
+                msg = msg.replace(`$${name.toUpperCase()}$`, substitutions[idx]);
+            }
+        }
+    }
+    return msg;
+}
 
 global.chrome = {
     storage: {
@@ -34,6 +50,9 @@ global.chrome = {
     cookies: {
         getAll: vi.fn().mockResolvedValue([]),
     },
+    i18n: {
+        getMessage: vi.fn(getMessage),
+    },
 };
 
 global.Tagify = vi.fn(() => ({ value: [] }));
@@ -48,4 +67,5 @@ afterEach(() => {
     chrome.tabs.query.mockResolvedValue([]);
     chrome.scripting.executeScript.mockResolvedValue([{ result: '' }]);
     chrome.cookies.getAll.mockResolvedValue([]);
+    chrome.i18n.getMessage.mockImplementation(getMessage);
 });
