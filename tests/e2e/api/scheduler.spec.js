@@ -37,7 +37,9 @@ test.describe('Scheduler publishing', () => {
         // 3. Run the scheduler.
         const runRes = await request.post(api('/schedule/run'));
         expect(runRes.status()).toBe(200);
-        expect((await runRes.json()).success).toBe(true);
+        const runBody = await runRes.json();
+        expect(runBody.published).toBe(true);
+        expect(typeof runBody.link_count).toBe('number');
 
         // 4. Verify a roundup post was created (title starts with "Links:").
         const postsRes = await request.get(wpApi('/posts?search=Links%3A'));

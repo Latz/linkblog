@@ -67,6 +67,46 @@ describe('LinkDigest::saveSchedule()', function (): void {
         expect($result->get_error_code())->toBe('invalid_data');
     });
 
+    it('returns a 400 WP_Error when mode is not in the whitelist', function (): void {
+        $request = linkdigest_make_request(['mode' => 'invalid']);
+
+        $result = $this->plugin->saveSchedule($request);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_mode');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
+    it('returns a 400 WP_Error when times contains a non-HH:MM entry', function (): void {
+        $request = linkdigest_make_request(['mode' => 'daily', 'times' => ['9am']]);
+
+        $result = $this->plugin->saveSchedule($request);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_times');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
+    it('returns a 400 WP_Error when trigger.count is zero', function (): void {
+        $request = linkdigest_make_request(['mode' => 'count', 'trigger' => ['count' => 0]]);
+
+        $result = $this->plugin->saveSchedule($request);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_trigger');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
+    it('returns a 400 WP_Error when trigger.days is negative', function (): void {
+        $request = linkdigest_make_request(['mode' => 'age', 'trigger' => ['days' => -1]]);
+
+        $result = $this->plugin->saveSchedule($request);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_trigger');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
     it('saves valid schedule data and returns success', function (): void {
         $data    = ['mode' => 'daily', 'times' => ['09:00']];
         $request = linkdigest_make_request($data);

@@ -126,14 +126,34 @@ trait LinkDigest_RestApi {
         if (empty($data) || !isset($data['mode'])) {
             return new \WP_Error('invalid_data', __('Invalid schedule data', 'linkdigest'), array('status' => 400));
         }
+        $valid_modes = ['daily', 'weekly', 'monthly', 'count', 'age', 'manual'];
+        if (!in_array($data['mode'], $valid_modes, true)) {
+            return new \WP_Error('invalid_mode', __('Invalid schedule mode', 'linkdigest'), array('status' => 400));
+        }
+        if (isset($data['times'])) {
+            if (!is_array($data['times'])) {
+                return new \WP_Error('invalid_times', __('times must be an array', 'linkdigest'), array('status' => 400));
+            }
+            foreach ($data['times'] as $t) {
+                if (!is_string($t) || !preg_match('/^\d{2}:\d{2}$/', $t)) {
+                    return new \WP_Error('invalid_times', __('times entries must be HH:MM strings', 'linkdigest'), array('status' => 400));
+                }
+            }
+        }
+        if (isset($data['trigger']['count']) && (int) $data['trigger']['count'] <= 0) {
+            return new \WP_Error('invalid_trigger', __('trigger.count must be a positive integer', 'linkdigest'), array('status' => 400));
+        }
+        if (isset($data['trigger']['days']) && (int) $data['trigger']['days'] <= 0) {
+            return new \WP_Error('invalid_trigger', __('trigger.days must be a positive integer', 'linkdigest'), array('status' => 400));
+        }
         update_option('linkdigest_schedule', $data);
         $this->scheduleNextEvent();
         return rest_ensure_response(array('success' => true));
     }
 
     public function runScheduleNow(): \WP_REST_Response {
-        $this->executeSchedule();
-        return rest_ensure_response(array('success' => true));
+        $result = $this->executeSchedule(false);
+        return rest_ensure_response($result);
     }
 
     public function restPermissionCheck(\WP_REST_Request $request): bool {

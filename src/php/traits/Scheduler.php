@@ -23,26 +23,41 @@ trait LinkDigest_Scheduler {
     }
 
     // Cron callback: check trigger condition → publish → re-schedule
-    public function executeSchedule(): void {
+    public function executeSchedule(bool $reschedule = true): array {
+        if (get_transient('linkdigest_run_lock')) {
+            return ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'locked'];
+        }
+        set_transient('linkdigest_run_lock', 1, 5 * MINUTE_IN_SECONDS);
+        try {
+            return $this->doExecuteSchedule($reschedule);
+        } finally {
+            delete_transient('linkdigest_run_lock');
+        }
+    }
+
+    private function doExecuteSchedule(bool $reschedule): array {
         $config  = get_option('linkdigest_schedule', []);
         $mode    = $config['mode']    ?? 'daily';
         $trigger = $config['trigger'] ?? [];
 
-        $link_ids = $this->getUnpublishedLinkIds();
+        $link_ids    = $this->getUnpublishedLinkIds();
+        $total_count = count($link_ids);
 
         // Cap per-run to prevent max_execution_time / OOM on large queues.
         // Remaining links are handled by an immediate reschedule below.
         $max_per_run = 200;
-        $has_more = count($link_ids) > $max_per_run;
+        $has_more    = $total_count > $max_per_run;
         if ($has_more) {
             $link_ids = array_slice($link_ids, 0, $max_per_run);
         }
 
         $should_publish = match ($mode) {
-            'count' => count($link_ids) >= (int) ($trigger['count'] ?? 10),
+            'count' => $total_count >= (int) ($trigger['count'] ?? 10),
             'age'   => $this->hasUnpublishedLinkOlderThan((int) ($trigger['days'] ?? 7)),
             default => !empty($link_ids), // daily/weekly/monthly: publish if any links exist
         };
+
+        $scheduled_catchup = false;
 
         if ($should_publish && !empty($link_ids)) {
             /* translators: %s is the formatted date (e.g. "April 15, 2026") */
@@ -58,7 +73,7 @@ trait LinkDigest_Scheduler {
                 }
             }
 
-            $this->createRoundupPost($link_ids, $title);
+            $roundup = $this->createRoundupPost($link_ids, $title);
 
             // Restore previous user context.
             if (empty($prev_user_id)) {
@@ -67,17 +82,37 @@ trait LinkDigest_Scheduler {
 
             if ($has_more) {
                 wp_schedule_single_event(time() + 60, 'linkdigest_execute_schedule');
+                $scheduled_catchup = true;
             }
+
+            if (!$scheduled_catchup && $reschedule) {
+                $this->scheduleNextEvent();
+            }
+
+            $post_id = ($roundup['post_id'] ?? 0) ?: null;
+            return [
+                'published'  => $roundup['success'] ?? false,
+                'post_id'    => $post_id,
+                'link_count' => count($link_ids),
+                'reason'     => $roundup['message'] ?? null,
+            ];
         }
 
-        $this->scheduleNextEvent();
+        if ($reschedule) {
+            $this->scheduleNextEvent();
+        }
+
+        return ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'condition_not_met'];
     }
 
     // Returns next UNIX timestamp (UTC) based on schedule config, or null for 'manual'
     public function getNextScheduleTimestamp(): ?int {
         $config     = get_option('linkdigest_schedule', []);
         $mode       = $config['mode']       ?? 'daily';
-        $times      = $config['times']      ?? ['09:00'];
+        $times      = $config['times']      ?? [];
+        if (empty($times)) {
+            $times = ['09:00'];
+        }
         $recurrence = $config['recurrence'] ?? [];
 
         if ($mode === 'manual') {
@@ -133,9 +168,24 @@ trait LinkDigest_Scheduler {
 
     private function matchesMonthlySchedule(\DateTime $date, array $rec): bool {
         $dom = (int) $date->format('j');
+        $map = ['MO' => 1, 'TU' => 2, 'WE' => 3, 'TH' => 4, 'FR' => 5, 'SA' => 6, 'SU' => 7];
         foreach ($rec['monthDays'] ?? [] as $md) {
-            if (($md['type'] ?? '') === 'day' && (int) ($md['value'] ?? 0) === $dom) {
+            $type = $md['type'] ?? '';
+            if ($type === 'day' && (int) ($md['value'] ?? 0) === $dom) {
                 return true;
+            }
+            if ($type === 'weekday') {
+                $target_dow = $map[$md['weekday'] ?? ''] ?? 0;
+                $nth        = (int) ($md['nth'] ?? 0);
+                if ($target_dow === 0 || $nth === 0) {
+                    continue;
+                }
+                $first      = (clone $date)->modify('first day of this month');
+                $offset     = ($target_dow - (int) $first->format('N') + 7) % 7;
+                $target_dom = 1 + $offset + ($nth - 1) * 7;
+                if ($dom === $target_dom) {
+                    return true;
+                }
             }
         }
         return false;
@@ -147,7 +197,7 @@ trait LinkDigest_Scheduler {
             'post_type'      => 'linkdigest',
             'posts_per_page' => 1,
             'fields'         => 'ids',
-            'date_query'     => [['before' => $cutoff]],
+            'date_query'     => [['before' => $cutoff, 'column' => 'post_date_gmt']],
             'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',
                 ['key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
