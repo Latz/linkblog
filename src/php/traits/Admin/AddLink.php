@@ -155,7 +155,7 @@ trait LinkDigest_Admin_AddLink {
             'post_title'   => $input['title'],
             'post_content' => $input['content'],
             'post_type'    => 'linkdigest',
-            'post_status'  => 'publish',
+            'post_status'  => 'linkdigest_pending',
         ));
 
         if (!$post_id) {

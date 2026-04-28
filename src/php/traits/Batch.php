@@ -221,13 +221,15 @@ trait LinkDigest_Batch {
     }
 
     private function markLinksAsPublished(array $link_ids, int $post_id, bool $as_draft): void {
-        $status = $as_draft ? 'draft' : 'published';
-        $date   = current_time('mysql');
+        $meta_status = $as_draft ? 'draft' : 'published';
+        $wp_status   = $as_draft ? 'linkdigest_draft' : 'linkdigest_published';
+        $date        = current_time('mysql');
         foreach ($link_ids as $link_id) {
             $link = get_post($link_id);
             if ($link && $link->post_type === 'linkdigest') {
+                wp_update_post(['ID' => $link_id, 'post_status' => $wp_status]);
                 update_post_meta($link_id, '_linkdigest_published_post_id', $post_id);
-                update_post_meta($link_id, '_linkdigest_publish_status', $status);
+                update_post_meta($link_id, '_linkdigest_publish_status', $meta_status);
                 update_post_meta($link_id, '_linkdigest_published_date', $date);
             }
         }

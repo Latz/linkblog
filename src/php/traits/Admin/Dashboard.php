@@ -11,21 +11,10 @@ trait LinkDigest_Admin_Dashboard {
         // Get recent unpublished links
         $recent_unpublished = get_posts(array(
             'post_type'      => 'linkdigest',
+            'post_status'    => 'linkdigest_pending',
             'posts_per_page' => 3,
             'orderby'        => 'date',
             'order'          => 'DESC',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                'relation' => 'OR',
-                array(
-                    'key'     => '_linkdigest_publish_status',
-                    'compare' => self::META_COMPARE_NOT_EXISTS,
-                ),
-                array(
-                    'key'     => '_linkdigest_publish_status',
-                    'value'   => array('published', 'draft'),
-                    'compare' => self::META_COMPARE_NOT_IN,
-                )
-            )
         ));
 
         ?>
@@ -77,13 +66,11 @@ trait LinkDigest_Admin_Dashboard {
     public function getUnpublishedLinkIds(): array {
         return get_posts( array(
             'post_type'      => 'linkdigest',
+            'post_status'    => 'linkdigest_pending',
             'posts_per_page' => self::UNPUBLISHED_PAGE_SIZE,
             'fields'         => 'ids',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                'relation' => 'OR',
-                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
-            ),
+            'orderby'        => 'date',
+            'order'          => 'ASC', // oldest first: used by age-mode trigger and batch ordering
         ) );
     }
 
@@ -125,7 +112,7 @@ trait LinkDigest_Admin_Dashboard {
         $post_id = wp_insert_post( array(
             'post_title'  => $title,
             'post_type'   => 'linkdigest',
-            'post_status' => 'publish',
+            'post_status' => 'linkdigest_pending',
         ) );
         if ( $post_id && ! empty( $url ) ) {
             update_post_meta( $post_id, '_linkdigest_url', $url );
@@ -435,26 +422,20 @@ trait LinkDigest_Admin_Dashboard {
 
         $recent_links = get_posts( array(
             'post_type'      => 'linkdigest',
+            'post_status'    => 'linkdigest_pending',
             'posts_per_page' => 5,
             'orderby'        => 'date',
             'order'          => 'DESC',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                'relation' => 'OR',
-                array( 'key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS ),
-                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => self::META_COMPARE_NOT_IN ),
-            ),
         ) );
 
         $recently_published = get_posts( array(
             'post_type'      => 'linkdigest',
+            'post_status'    => array( 'linkdigest_published', 'linkdigest_draft' ),
             'posts_per_page' => 5,
             'orderby'        => 'meta_value',
             'order'          => 'DESC',
             // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
             'meta_key'       => '_linkdigest_published_date',
-            'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                array( 'key' => '_linkdigest_publish_status', 'value' => array( 'published', 'draft' ), 'compare' => 'IN' ),
-            ),
         ) );
 
         ?>

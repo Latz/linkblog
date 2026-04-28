@@ -98,6 +98,7 @@ trait LinkDigest_Publishing {
 
         $this->mapTaxonomies($post_id, $link_id);
 
+        wp_update_post(['ID' => $link_id, 'post_status' => $as_draft ? 'linkdigest_draft' : 'linkdigest_published']);
         update_post_meta($link_id, '_linkdigest_published_post_id', $post_id);
         update_post_meta($link_id, '_linkdigest_publish_status', $as_draft ? 'draft' : 'published');
         update_post_meta($link_id, '_linkdigest_published_date', current_time('mysql'));

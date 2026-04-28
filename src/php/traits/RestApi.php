@@ -175,7 +175,7 @@ trait LinkDigest_RestApi {
             'post_title'   => $title,
             'post_content' => $content,
             'post_type'    => 'linkdigest',
-            'post_status'  => 'publish',
+            'post_status'  => 'linkdigest_pending',
         );
 
         $post_id = wp_insert_post($post_data);

@@ -5,6 +5,8 @@ declare(strict_types=1);
 trait LinkDigest_PostType {
 
     public function registerPostType(): void {
+        $this->registerPostStatuses();
+
         $labels = array(
             'name'                  => _x('Links', 'Post Type General Name', 'linkdigest'),
             'singular_name'         => _x('Link', 'Post Type Singular Name', 'linkdigest'),
@@ -66,6 +68,42 @@ trait LinkDigest_PostType {
             'single'        => true,
             'type'          => 'string',
             'auth_callback' => '__return_true',
+        ));
+    }
+
+    private function registerPostStatuses(): void {
+        register_post_status('linkdigest_pending', array(
+            'label'                     => _x('Pending', 'linkdigest post status', 'linkdigest'),
+            'public'                    => true,
+            'show_in_admin_all_list'    => true,
+            'show_in_admin_status_list' => true,
+            'label_count'               => _n_noop(
+                'Pending <span class="count">(%s)</span>',
+                'Pending <span class="count">(%s)</span>',
+                'linkdigest'
+            ),
+        ));
+        register_post_status('linkdigest_published', array(
+            'label'                     => _x('In Digest', 'linkdigest post status', 'linkdigest'),
+            'public'                    => true,
+            'show_in_admin_all_list'    => true,
+            'show_in_admin_status_list' => true,
+            'label_count'               => _n_noop(
+                'In Digest <span class="count">(%s)</span>',
+                'In Digest <span class="count">(%s)</span>',
+                'linkdigest'
+            ),
+        ));
+        register_post_status('linkdigest_draft', array(
+            'label'                     => _x('In Draft Digest', 'linkdigest post status', 'linkdigest'),
+            'public'                    => false,
+            'show_in_admin_all_list'    => true,
+            'show_in_admin_status_list' => true,
+            'label_count'               => _n_noop(
+                'In Draft Digest <span class="count">(%s)</span>',
+                'In Draft Digest <span class="count">(%s)</span>',
+                'linkdigest'
+            ),
         ));
     }
 

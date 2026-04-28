@@ -40,8 +40,9 @@ trait LinkDigest_Scheduler {
         $mode    = $config['mode']    ?? 'daily';
         $trigger = $config['trigger'] ?? [];
 
-        $link_ids    = $this->getUnpublishedLinkIds();
-        $total_count = count($link_ids);
+        $link_ids       = $this->getUnpublishedLinkIds(); // returns oldest-first (ASC)
+        $total_count    = count($link_ids);
+        $oldest_link_id = $link_ids[0] ?? null; // capture before any slice for age-mode check
 
         // Cap per-run to prevent max_execution_time / OOM on large queues.
         // Remaining links are handled by an immediate reschedule below.
@@ -53,7 +54,9 @@ trait LinkDigest_Scheduler {
 
         $should_publish = match ($mode) {
             'count' => $total_count >= (int) ($trigger['count'] ?? 10),
-            'age'   => $this->hasUnpublishedLinkOlderThan((int) ($trigger['days'] ?? 7)),
+            // Reuse the already-fetched list: oldest link is index 0 (ASC order).
+            // No second WP_Query needed.
+            'age'   => $oldest_link_id !== null && $this->isLinkOlderThan($oldest_link_id, (int) ($trigger['days'] ?? 7)),
             default => !empty($link_ids), // daily/weekly/monthly: publish if any links exist
         };
         $should_publish = (bool) apply_filters('linkdigest_should_publish', $should_publish, $link_ids, $mode, $trigger);
@@ -209,19 +212,12 @@ trait LinkDigest_Scheduler {
         return false;
     }
 
-    private function hasUnpublishedLinkOlderThan(int $days): bool {
+    private function isLinkOlderThan(int $link_id, int $days): bool {
+        $post = get_post($link_id);
+        if (!$post) {
+            return false;
+        }
         $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
-        $found  = get_posts([
-            'post_type'      => 'linkdigest',
-            'posts_per_page' => 1,
-            'fields'         => 'ids',
-            'date_query'     => [['before' => $cutoff, 'column' => 'post_date_gmt']],
-            'meta_query'     => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                'relation' => 'OR',
-                ['key' => '_linkdigest_publish_status', 'compare' => self::META_COMPARE_NOT_EXISTS],
-                ['key' => '_linkdigest_publish_status', 'value' => ['published', 'draft'], 'compare' => self::META_COMPARE_NOT_IN],
-            ],
-        ]);
-        return !empty($found);
+        return $post->post_date_gmt < $cutoff;
     }
 }

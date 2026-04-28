@@ -17,49 +17,18 @@ trait LinkDigest_Queries {
             return $cache = $cached;
         }
 
-        $counts = wp_count_posts('linkdigest');
-        $total_links = (int) ($counts->publish ?? 0);
-
-        // posts_per_page=1 + no_found_rows=false: skip fetching rows, use found_posts for the count.
-        $q_published = new \WP_Query([
-            'post_type'                  => 'linkdigest',
-            'posts_per_page'             => 1,
-            'fields'                     => 'ids',
-            'no_found_rows'              => false,
-            'update_post_meta_cache'     => false,
-            'update_post_term_cache'     => false,
-            'meta_query'                 => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                [
-                    'key'     => '_linkdigest_publish_status',
-                    'value'   => 'published',
-                    'compare' => '='
-                ]
-            ]
-        ]);
-        $published_links = (int) $q_published->found_posts;
-
-        $q_draft = new \WP_Query([
-            'post_type'                  => 'linkdigest',
-            'posts_per_page'             => 1,
-            'fields'                     => 'ids',
-            'no_found_rows'              => false,
-            'update_post_meta_cache'     => false,
-            'update_post_term_cache'     => false,
-            'meta_query'                 => [ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-                [
-                    'key'     => '_linkdigest_publish_status',
-                    'value'   => 'draft',
-                    'compare' => '='
-                ]
-            ]
-        ]);
-        $draft_links = (int) $q_draft->found_posts;
+        // wp_count_posts reads the indexed post_status column — no meta joins needed.
+        $counts          = wp_count_posts('linkdigest');
+        $published_links = (int) ($counts->linkdigest_published ?? 0);
+        $draft_links     = (int) ($counts->linkdigest_draft     ?? 0);
+        $pending_links   = (int) ($counts->linkdigest_pending   ?? 0);
+        $total_links     = $published_links + $draft_links + $pending_links;
 
         $cache = [
             'total_links'       => $total_links,
             'published_links'   => $published_links,
             'draft_links'       => $draft_links,
-            'unpublished_links' => $total_links - $published_links - $draft_links
+            'unpublished_links' => $pending_links,
         ];
         set_transient('linkdigest_publish_stats', $cache, 300);
         return $cache;
@@ -67,11 +36,12 @@ trait LinkDigest_Queries {
 
     public function getLinksGroupedByCategory(): array {
         $all_links = get_posts([
-            'post_type'                  => 'linkdigest',
-            'posts_per_page'             => -1,
-            'orderby'                    => 'date',
-            'order'                      => 'DESC',
-            'update_post_term_cache'     => false,
+            'post_type'              => 'linkdigest',
+            'post_status'            => ['linkdigest_pending', 'linkdigest_published', 'linkdigest_draft'],
+            'posts_per_page'         => -1,
+            'orderby'                => 'date',
+            'order'                  => 'DESC',
+            'update_post_term_cache' => false,
         ]);
         if (empty($all_links)) {
             return [];
@@ -89,6 +59,48 @@ trait LinkDigest_Queries {
             $grouped[$group_name][] = $link;
         }
         return $grouped;
+    }
+
+    public function maybeRunMigration(): void {
+        if (get_option('linkdigest_schema_version') === '2') {
+            return;
+        }
+        global $wpdb;
+
+        // Bulk-migrate existing 'publish'-status linkdigest posts to custom statuses.
+        // Three SQL UPDATEs are far faster than iterating with wp_update_post() for large sites.
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm
+                ON pm.post_id = p.ID
+               AND pm.meta_key = '_linkdigest_publish_status'
+               AND pm.meta_value = 'published'
+             SET p.post_status = 'linkdigest_published'
+             WHERE p.post_type = %s AND p.post_status = 'publish'",
+            'linkdigest'
+        ));
+
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm
+                ON pm.post_id = p.ID
+               AND pm.meta_key = '_linkdigest_publish_status'
+               AND pm.meta_value = 'draft'
+             SET p.post_status = 'linkdigest_draft'
+             WHERE p.post_type = %s AND p.post_status = 'publish'",
+            'linkdigest'
+        ));
+
+        // All remaining 'publish' linkdigest posts have no status meta → they are pending.
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->posts}
+             SET post_status = 'linkdigest_pending'
+             WHERE post_type = %s AND post_status = 'publish'",
+            'linkdigest'
+        ));
+
+        delete_transient('linkdigest_publish_stats');
+        update_option('linkdigest_schema_version', '2');
     }
 
     public function unpublishLink(int $link_id): array {
@@ -112,7 +124,8 @@ trait LinkDigest_Queries {
             );
         }
 
-        // Reset meta fields
+        // Reset post status and meta fields
+        wp_update_post(['ID' => $link_id, 'post_status' => 'linkdigest_pending']);
         delete_post_meta($link_id, '_linkdigest_published_post_id');
         delete_post_meta($link_id, '_linkdigest_publish_status');
         delete_post_meta($link_id, '_linkdigest_published_date');

@@ -8,9 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class LinkDigest {
 
-    private const META_COMPARE_NOT_EXISTS = 'NOT EXISTS';          // NOSONAR — used in traits via self::
-    private const META_COMPARE_NOT_IN     = 'NOT IN';              // NOSONAR — used in traits via self::
-    private const ADMIN_LINKS_PAGE        = 'admin.php?page=linkdigest-admin'; // NOSONAR — used in traits via self::
+    private const ADMIN_LINKS_PAGE = 'admin.php?page=linkdigest-admin'; // NOSONAR — used in traits via self::
 
     public const MAX_PER_RUN           = 200;
     public const UNPUBLISHED_PAGE_SIZE = 500;
@@ -37,6 +35,7 @@ class LinkDigest {
         // Post type & taxonomies
         add_action('init', [$instance, 'registerPostType'], 0);
         add_action('init', [$instance, 'registerTaxonomies'], 0);
+        add_action('init', [$instance, 'maybeRunMigration'], 5);
 
         // Scheduler
         add_action('init', [$instance, 'registerSchedulerHooks'], 0);
