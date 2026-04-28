@@ -105,4 +105,27 @@ describe('LinkDigest::validateScheduleConfig()', function (): void {
         expect($result['trigger']['count'])->toBe(10);
         expect($result['trigger']['days'])->toBe(7);
     });
+
+    it('accepts publishAs as a known key', function (): void {
+        $data   = ['mode' => 'daily', 'publishAs' => 5];
+        $result = $this->plugin->validateScheduleConfig($data);
+
+        expect($result)->toBeArray();
+        expect($result['publishAs'])->toBe(5);
+    });
+
+    it('coerces publishAs to integer', function (): void {
+        $data   = ['mode' => 'daily', 'publishAs' => '3'];
+        $result = $this->plugin->validateScheduleConfig($data);
+
+        expect($result['publishAs'])->toBe(3);
+    });
+
+    it('returns 400 invalid_publish_as when publishAs is negative', function (): void {
+        $result = $this->plugin->validateScheduleConfig(['mode' => 'daily', 'publishAs' => -1]);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_publish_as');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
 });

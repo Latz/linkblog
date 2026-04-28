@@ -41,7 +41,7 @@ trait LinkDigest_Batch {
         );
     }
 
-    public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false): array {
+    public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false, string $mode = 'manual'): array {
         $guard = $this->validateRoundupRequest($link_ids);
         if ($guard !== null) {
             return $guard;
@@ -63,7 +63,7 @@ trait LinkDigest_Batch {
             return array('success' => false, 'post_id' => 0, 'message' => __('No valid links to publish.', 'linkdigest'), 'error_code' => 'no_valid_links');
         }
 
-        return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids);
+        return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids, $mode);
     }
 
     private function validateRoundupRequest(mixed $link_ids): ?array {
@@ -76,14 +76,15 @@ trait LinkDigest_Batch {
         return null;
     }
 
-    private function executeRoundupInsertion(string $post_title, bool $as_draft, array $links_by_category, array $uncategorized_links, int $count, array $link_ids): array {
+    private function executeRoundupInsertion(string $post_title, bool $as_draft, array $links_by_category, array $uncategorized_links, int $count, array $link_ids, string $mode = 'manual'): array {
         // post_type 'post': the roundup is a normal blog post, not a linkdigest CPT entry.
-        $post_id = wp_insert_post(array(
+        $args = apply_filters('linkdigest_roundup_post_args', array(
             'post_title'   => $post_title,
             'post_content' => $this->buildRoundupContent($links_by_category, $uncategorized_links),
             'post_status'  => $as_draft ? 'draft' : 'publish',
             'post_type'    => 'post',
-        ));
+        ), $link_ids, $mode);
+        $post_id = wp_insert_post($args);
 
         if (is_wp_error($post_id) || !$post_id) {
             return array('success' => false, 'post_id' => 0, 'message' => __('Failed to create roundup post.', 'linkdigest'), 'error_code' => 'insert_failed');

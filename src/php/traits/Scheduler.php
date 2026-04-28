@@ -45,7 +45,7 @@ trait LinkDigest_Scheduler {
 
         // Cap per-run to prevent max_execution_time / OOM on large queues.
         // Remaining links are handled by an immediate reschedule below.
-        $max_per_run = 200;
+        $max_per_run = (int) apply_filters('linkdigest_max_per_run', self::MAX_PER_RUN);
         $has_more    = $total_count > $max_per_run;
         if ($has_more) {
             $link_ids = array_slice($link_ids, 0, $max_per_run);
@@ -56,32 +56,42 @@ trait LinkDigest_Scheduler {
             'age'   => $this->hasUnpublishedLinkOlderThan((int) ($trigger['days'] ?? 7)),
             default => !empty($link_ids), // daily/weekly/monthly: publish if any links exist
         };
+        $should_publish = (bool) apply_filters('linkdigest_should_publish', $should_publish, $link_ids, $mode, $trigger);
 
         $scheduled_catchup = false;
+        $result            = ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'condition_not_met'];
 
         if ($should_publish && !empty($link_ids)) {
             /* translators: %s is the formatted date (e.g. "April 15, 2026") */
             $title = sprintf(__('Links: %s', 'linkdigest'), wp_date('F j, Y'));
+            $title = (string) apply_filters('linkdigest_roundup_title', $title, $link_ids, $mode);
 
-            // WP-Cron runs unauthenticated; elevate to an admin so createRoundupPost()
-            // passes its current_user_can('publish_posts') guard.
+            // Use the stored publishAs user; fall back to first administrator.
+            // WP-Cron runs unauthenticated, so we must elevate before calling
+            // createRoundupPost() which guards on current_user_can('publish_posts').
+            $publish_as   = (int) ($config['publishAs'] ?? 0);
             $prev_user_id = get_current_user_id();
-            if (empty($prev_user_id)) {
-                $admin_ids = get_users(array('role' => 'administrator', 'number' => 1, 'fields' => 'ids'));
-                if (!empty($admin_ids)) {
-                    wp_set_current_user((int) $admin_ids[0]);
-                }
+            if ($publish_as === 0) {
+                $admin_ids  = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ids']);
+                $publish_as = !empty($admin_ids) ? (int) $admin_ids[0] : 0;
+            }
+            if ($publish_as > 0 && get_current_user_id() !== $publish_as) {
+                wp_set_current_user($publish_as);
             }
 
-            $roundup = $this->createRoundupPost($link_ids, $title);
+            do_action('linkdigest_before_run', $link_ids, $mode);
+            $roundup = $this->createRoundupPost($link_ids, $title, false, $mode);
 
             // Restore previous user context.
-            if (empty($prev_user_id)) {
-                wp_set_current_user(0);
+            if (get_current_user_id() !== $prev_user_id) {
+                wp_set_current_user($prev_user_id);
             }
 
+            $post_id = ($roundup['post_id'] ?? 0) ?: null;
+            do_action('linkdigest_after_run', $post_id, $link_ids, $mode);
+
             if ($has_more) {
-                wp_schedule_single_event(time() + 60, 'linkdigest_execute_schedule');
+                wp_schedule_single_event(time() + self::RESCHEDULE_DELAY, 'linkdigest_execute_schedule');
                 $scheduled_catchup = true;
             }
 
@@ -89,20 +99,28 @@ trait LinkDigest_Scheduler {
                 $this->scheduleNextEvent();
             }
 
-            $post_id = ($roundup['post_id'] ?? 0) ?: null;
-            return [
+            $result = [
                 'published'  => $roundup['success'] ?? false,
                 'post_id'    => $post_id,
                 'link_count' => count($link_ids),
                 'reason'     => $roundup['message'] ?? null,
             ];
+        } else {
+            if ($reschedule) {
+                $this->scheduleNextEvent();
+            }
         }
 
-        if ($reschedule) {
-            $this->scheduleNextEvent();
-        }
+        update_option('linkdigest_last_run', [
+            'ts'         => time(),
+            'mode'       => $mode,
+            'link_count' => $result['link_count'],
+            'post_id'    => $result['post_id'],
+            'status'     => $result['published'] ? 'success' : 'skipped',
+            'reason'     => $result['reason'],
+        ]);
 
-        return ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'condition_not_met'];
+        return $result;
     }
 
     // Returns next UNIX timestamp (UTC) based on schedule config, or null for 'manual'
@@ -111,7 +129,7 @@ trait LinkDigest_Scheduler {
         $mode       = $config['mode']       ?? 'daily';
         $times      = $config['times']      ?? [];
         if (empty($times)) {
-            $times = ['09:00'];
+            $times = [self::DEFAULT_TIME];
         }
         $recurrence = $config['recurrence'] ?? [];
 
@@ -125,7 +143,7 @@ trait LinkDigest_Scheduler {
 
         // 367-day window handles monthly schedules where no day matches in the current
         // month (e.g., 31st in a 30-day month) and leap-year edge cases.
-        for ($i = 0; $i <= 366; $i++) {
+        for ($i = 0; $i <= self::SEARCH_HORIZON_DAYS; $i++) {
             $day = (clone $now)->modify("+{$i} days");
 
             if (!$this->dayMatchesSchedule($day, $mode, $recurrence)) {

@@ -77,7 +77,7 @@ trait LinkDigest_Admin_Dashboard {
     public function getUnpublishedLinkIds(): array {
         return get_posts( array(
             'post_type'      => 'linkdigest',
-            'posts_per_page' => 500,
+            'posts_per_page' => self::UNPUBLISHED_PAGE_SIZE,
             'fields'         => 'ids',
             'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
                 'relation' => 'OR',

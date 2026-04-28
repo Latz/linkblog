@@ -12,6 +12,12 @@ class LinkDigest {
     private const META_COMPARE_NOT_IN     = 'NOT IN';              // NOSONAR — used in traits via self::
     private const ADMIN_LINKS_PAGE        = 'admin.php?page=linkdigest-admin'; // NOSONAR — used in traits via self::
 
+    public const MAX_PER_RUN           = 200;
+    public const UNPUBLISHED_PAGE_SIZE = 500;
+    public const RESCHEDULE_DELAY      = 60;
+    public const SEARCH_HORIZON_DAYS   = 366;
+    public const DEFAULT_TIME          = '09:00';
+
     use LinkDigest_PostType;
     use LinkDigest_MetaBoxes;
     use LinkDigest_Publishing;

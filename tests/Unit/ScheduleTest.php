@@ -121,11 +121,15 @@ describe('LinkDigest::saveSchedule()', function (): void {
             }
         );
 
+        Functions\when('get_current_user_id')->justReturn(1);
+
         $result = $this->plugin->saveSchedule($request);
 
         expect($result['success'])->toBeTrue();
         expect($savedKey)->toBe('linkdigest_schedule');
-        expect($savedVal)->toBe($data);
+        expect($savedVal['mode'])->toBe($data['mode']);
+        expect($savedVal['times'])->toBe($data['times']);
+        expect($savedVal)->toHaveKey('publishAs');
     });
 });
 

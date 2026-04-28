@@ -1,12 +1,11 @@
 import { useMemo } from '@wordpress/element';
 import { RRule } from 'rrule';
 import { __ } from '@wordpress/i18n';
+import { SCHEDULE_MODES } from '../lib/modes';
 
 /**
  * Sidebar panel showing the next 10 scheduled execution dates.
  */
-
-const SCHEDULE_MODES = new Set(['daily', 'weekly', 'monthly']);
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 

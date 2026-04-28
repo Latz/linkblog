@@ -266,6 +266,12 @@ trait LinkDigest_Admin_Menu {
                 true
             );
 
+            wp_localize_script('linkdigest-schedule', 'linkdigestSchedule', array(
+                'allModes'     => array_column(\ScheduleMode::cases(), 'value'),
+                'timeModes'    => array_column(\ScheduleMode::timeBased(), 'value'),
+                'triggerModes' => array_column(\ScheduleMode::triggerBased(), 'value'),
+            ));
+
             if (file_exists(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/schedule.css')) {
                 wp_enqueue_style(
                     'linkdigest-schedule-style',

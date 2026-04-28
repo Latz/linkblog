@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 trait LinkDigest_ScheduleValidator {
 
     public function validateScheduleConfig(array $data): array|\WP_Error {
-        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger'];
+        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs'];
         $unknown      = array_diff(array_keys($data), $allowed_keys);
         if (!empty($unknown)) {
             return new \WP_Error(
@@ -20,7 +20,7 @@ trait LinkDigest_ScheduleValidator {
             );
         }
 
-        $valid_modes = ['daily', 'weekly', 'monthly', 'count', 'age', 'manual'];
+        $valid_modes = array_column(ScheduleMode::cases(), 'value');
         if (!isset($data['mode']) || !in_array($data['mode'], $valid_modes, true)) {
             return new \WP_Error('invalid_mode', __('Invalid schedule mode', 'linkdigest'), ['status' => 400]);
         }
@@ -57,6 +57,13 @@ trait LinkDigest_ScheduleValidator {
                 if ($data['trigger']['days'] <= 0) {
                     return new \WP_Error('invalid_trigger', __('trigger.days must be a positive integer', 'linkdigest'), ['status' => 400]);
                 }
+            }
+        }
+
+        if (isset($data['publishAs'])) {
+            $data['publishAs'] = (int) $data['publishAs'];
+            if ($data['publishAs'] < 0) {
+                return new \WP_Error('invalid_publish_as', __('publishAs must be a non-negative integer', 'linkdigest'), ['status' => 400]);
             }
         }
 

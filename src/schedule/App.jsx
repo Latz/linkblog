@@ -3,18 +3,12 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, Panel, PanelBody, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { buildRRule } from './lib/rrule';
+import { SCHEDULE_MODES } from './lib/modes';
 import ScheduleTypePicker from './components/ScheduleTypePicker';
 import RecurrenceConfig from './components/RecurrenceConfig';
 import TriggerCondition from './components/TriggerCondition';
 import TimePicker from './components/TimePicker';
 import NextSchedules from './components/NextSchedules';
-
-/**
- * Root schedule-configuration UI. Loads the existing schedule from the REST API
- * on mount, builds an rrule/trigger config via useMemo, and POSTs on save.
- */
-
-const SCHEDULE_MODES = new Set(['daily', 'weekly', 'monthly']);
 
 // Baseline form state. Also used as a fallback template when the API response
 // omits keys (spread with API data in the useEffect below).

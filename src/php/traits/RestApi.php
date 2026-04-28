@@ -130,6 +130,9 @@ trait LinkDigest_RestApi {
         if (is_wp_error($validated)) {
             return $validated;
         }
+        if (!array_key_exists('publishAs', $validated)) {
+            $validated['publishAs'] = get_current_user_id() ?: null;
+        }
         update_option('linkdigest_schedule', $validated);
         $this->scheduleNextEvent();
         return rest_ensure_response(array('success' => true));
