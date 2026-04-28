@@ -18,6 +18,7 @@ class LinkDigest {
     use LinkDigest_Batch;
     use LinkDigest_Queries;
     use LinkDigest_RestApi;
+    use LinkDigest_ScheduleValidator;
     use LinkDigest_Scheduler;
     use LinkDigest_Admin_Menu;
     use LinkDigest_Admin_Dashboard;

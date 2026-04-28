@@ -64,7 +64,7 @@ describe('LinkDigest::saveSchedule()', function (): void {
         $result = $this->plugin->saveSchedule($request);
 
         expect($result)->toBeInstanceOf(WP_Error::class);
-        expect($result->get_error_code())->toBe('invalid_data');
+        expect($result->get_error_code())->toBe('invalid_mode');
     });
 
     it('returns a 400 WP_Error when mode is not in the whitelist', function (): void {
@@ -126,5 +126,19 @@ describe('LinkDigest::saveSchedule()', function (): void {
         expect($result['success'])->toBeTrue();
         expect($savedKey)->toBe('linkdigest_schedule');
         expect($savedVal)->toBe($data);
+    });
+});
+
+describe('LinkDigest::runScheduleNow()', function (): void {
+
+    it('returns a 429 WP_Error when a run is already in progress', function (): void {
+        Functions\when('__')->returnArg();
+        Functions\when('get_transient')->justReturn('1');
+
+        $result = $this->plugin->runScheduleNow();
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('run_in_progress');
+        expect($result->get_error_data()['status'])->toBe(429);
     });
 });
