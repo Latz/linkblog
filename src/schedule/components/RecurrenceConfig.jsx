@@ -6,13 +6,13 @@ import { __experimentalNumberControl as NumberControl, SelectControl, Button } f
 import { __ } from '@wordpress/i18n';
 
 const WEEKDAYS = [
-  { value: 'MO', label: 'M' },
-  { value: 'TU', label: 'T' },
-  { value: 'WE', label: 'W' },
-  { value: 'TH', label: 'T' },
-  { value: 'FR', label: 'F' },
-  { value: 'SA', label: 'S' },
-  { value: 'SU', label: 'S' },
+  { value: 'MO', label: 'Mon' },
+  { value: 'TU', label: 'Tue' },
+  { value: 'WE', label: 'Wed' },
+  { value: 'TH', label: 'Thu' },
+  { value: 'FR', label: 'Fri' },
+  { value: 'SA', label: 'Sat' },
+  { value: 'SU', label: 'Sun' },
 ];
 
 const WEEKDAY_SHORT = { MO: 'Mon', TU: 'Tue', WE: 'Wed', TH: 'Thu', FR: 'Fri', SA: 'Sat', SU: 'Sun' };

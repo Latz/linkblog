@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 trait LinkDigest_ScheduleValidator {
 
     public function validateScheduleConfig(array $data): array|\WP_Error {
-        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs'];
+        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs', 'notify'];
         $unknown      = array_diff(array_keys($data), $allowed_keys);
         if (!empty($unknown)) {
             return new \WP_Error(
@@ -64,6 +64,19 @@ trait LinkDigest_ScheduleValidator {
             $data['publishAs'] = (int) $data['publishAs'];
             if ($data['publishAs'] < 0) {
                 return new \WP_Error('invalid_publish_as', __('publishAs must be a non-negative integer', 'linkdigest'), ['status' => 400]);
+            }
+        }
+
+        if (isset($data['notify'])) {
+            if (!is_array($data['notify'])) {
+                return new \WP_Error('invalid_notify', __('notify must be an object', 'linkdigest'), ['status' => 400]);
+            }
+            $data['notify']['enabled'] = (bool) ($data['notify']['enabled'] ?? false);
+            if (!empty($data['notify']['email'])) {
+                $data['notify']['email'] = sanitize_email($data['notify']['email']);
+                if (!is_email($data['notify']['email'])) {
+                    return new \WP_Error('invalid_notify_email', __('notify.email is not a valid email address', 'linkdigest'), ['status' => 400]);
+                }
             }
         }
 

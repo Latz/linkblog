@@ -67,6 +67,18 @@ trait LinkDigest_RestApi {
             'permission_callback' => function() { return current_user_can('manage_options'); },
         ));
 
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/schedule/preview', array(
+            'methods'             => 'POST',
+            'callback'            => fn() => rest_ensure_response($this->previewSchedule()),
+            'permission_callback' => fn() => current_user_can('manage_options'),
+        ));
+
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/schedule/diagnostics', array(
+            'methods'             => 'GET',
+            'callback'            => [$this, 'getScheduleDiagnostics'],
+            'permission_callback' => fn() => current_user_can('manage_options'),
+        ));
+
         register_rest_route(LINKDIGEST_REST_NAMESPACE, '/api-key', array(
             'methods'             => 'GET',
             'callback'            => [$this, 'restGetApiKey'],
@@ -136,6 +148,16 @@ trait LinkDigest_RestApi {
         update_option('linkdigest_schedule', $validated);
         $this->scheduleNextEvent();
         return rest_ensure_response(array('success' => true));
+    }
+
+    public function getScheduleDiagnostics(): mixed {
+        $next_ts  = wp_next_scheduled('linkdigest_execute_schedule');
+        $last_run = get_option('linkdigest_last_run', null);
+        return rest_ensure_response([
+            'next_scheduled'   => $next_ts ?: null,
+            'last_run'         => $last_run ?: null,
+            'wp_cron_disabled' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+        ]);
     }
 
     public function runScheduleNow(): \WP_REST_Response|\WP_Error {

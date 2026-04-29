@@ -11,6 +11,7 @@ trait LinkDigest_Scheduler {
     // Called from register() — binds the cron callback
     public function registerSchedulerHooks(): void {
         add_action('linkdigest_execute_schedule', [$this, 'executeSchedule']);
+        add_action('linkdigest_after_run', [$this, 'maybeSendRunNotification'], 10, 3);
     }
 
     // Calculates next timestamp, cancels any pending event, schedules a new one
@@ -210,6 +211,75 @@ trait LinkDigest_Scheduler {
             }
         }
         return false;
+    }
+
+    public function previewSchedule(): array {
+        $config  = get_option('linkdigest_schedule', []);
+        $mode    = $config['mode']    ?? 'daily';
+        $trigger = $config['trigger'] ?? [];
+
+        $link_ids       = $this->getUnpublishedLinkIds();
+        $total_count    = count($link_ids);
+        $oldest_link_id = $link_ids[0] ?? null;
+        $max_per_run    = (int) apply_filters('linkdigest_max_per_run', self::MAX_PER_RUN);
+        $batch_ids      = array_slice($link_ids, 0, $max_per_run);
+
+        $would_publish = match ($mode) {
+            'count'  => $total_count >= (int) ($trigger['count'] ?? 10),
+            'age'    => $oldest_link_id !== null && $this->isLinkOlderThan($oldest_link_id, (int) ($trigger['days'] ?? 7)),
+            'manual' => false,
+            default  => !empty($batch_ids),
+        };
+
+        $by_category = [];
+        if ($would_publish && !empty($batch_ids)) {
+            foreach ($batch_ids as $id) {
+                $terms    = wp_get_object_terms($id, 'linkdigest_category', ['fields' => 'names']);
+                $cat_name = (!is_wp_error($terms) && !empty($terms))
+                    ? $terms[0]
+                    : __('Uncategorized', 'linkdigest');
+                $by_category[$cat_name] = ($by_category[$cat_name] ?? 0) + 1;
+            }
+            arsort($by_category);
+            $by_category = array_map(
+                fn($name, $count) => ['name' => $name, 'count' => $count],
+                array_keys($by_category), array_values($by_category)
+            );
+        }
+
+        return [
+            'would_publish' => $would_publish,
+            'link_count'    => $would_publish ? count($batch_ids) : 0,
+            'total_pending' => $total_count,
+            'by_category'   => array_values($by_category),
+            'mode'          => $mode,
+        ];
+    }
+
+    public function maybeSendRunNotification(int|null $post_id, array $link_ids, string $mode): void {
+        $config = get_option('linkdigest_schedule', []);
+        $notify = $config['notify'] ?? [];
+        if (empty($notify['enabled'])) {
+            return;
+        }
+        $to = !empty($notify['email']) ? $notify['email'] : get_option('admin_email');
+        /* translators: %d: number of links published */
+        $subject = sprintf(__('[LinkDigest] Roundup published: %d links', 'linkdigest'), count($link_ids));
+        if ($post_id) {
+            $message = sprintf(
+                /* translators: 1: link count, 2: post URL */
+                __("A new roundup was published.\n\nLinks: %1\$d\nView: %2\$s", 'linkdigest'),
+                count($link_ids),
+                get_permalink($post_id)
+            );
+        } else {
+            $message = sprintf(
+                /* translators: %s: schedule mode */
+                __('Schedule ran in %s mode but no post was published.', 'linkdigest'),
+                $mode
+            );
+        }
+        wp_mail($to, $subject, $message);
     }
 
     private function isLinkOlderThan(int $link_id, int $days): bool {
