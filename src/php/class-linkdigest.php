@@ -33,8 +33,8 @@ class LinkDigest {
         $instance = new self();
 
         // Post type & taxonomies
-        add_action('init', [$instance, 'registerPostType'], 0);
-        add_action('init', [$instance, 'registerTaxonomies'], 0);
+        add_action('init', [$instance, 'register_post_type'], 0);
+        add_action('init', [$instance, 'register_taxonomies'], 0);
         add_action('init', [$instance, 'maybeRunMigration'], 5);
 
         // Scheduler

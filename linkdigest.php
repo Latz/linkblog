@@ -27,7 +27,7 @@ define('LINKDIGEST_PLUGIN_FILE', __FILE__);
 require_once __DIR__ . '/src/php/ScheduleMode.php';
 
 // Traits (must be required before the class)
-require_once __DIR__ . '/src/php/traits/PostType.php';
+require_once __DIR__ . '/src/php/traits/trait-post-type.php';
 require_once __DIR__ . '/src/php/traits/MetaBoxes.php';
 require_once __DIR__ . '/src/php/traits/Publishing.php';
 require_once __DIR__ . '/src/php/traits/Batch.php';
