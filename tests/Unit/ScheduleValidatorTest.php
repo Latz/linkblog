@@ -128,4 +128,62 @@ describe('LinkDigest::validateScheduleConfig()', function (): void {
         expect($result->get_error_code())->toBe('invalid_publish_as');
         expect($result->get_error_data()['status'])->toBe(400);
     });
+
+    it('accepts notify as a known top-level key', function (): void {
+        $result = $this->plugin->validateScheduleConfig([
+            'mode'   => 'daily',
+            'notify' => ['enabled' => true, 'email' => ''],
+        ]);
+
+        expect($result)->toBeArray();
+    });
+
+    it('returns 400 invalid_notify when notify is not an array', function (): void {
+        $result = $this->plugin->validateScheduleConfig(['mode' => 'daily', 'notify' => 'yes']);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_notify');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
+    it('coerces notify.enabled to boolean', function (): void {
+        $result = $this->plugin->validateScheduleConfig([
+            'mode'   => 'daily',
+            'notify' => ['enabled' => 1],
+        ]);
+
+        expect($result)->toBeArray();
+        expect($result['notify']['enabled'])->toBeBool();
+        expect($result['notify']['enabled'])->toBeTrue();
+    });
+
+    it('returns 400 invalid_notify_email when notify.email is an invalid address', function (): void {
+        $result = $this->plugin->validateScheduleConfig([
+            'mode'   => 'daily',
+            'notify' => ['enabled' => true, 'email' => 'not-an-email'],
+        ]);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_notify_email');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
+    it('accepts a valid email address in notify.email', function (): void {
+        $result = $this->plugin->validateScheduleConfig([
+            'mode'   => 'daily',
+            'notify' => ['enabled' => true, 'email' => 'admin@example.com'],
+        ]);
+
+        expect($result)->toBeArray();
+        expect($result['notify']['email'])->toBe('admin@example.com');
+    });
+
+    it('allows notify.email to be empty (falls back to admin email at send time)', function (): void {
+        $result = $this->plugin->validateScheduleConfig([
+            'mode'   => 'daily',
+            'notify' => ['enabled' => true, 'email' => ''],
+        ]);
+
+        expect($result)->toBeArray();
+    });
 });

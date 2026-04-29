@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
+defined('MINUTE_IN_SECONDS') || define('MINUTE_IN_SECONDS', 60);
 defined('HOUR_IN_SECONDS')  || define('HOUR_IN_SECONDS',  3600);
 defined('DAY_IN_SECONDS')   || define('DAY_IN_SECONDS',   86400);
 defined('WEEK_IN_SECONDS')  || define('WEEK_IN_SECONDS',  604800);
@@ -62,11 +63,13 @@ if (!class_exists('WP_Error')) {
 if (!class_exists('WP_Post')) {
     class WP_Post
     {
-        public int    $ID           = 0;
-        public string $post_title   = '';
-        public string $post_content = '';
-        public string $post_type    = 'post';
-        public string $post_status  = 'publish';
+        public int    $ID             = 0;
+        public string $post_title     = '';
+        public string $post_content   = '';
+        public string $post_type      = 'post';
+        public string $post_status    = 'publish';
+        public string $post_date      = '';
+        public string $post_date_gmt  = '';
     }
 }
 
@@ -303,4 +306,30 @@ if (!function_exists('register_deactivation_hook')) {
 }
 if (!function_exists('wp_clear_scheduled_hook')) {
     function wp_clear_scheduled_hook(string $hook, array $args = []): int|false { return 0; }
+}
+if (!function_exists('wp_next_scheduled')) {
+    function wp_next_scheduled(string $hook, array $args = []): int|false { return false; }
+}
+if (!function_exists('get_users')) {
+    function get_users(array $args = []): array { return []; }
+}
+if (!function_exists('wp_set_current_user')) {
+    function wp_set_current_user(int|null $id, string $name = ''): mixed { return null; }
+}
+if (!function_exists('wp_get_object_terms')) {
+    function wp_get_object_terms(mixed $object_ids, mixed $taxonomies, mixed $args = []): array|WP_Error { return []; }
+}
+if (!function_exists('sanitize_email')) {
+    function sanitize_email(string $email): string { return trim($email); }
+}
+if (!function_exists('is_email')) {
+    function is_email(string $email): string|false {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : false;
+    }
+}
+if (!function_exists('wp_mail')) {
+    function wp_mail(mixed $to, string $subject, string $message, mixed $headers = '', mixed $attachments = []): bool { return true; }
+}
+if (!function_exists('get_permalink')) {
+    function get_permalink(mixed $post = 0, bool $leavename = false): string|false { return ''; }
 }
