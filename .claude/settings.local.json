@@ -124,7 +124,16 @@
       "Bash(composer run *)",
       "Bash(svn --version)",
       "Bash(mysql --version)",
-      "Bash(mysql *)"
+      "Bash(mysql *)",
+      "Bash(unzip -l /home/latz/www/wp/wp-content/plugins/LinkDigest/dist/linkdigest-1.0.0.zip)",
+      "Bash(unzip -p /home/latz/www/wp/wp-content/plugins/LinkDigest/dist/linkdigest-1.0.0.zip linkdigest/linkdigest.php)",
+      "Bash(unzip -p /home/latz/www/wp/wp-content/plugins/LinkDigest/dist/linkdigest-1.0.0.zip linkdigest/includes/Menu.php)",
+      "mcp__sonarqube__system_ping",
+      "mcp__sonarqube__projects",
+      "Bash(wp i18n *)",
+      "Bash(vendor/bin/phpcs --standard=WordPress src/php/traits/PostType.php)",
+      "Bash(vendor/bin/phpcbf *)",
+      "Bash(vendor/bin/phpcs *)"
     ]
   }
 }
