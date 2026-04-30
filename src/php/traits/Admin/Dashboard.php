@@ -103,9 +103,10 @@ trait LinkDigest_Admin_Dashboard {
         if ( ! isset( $_POST['linkdigest_quick_add'] ) ) {
             return false;
         }
-        $nonce = isset( $_POST['linkdigest_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_quick_nonce'] ) ) : '';
-        $title = isset( $_POST['quick_title'] ) ? sanitize_text_field( wp_unslash( $_POST['quick_title'] ) ) : '';
-        $url   = isset( $_POST['quick_url'] )   ? esc_url_raw( wp_unslash( $_POST['quick_url'] ) )           : '';
+        $nonce    = isset( $_POST['linkdigest_quick_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_quick_nonce'] ) ) : '';
+        $title    = isset( $_POST['quick_title'] )    ? sanitize_text_field( wp_unslash( $_POST['quick_title'] ) )    : '';
+        $url      = isset( $_POST['quick_url'] )      ? esc_url_raw( wp_unslash( $_POST['quick_url'] ) )              : '';
+        $category = isset( $_POST['quick_category'] ) ? (int) $_POST['quick_category']                                : 0;
         if ( ! wp_verify_nonce( $nonce, 'linkdigest_quick_add_link' ) || empty( $title ) ) {
             return false;
         }
@@ -114,8 +115,13 @@ trait LinkDigest_Admin_Dashboard {
             'post_type'   => 'linkdigest',
             'post_status' => 'linkdigest_pending',
         ) );
-        if ( $post_id && ! empty( $url ) ) {
-            update_post_meta( $post_id, '_linkdigest_url', $url );
+        if ( $post_id ) {
+            if ( ! empty( $url ) ) {
+                update_post_meta( $post_id, '_linkdigest_url', $url );
+            }
+            if ( $category > 0 ) {
+                wp_set_post_terms( $post_id, array( $category ), 'linkdigest_category' );
+            }
         }
         return (bool) $post_id;
     }
@@ -203,6 +209,11 @@ trait LinkDigest_Admin_Dashboard {
                     <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <?php $this->renderRecentlyPublishedList( $recently_published ); ?>
+                    <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
+                        <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>">
+                            <?php esc_html_e( 'View all links →', 'linkdigest' ); ?>
+                        </a>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -239,7 +250,7 @@ trait LinkDigest_Admin_Dashboard {
                         </p>
                     </form>
                 <?php else : ?>
-                    <p style="color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
+                    <p style="color:#646970;"><?php esc_html_e( 'No pending links to publish. Add links first, then come back here to publish a roundup.', 'linkdigest' ); ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -297,6 +308,8 @@ trait LinkDigest_Admin_Dashboard {
     }
 
     public function renderQuickAddBox( bool $quick_add_success ): void {
+        $categories = get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) );
+        $has_categories = ! empty( $categories ) && ! is_wp_error( $categories );
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -314,15 +327,67 @@ trait LinkDigest_Admin_Dashboard {
                             placeholder="<?php esc_attr_e( 'Enter link title', 'linkdigest' ); ?>" required>
                     </p>
                     <p>
-                        <label for="quick_url"><strong><?php esc_html_e( 'URL', 'linkdigest' ); ?></strong></label><br>
+                        <label for="quick_url">
+                            <strong><?php esc_html_e( 'URL', 'linkdigest' ); ?></strong>
+                            <span class="lb-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
+                        </label><br>
                         <input type="url" id="quick_url" name="quick_url" class="regular-text"
                             placeholder="https://example.com">
                     </p>
+                    <?php if ( $has_categories ) : ?>
+                    <p>
+                        <label for="quick_category">
+                            <strong><?php esc_html_e( 'Category', 'linkdigest' ); ?></strong>
+                            <span class="lb-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
+                        </label><br>
+                        <select id="quick_category" name="quick_category" class="regular-text">
+                            <option value=""><?php esc_html_e( '— No category —', 'linkdigest' ); ?></option>
+                            <?php foreach ( $categories as $term ) : ?>
+                                <option value="<?php echo (int) $term->term_id; ?>">
+                                    <?php echo esc_html( $term->name ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </p>
+                    <?php endif; ?>
                     <p>
                         <button type="submit" name="linkdigest_quick_add" class="button button-primary"><?php esc_html_e( 'Add Link', 'linkdigest' ); ?></button>
                     </p>
                 </form>
             </div>
+        </div>
+        <?php
+    }
+
+    private function renderScheduleStatusBar(): void {
+        $schedule = get_option( 'linkdigest_schedule', null );
+        if ( $schedule === null ) {
+            return;
+        }
+        $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
+        $schedule_url = esc_url( admin_url( 'admin.php?page=linkdigest-schedule' ) );
+        ?>
+        <div class="lb-schedule-status">
+            <?php if ( $next_ts ) : ?>
+                <span class="dashicons dashicons-calendar-alt lb-schedule-status-icon"></span>
+                <span class="lb-schedule-status-text">
+                    <?php
+                    /* translators: %s: formatted next run datetime */
+                    printf(
+                        esc_html__( 'Next run: %s', 'linkdigest' ),
+                        esc_html( wp_date( get_option( 'date_format' ) . ', ' . get_option( 'time_format' ), $next_ts ) )
+                    );
+                    ?>
+                </span>
+            <?php else : ?>
+                <span class="dashicons dashicons-info lb-schedule-status-icon lb-schedule-status-icon--muted"></span>
+                <span class="lb-schedule-status-text lb-schedule-status-text--muted">
+                    <?php esc_html_e( 'No automatic schedule active.', 'linkdigest' ); ?>
+                </span>
+            <?php endif; ?>
+            <a href="<?php echo $schedule_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-schedule-status-link">
+                <?php esc_html_e( 'Schedule settings →', 'linkdigest' ); ?>
+            </a>
         </div>
         <?php
     }
@@ -438,35 +503,51 @@ trait LinkDigest_Admin_Dashboard {
             'meta_key'       => '_linkdigest_published_date',
         ) );
 
+        $all_links_url  = esc_url( admin_url( self::ADMIN_LINKS_PAGE ) );
+        $categories_url = esc_url( admin_url( 'edit-tags.php?taxonomy=linkdigest_category&post_type=linkdigest' ) );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'linkdigest', 'linkdigest' ); ?></h1>
+            <h1><?php esc_html_e( 'Overview', 'linkdigest' ); ?></h1>
 
             <?php $this->renderDashboardNotices( $batch_result, $roundup_result ); ?>
 
+            <?php if ( $total_links === 0 ) : ?>
+            <!-- Onboarding -->
+            <div class="lb-onboarding">
+                <span class="dashicons dashicons-admin-links lb-onboarding-icon"></span>
+                <p><strong><?php esc_html_e( 'No links yet.', 'linkdigest' ); ?></strong>
+                   <?php esc_html_e( 'Start by adding your first link.', 'linkdigest' ); ?></p>
+                <a href="<?php echo esc_url( admin_url( 'admin.php?page=linkdigest-add' ) ); ?>" class="button button-primary">
+                    <?php esc_html_e( 'Add your first link →', 'linkdigest' ); ?>
+                </a>
+            </div>
+            <?php else : ?>
             <!-- Statistics -->
             <div class="lb-stats-grid">
-                <div class="lb-stat-card">
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_links )); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $total_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
-                </div>
-                <div class="lb-stat-card">
+                </a>
+                <a href="<?php echo $categories_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-category lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $total_categories )); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $total_categories ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
-                </div>
-                <div class="lb-stat-card">
+                </a>
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $published_links )); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $published_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
-                </div>
-                <div class="lb-stat-card">
+                </a>
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html(number_format( $unpublished_links )); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $unpublished_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
-                </div>
+                </a>
             </div>
+            <?php endif; ?>
+
+            <?php $this->renderScheduleStatusBar(); ?>
 
             <!-- Main Content -->
             <div class="metabox-holder">
@@ -479,8 +560,8 @@ trait LinkDigest_Admin_Dashboard {
 
                 <div id="postbox-container-2" class="postbox-container">
                     <?php
-                    $this->renderPublishBox( $unpublished_links );
                     $this->renderQuickAddBox( $quick_add_success );
+                    $this->renderPublishBox( $unpublished_links );
                     ?>
                 </div><!-- #postbox-container-2 -->
             </div><!-- .metabox-holder -->

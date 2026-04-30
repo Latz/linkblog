@@ -46,6 +46,96 @@
 	margin: 1px 0 0;
 }
 
+/* ── Stat card as link ───────────────────────────────────── */
+a.lb-stat-card--link {
+	text-decoration: none;
+	color: inherit;
+	transition: border-left-color .15s, box-shadow .15s;
+}
+
+a.lb-stat-card--link:hover {
+	border-left-color: #135e96;
+	box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+a.lb-stat-card--link .lb-stat-value {
+	color: #1d2327;
+}
+
+/* ── Onboarding card ─────────────────────────────────────── */
+.lb-onboarding {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+	padding: 16px 20px;
+	margin-bottom: 16px;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
+	flex-wrap: wrap;
+}
+
+.lb-onboarding-icon {
+	font-size: 28px;
+	width: 28px;
+	height: 28px;
+	color: #2271b1;
+	flex-shrink: 0;
+}
+
+.lb-onboarding p {
+	margin: 0;
+	flex: 1;
+	min-width: 160px;
+}
+
+/* ── Schedule status bar ─────────────────────────────────── */
+.lb-schedule-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 2px;
+	padding: 7px 12px;
+	margin-bottom: 16px;
+	font-size: 13px;
+}
+
+.lb-schedule-status-icon {
+	color: #2271b1;
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
+
+.lb-schedule-status-icon--muted {
+	color: #787c82;
+}
+
+.lb-schedule-status-text {
+	flex: 1;
+}
+
+.lb-schedule-status-text--muted {
+	color: #646970;
+}
+
+.lb-schedule-status-link {
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+/* ── Quick Add: optional label ───────────────────────────── */
+.lb-optional {
+	font-weight: normal;
+	color: #646970;
+	font-size: 12px;
+	margin-left: 3px;
+}
+
 /* ── Two-column layout ───────────────────────────────────── */
 #postbox-container-1 {
 	width: 65%;
@@ -267,6 +357,41 @@
 	.lb-stats-grid {
 		flex-direction: column;
 	}
+}
+
+/* ── Categories table ────────────────────────────────────── */
+.lb-cat-table {
+	margin-top: 0;
+}
+
+.lb-cat-count-col,
+td.lb-cat-count-col {
+	width: 80px;
+	text-align: center;
+}
+
+.lb-cat-desc {
+	color: #646970;
+	font-size: 12px;
+	max-width: 220px;
+}
+
+.lb-cat-actions {
+	white-space: nowrap;
+}
+
+.lb-cat-delete-btn {
+	color: #b32d2e;
+	cursor: pointer;
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: inherit;
+	text-decoration: underline;
+}
+
+.lb-cat-delete-btn:hover {
+	color: #8a1f1f;
 }
 
 /* === Setting X: Expansion Layout === */

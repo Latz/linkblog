@@ -47,7 +47,8 @@ trait LinkDigest_Admin_Menu {
             __('Categories', 'linkdigest'),
             __('Categories', 'linkdigest'),
             'manage_categories',
-            'edit-tags.php?taxonomy=linkdigest_category&post_type=linkdigest'
+            'linkdigest-categories',
+            [$this, 'categoriesPage']
         );
 
         add_submenu_page(
@@ -91,7 +92,7 @@ trait LinkDigest_Admin_Menu {
         if ($pagenow === 'edit-tags.php') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkdigest_category' || $taxonomy === 'linkdigest_tag') {
+            if ($taxonomy === 'linkdigest_tag') {
                 return 'linkdigest-dashboard';
             }
         }
@@ -103,9 +104,6 @@ trait LinkDigest_Admin_Menu {
         if ($pagenow === 'edit-tags.php') {
             // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkdigest_category') {
-                return 'edit-tags.php?taxonomy=linkdigest_category&post_type=linkdigest';
-            }
             if ($taxonomy === 'linkdigest_tag') {
                 return 'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkdigest';
             }
@@ -650,19 +648,6 @@ trait LinkDigest_Admin_Menu {
         });
         </script>
         <?php
-    }
-
-    public function hideCategoryFields(): void {
-        global $pagenow;
-        if ($pagenow !== 'edit-tags.php') {
-            return;
-        }
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-        if ($taxonomy !== 'linkdigest_category') {
-            return;
-        }
-        echo '<style>.term-description-wrap{display:none}</style>';
     }
 
     public function addDashboardWidget(): void {

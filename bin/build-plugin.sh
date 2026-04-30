@@ -63,6 +63,7 @@ sed -i \
     -e "s|src/php/traits/Admin/Dashboard\.php|includes/Dashboard.php|g" \
     -e "s|src/php/traits/Admin/LinksPage\.php|includes/LinksPage.php|g" \
     -e "s|src/php/traits/Admin/AddLink\.php|includes/AddLink.php|g" \
+    -e "s|src/php/traits/Admin/Categories\.php|includes/Categories.php|g" \
     -e "s|src/php/traits/trait-post-type\.php|includes/trait-post-type.php|g" \
     -e "s|src/php/traits/MetaBoxes\.php|includes/MetaBoxes.php|g" \
     -e "s|src/php/traits/Publishing\.php|includes/Publishing.php|g" \

@@ -28,6 +28,7 @@ class LinkDigest {
     use LinkDigest_Admin_Dashboard;
     use LinkDigest_Admin_LinksPage;
     use LinkDigest_Admin_AddLink;
+    use LinkDigest_Admin_Categories;
 
     public static function register(): void {
         $instance = new self();
@@ -60,8 +61,6 @@ class LinkDigest {
         add_action('admin_menu', [$instance, 'adminMenu']);
         add_action('admin_enqueue_scripts', [$instance, 'enqueueAdminAssets']);
         add_action('wp_dashboard_setup', [$instance, 'addDashboardWidget']);
-
-        add_action('admin_head', [$instance, 'hideCategoryFields']);
 
         // Menu highlighting for taxonomy pages
         add_filter('parent_file', [$instance, 'parentFileFilter']);
