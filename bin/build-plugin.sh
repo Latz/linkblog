@@ -51,21 +51,24 @@ rsync -a \
 # Flatten PHP into includes/ (src/ is excluded by .distignore above)
 echo "Flattening PHP into includes/..."
 mkdir -p "$STAGE_DIR/includes"
+cp "$PROJECT_DIR/src/php/ScheduleMode.php" "$STAGE_DIR/includes/"
 cp "$PROJECT_DIR/src/php/traits/"*.php "$STAGE_DIR/includes/"
 cp "$PROJECT_DIR/src/php/traits/Admin/"*.php "$STAGE_DIR/includes/"
 cp "$PROJECT_DIR/src/php/class-linkdigest.php" "$STAGE_DIR/includes/"
 
 # Patch require_once paths in the staged linkdigest.php
 sed -i \
+    -e "s|src/php/ScheduleMode\.php|includes/ScheduleMode.php|g" \
     -e "s|src/php/traits/Admin/Menu\.php|includes/Menu.php|g" \
     -e "s|src/php/traits/Admin/Dashboard\.php|includes/Dashboard.php|g" \
     -e "s|src/php/traits/Admin/LinksPage\.php|includes/LinksPage.php|g" \
     -e "s|src/php/traits/Admin/AddLink\.php|includes/AddLink.php|g" \
-    -e "s|src/php/traits/PostType\.php|includes/PostType.php|g" \
+    -e "s|src/php/traits/trait-post-type\.php|includes/trait-post-type.php|g" \
     -e "s|src/php/traits/MetaBoxes\.php|includes/MetaBoxes.php|g" \
     -e "s|src/php/traits/Publishing\.php|includes/Publishing.php|g" \
     -e "s|src/php/traits/Batch\.php|includes/Batch.php|g" \
     -e "s|src/php/traits/Queries\.php|includes/Queries.php|g" \
+    -e "s|src/php/traits/ScheduleValidator\.php|includes/ScheduleValidator.php|g" \
     -e "s|src/php/traits/RestApi\.php|includes/RestApi.php|g" \
     -e "s|src/php/traits/Scheduler\.php|includes/Scheduler.php|g" \
     -e "s|src/php/class-linkdigest\.php|includes/class-linkdigest.php|g" \

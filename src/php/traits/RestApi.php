@@ -79,6 +79,15 @@ trait LinkDigest_RestApi {
             'permission_callback' => fn() => current_user_can('manage_options'),
         ));
 
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/schedule/dismiss-cron-notice', array(
+            'methods'             => 'POST',
+            'callback'            => function() {
+                update_option('linkdigest_cron_notice_dismissed', true);
+                return rest_ensure_response(array('success' => true));
+            },
+            'permission_callback' => fn() => current_user_can('manage_options'),
+        ));
+
         register_rest_route(LINKDIGEST_REST_NAMESPACE, '/api-key', array(
             'methods'             => 'GET',
             'callback'            => [$this, 'restGetApiKey'],
@@ -154,9 +163,10 @@ trait LinkDigest_RestApi {
         $next_ts  = wp_next_scheduled('linkdigest_execute_schedule');
         $last_run = get_option('linkdigest_last_run', null);
         return rest_ensure_response([
-            'next_scheduled'   => $next_ts ?: null,
-            'last_run'         => $last_run ?: null,
-            'wp_cron_disabled' => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+            'next_scheduled'        => $next_ts ?: null,
+            'last_run'              => $last_run ?: null,
+            'wp_cron_disabled'      => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
+            'cron_notice_dismissed' => (bool) get_option('linkdigest_cron_notice_dismissed', false),
         ]);
     }
 

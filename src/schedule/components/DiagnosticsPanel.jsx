@@ -1,5 +1,3 @@
-import { useState, useEffect, useCallback } from '@wordpress/element';
-import apiFetch from '@wordpress/api-fetch';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 
@@ -18,23 +16,14 @@ function fmtTs(ts) {
 
 /**
  * Sidebar panel showing server-side schedule diagnostics: next scheduled run,
- * last run record, and WP-Cron status.
+ * last run record, and WP-Cron status. Data is fetched by App and passed in.
  *
+ * @param {object|null} data       - Diagnostics data from the API.
+ * @param {boolean}     loading    - True while data is being fetched.
+ * @param {Function}    onRefresh  - Callback to re-fetch diagnostics.
  * @returns {JSX.Element}
  */
-export default function DiagnosticsPanel() {
-  const [data, setData]       = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetch = useCallback(() => {
-    setLoading(true);
-    apiFetch({ path: '/linkdigest/v1/schedule/diagnostics' })
-      .then(d => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
-  }, []);
-
-  useEffect(fetch, [fetch]);
-
+export default function DiagnosticsPanel({ data, loading, onRefresh }) {
   const lastRun = data?.last_run;
   const statusBadgeClass = lastRun?.status === 'success'
     ? 'linkdigest-diag-badge linkdigest-diag-badge--success'
@@ -55,7 +44,16 @@ export default function DiagnosticsPanel() {
               <dd>
                 {data.next_scheduled
                   ? fmtTs(data.next_scheduled)
-                  : <em>{__('Not scheduled', 'linkdigest')}</em>}
+                  : (
+                    <>
+                      <em>{__('Not scheduled', 'linkdigest')}</em>
+                      {data.wp_cron_disabled && (
+                        <span className="linkdigest-diag-reason">
+                          {' — '}{__('WP-Cron disabled', 'linkdigest')}
+                        </span>
+                      )}
+                    </>
+                  )}
               </dd>
             </div>
 
@@ -76,11 +74,9 @@ export default function DiagnosticsPanel() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            {/* translators: %d: number of links */}
                             {sprintf(__('%d links', 'linkdigest'), lastRun.link_count)}
                           </a>
                         ) : (
-                          /* translators: %d: number of links */
                           sprintf(__('%d links', 'linkdigest'), lastRun.link_count)
                         )}
                       </span>
@@ -107,7 +103,7 @@ export default function DiagnosticsPanel() {
           <Button
             variant="link"
             size="compact"
-            onClick={fetch}
+            onClick={onRefresh}
             className="linkdigest-diag-refresh"
           >
             {__('Refresh', 'linkdigest')}

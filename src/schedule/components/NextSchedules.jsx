@@ -1,13 +1,13 @@
 import { useMemo } from '@wordpress/element';
 import { RRule } from 'rrule';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { SCHEDULE_MODES } from '../lib/modes';
 
-/**
- * Sidebar panel showing the next 10 scheduled execution dates.
- */
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const loc = window.linkdigestSchedule || {};
+const SITE_TIMEZONE = loc.timezone || null;
 
 /**
  * Formats a UTC date as "Day DD Mon YYYY".
@@ -37,9 +37,6 @@ export default function NextSchedules({ config, form }) {
     try {
       const now = new Date();
 
-      // If every configured time for today has already passed, the next
-      // occurrence can only start from tomorrow — skip today to avoid showing
-      // a "next run" that has already been missed.
       const allTimesPast = form.times.every(t => {
         const [h, m] = t.split(':').map(Number);
         const todayAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
@@ -49,10 +46,8 @@ export default function NextSchedules({ config, form }) {
         ? new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0)
         : now;
 
-      // Re-parse so we can override dtstart without mutating the cached rule.
       const parsed = RRule.fromString(config.rrule);
       const rule = new RRule({ ...parsed.options, dtstart });
-      // rule.all() callback returns false to stop iteration; limit to 10 dates.
       return rule.all((_, i) => i < 10);
     } catch {
       return [];
@@ -67,7 +62,7 @@ export default function NextSchedules({ config, form }) {
       <div className="inside linkdigest-next-schedules-inside">
         {nextDates.length > 0 ? (
           <ol className="linkdigest-next-schedules">
-            {nextDates.map((d, i) => (
+            {nextDates.map(d => (
               <li key={d.toISOString()} className="linkdigest-next-schedule-row">
                 <span className="linkdigest-next-date">{formatDate(d)}</span>
                 {form.times.length > 0 && (
@@ -78,6 +73,12 @@ export default function NextSchedules({ config, form }) {
           </ol>
         ) : (
           <p className="description">{__('No occurrences — check recurrence settings.', 'linkdigest')}</p>
+        )}
+        {SITE_TIMEZONE && (
+          <p className="linkdigest-next-tz">
+            {/* translators: %s: timezone name, e.g. Europe/Berlin */}
+            {sprintf(__('Times in %s', 'linkdigest'), SITE_TIMEZONE)}
+          </p>
         )}
       </div>
     </div>

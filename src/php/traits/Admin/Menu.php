@@ -270,6 +270,7 @@ trait LinkDigest_Admin_Menu {
                 'allModes'     => array_column(\ScheduleMode::cases(), 'value'),
                 'timeModes'    => array_column(\ScheduleMode::timeBased(), 'value'),
                 'triggerModes' => array_column(\ScheduleMode::triggerBased(), 'value'),
+                'timezone'     => wp_timezone_string(),
             ));
 
             if (file_exists(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/schedule.css')) {

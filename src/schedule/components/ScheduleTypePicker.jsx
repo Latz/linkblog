@@ -1,8 +1,3 @@
-/**
- * Button-group picker for selecting the schedule mode (daily/weekly/monthly,
- * trigger-based, or manual).
- */
-
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -27,40 +22,50 @@ const TRIGGER_TYPES = [
 export default function ScheduleTypePicker({ value, onChange }) {
   return (
     <div className="linkdigest-mode-picker">
-      {/* Group 1: time-based recurrence (rrule-driven) */}
-      <div className="linkdigest-btn-group">
-        {SCHEDULE_TYPES.map(t => (
-          <Button
-            key={t.value}
-            variant={value === t.value ? 'primary' : 'secondary'}
-            onClick={() => onChange(t.value)}
-          >
-            {t.label}
-          </Button>
-        ))}
+      <div className="linkdigest-mode-group">
+        <div className="linkdigest-mode-group-label">{__('Scheduled', 'linkdigest')}</div>
+        <div className="linkdigest-btn-group">
+          {SCHEDULE_TYPES.map(t => (
+            <Button
+              key={t.value}
+              variant={value === t.value ? 'primary' : 'secondary'}
+              onClick={() => onChange(t.value)}
+            >
+              {t.label}
+            </Button>
+          ))}
+        </div>
       </div>
+
       <div className="linkdigest-btn-group-sep" />
-      {/* Group 2: condition-based triggers (fire when threshold is met) */}
-      <div className="linkdigest-btn-group">
-        {TRIGGER_TYPES.map(t => (
-          <Button
-            key={t.value}
-            variant={value === t.value ? 'primary' : 'secondary'}
-            onClick={() => onChange(t.value)}
-          >
-            {t.label}
-          </Button>
-        ))}
+
+      <div className="linkdigest-mode-group">
+        <div className="linkdigest-mode-group-label">{__('Trigger-based', 'linkdigest')}</div>
+        <div className="linkdigest-btn-group">
+          {TRIGGER_TYPES.map(t => (
+            <Button
+              key={t.value}
+              variant={value === t.value ? 'primary' : 'secondary'}
+              onClick={() => onChange(t.value)}
+            >
+              {t.label}
+            </Button>
+          ))}
+        </div>
       </div>
+
       <div className="linkdigest-btn-group-sep" />
-      {/* Group 3: no automatic trigger — user starts the roundup manually */}
-      <div className="linkdigest-btn-group">
-        <Button
-          variant={value === 'manual' ? 'primary' : 'secondary'}
-          onClick={() => onChange('manual')}
-        >
-          {__('Manual', 'linkdigest')}
-        </Button>
+
+      <div className="linkdigest-mode-group">
+        <div className="linkdigest-mode-group-label">{__('Manual', 'linkdigest')}</div>
+        <div className="linkdigest-btn-group">
+          <Button
+            variant={value === 'manual' ? 'primary' : 'secondary'}
+            onClick={() => onChange('manual')}
+          >
+            {__('Manual', 'linkdigest')}
+          </Button>
+        </div>
       </div>
     </div>
   );

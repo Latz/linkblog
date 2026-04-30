@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import { useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Panel, PanelBody, Notice, CheckboxControl, TextControl } from '@wordpress/components';
+import { Button, Notice, CheckboxControl, TextControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { buildRRule } from './lib/rrule';
 import { SCHEDULE_MODES } from './lib/modes';
@@ -11,23 +11,23 @@ import TimePicker from './components/TimePicker';
 import NextSchedules from './components/NextSchedules';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 
-// Baseline form state. Also used as a fallback template when the API response
-// omits keys (spread with API data in the useEffect below).
 const DEFAULT_FORM = {
   mode: 'daily',
-  // recurrence is only used by daily/weekly/monthly modes
   recurrence: { interval: 1, weekdays: [], monthDays: [{ type: 'day', value: 1, nth: 1, weekday: 'MO' }], nthWeek: null },
-  // trigger is only used by count/age modes
   trigger: { count: 10, tag_id: null, days: 7 },
   times: ['09:00'],
   notify: { enabled: false, email: '' },
 };
 
-/**
- * Root component for the schedule settings page.
- *
- * @returns {JSX.Element}
- */
+function Section({ title, children }) {
+  return (
+    <div className="linkdigest-section">
+      <h3 className="linkdigest-section-heading">{title}</h3>
+      <div className="linkdigest-section-body">{children}</div>
+    </div>
+  );
+}
+
 export default function App() {
   const [form, setForm]             = useState(DEFAULT_FORM);
   const [saving, setSaving]         = useState(false);
@@ -36,25 +36,37 @@ export default function App() {
   const [runResult, setRunResult]   = useState(null);
   const [previewBusy, setPreviewBusy]     = useState(false);
   const [previewResult, setPreviewResult] = useState(null);
+  const [confirmRun, setConfirmRun] = useState(false);
+  // Initialised from diag.cron_notice_dismissed once diagnostics load.
+  const [cronNoticeDismissed, setCronNoticeDismissed] = useState(false);
+
+  // Diagnostics lifted here so App can show a WP-Cron warning and refresh after save.
+  const [diag, setDiag]           = useState(null);
+  const [diagLoading, setDiagLoading] = useState(true);
+
+  const refreshDiag = useCallback(() => {
+    setDiagLoading(true);
+    apiFetch({ path: '/linkdigest/v1/schedule/diagnostics' })
+      .then(d => {
+        setDiag(d);
+        setCronNoticeDismissed(!!d.cron_notice_dismissed);
+        setDiagLoading(false);
+      })
+      .catch(() => setDiagLoading(false));
+  }, []);
 
   useEffect(() => {
     apiFetch({ path: '/linkdigest/v1/schedule' })
-      // Spread over DEFAULT_FORM so any keys absent from the API response
-      // (e.g. first-run with no saved schedule) still get valid defaults.
       .then(data => setForm({ ...DEFAULT_FORM, ...data }))
       .catch(() => {});
   }, []);
 
-  /**
-   * Validates times, then POSTs the current form state to the schedule API.
-   *
-   * @returns {Promise<void>}
-   */
+  useEffect(refreshDiag, [refreshDiag]);
+
   async function handleSave() {
     setSaving(true);
     setNotice(null);
-    // Duplicate times would result in the scheduler firing multiple jobs at the
-    // same instant; catch this client-side before hitting the API.
+    setConfirmRun(false);
     if (new Set(form.times).size !== form.times.length) {
       setNotice({ status: 'error', message: __('Execution times must be unique.', 'linkdigest') });
       setSaving(false);
@@ -63,6 +75,7 @@ export default function App() {
     try {
       await apiFetch({ path: '/linkdigest/v1/schedule', method: 'POST', data: form });
       setNotice({ status: 'success', message: __('Schedule saved.', 'linkdigest') });
+      refreshDiag();
     } catch {
       setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkdigest') });
     } finally {
@@ -74,6 +87,7 @@ export default function App() {
     setRunBusy(true);
     setRunResult(null);
     setPreviewResult(null);
+    setConfirmRun(false);
     try {
       const res = await apiFetch({ path: '/linkdigest/v1/schedule/run', method: 'POST' });
       setRunResult(res);
@@ -88,6 +102,7 @@ export default function App() {
     setPreviewBusy(true);
     setPreviewResult(null);
     setRunResult(null);
+    setConfirmRun(false);
     try {
       const res = await apiFetch({ path: '/linkdigest/v1/schedule/preview', method: 'POST' });
       setPreviewResult(res);
@@ -98,12 +113,6 @@ export default function App() {
     }
   }
 
-  /**
-   * Switches the schedule mode and resets recurrence state when entering a
-   * time-based mode so stale weekly/monthly config does not carry over.
-   *
-   * @param {string} mode - New schedule mode (daily | weekly | monthly | count | age | manual).
-   */
   function handleModeChange(mode) {
     setForm(f => ({
       ...f,
@@ -117,11 +126,6 @@ export default function App() {
   const isSchedule = SCHEDULE_MODES.has(form.mode);
   const isManual   = form.mode === 'manual';
 
-  // Derived config passed to NextSchedules and ultimately saved to the API.
-  // Shape varies by mode:
-  //   schedule → rrule string + times, no trigger
-  //   manual   → no rrule, no times, trigger signals "run on demand"
-  //   trigger  → no rrule, times still apply (fire when condition + time align)
   const config = useMemo(() => {
     if (isSchedule) {
       return { rrule: buildRRule({ type: form.mode, ...form.recurrence }), times: form.times, trigger: null };
@@ -134,11 +138,6 @@ export default function App() {
 
   const section02Label = isSchedule ? __('Recurrence', 'linkdigest') : __('Condition', 'linkdigest');
 
-  /**
-   * Returns the recurrence, trigger, or manual-notice section depending on mode.
-   *
-   * @returns {JSX.Element|null}
-   */
   function renderConditionSection() {
     if (isSchedule) return (
       <RecurrenceConfig
@@ -167,7 +166,6 @@ export default function App() {
       return <p className="linkdigest-run-result linkdigest-run-result--error">{runResult.error}</p>;
     }
     const msg = runResult.published
-      /* translators: %d: number of links */
       ? sprintf(__('Published %d links.', 'linkdigest'), runResult.link_count)
       : (runResult.reason === 'condition_not_met'
           ? __('Condition not met — no post published.', 'linkdigest')
@@ -187,7 +185,6 @@ export default function App() {
     if (!previewResult.would_publish) {
       return (
         <p className="linkdigest-run-result linkdigest-run-result--skip">
-          {/* translators: %d: total pending links */}
           {sprintf(__('Would NOT publish — %d links pending, condition not met.', 'linkdigest'), previewResult.total_pending)}
         </p>
       );
@@ -195,14 +192,12 @@ export default function App() {
     return (
       <div className="linkdigest-preview-result">
         <p className="linkdigest-preview-result__summary">
-          {/* translators: %d: number of links to publish */}
           {sprintf(__('Would publish %d links:', 'linkdigest'), previewResult.link_count)}
         </p>
         {previewResult.by_category.length > 0 && (
           <ul className="linkdigest-preview-result__cats">
             {previewResult.by_category.map(({ name, count }) => (
               <li key={name}>
-                {/* translators: 1: category name, 2: link count */}
                 {sprintf(__('%1$s (%2$d)', 'linkdigest'), name, count)}
               </li>
             ))}
@@ -215,59 +210,99 @@ export default function App() {
   return (
     <div className="linkdigest-schedule-wrap">
       <div className="linkdigest-schedule-main">
+        {diag?.wp_cron_disabled && !cronNoticeDismissed && (
+          <Notice
+            status="warning"
+            isDismissible
+            onRemove={() => {
+              setCronNoticeDismissed(true);
+              apiFetch({ path: '/linkdigest/v1/schedule/dismiss-cron-notice', method: 'POST' });
+            }}
+            className="linkdigest-wpcron-notice"
+          >
+            <strong>{__('WP-Cron is disabled.', 'linkdigest')}</strong>
+            {' '}
+            {__('Scheduled runs will not fire automatically. Add a real server cron job or remove', 'linkdigest')}
+            {' '}<code>DISABLE_WP_CRON</code>{' '}
+            {__('from', 'linkdigest')}
+            {' '}<code>wp-config.php</code>.
+          </Notice>
+        )}
+
         {notice && (
           <Notice status={notice.status} onRemove={() => setNotice(null)} isDismissible>
             {notice.message}
           </Notice>
         )}
 
-        <Panel>
-          <PanelBody title={__('Mode', 'linkdigest')} initialOpen>
-            <ScheduleTypePicker value={form.mode} onChange={handleModeChange} />
-          </PanelBody>
+        <Section title={__('Mode', 'linkdigest')}>
+          <ScheduleTypePicker value={form.mode} onChange={handleModeChange} />
+        </Section>
 
-          <PanelBody title={section02Label} initialOpen>
-            {renderConditionSection()}
-          </PanelBody>
+        <Section title={section02Label}>
+          {renderConditionSection()}
+        </Section>
 
-          {!isManual && (
-            <PanelBody title={__('Execution Times', 'linkdigest')} initialOpen>
-              <TimePicker
-                times={form.times}
-                onChange={v => setForm(f => ({ ...f, times: v }))}
-              />
-            </PanelBody>
-          )}
-
-          <PanelBody title={__('Notifications', 'linkdigest')}>
-            <CheckboxControl
-              label={__('Email me after each run', 'linkdigest')}
-              checked={form.notify?.enabled ?? false}
-              onChange={enabled => setForm(f => ({ ...f, notify: { ...f.notify, enabled } }))}
+        {!isManual && (
+          <Section title={__('Execution Times', 'linkdigest')}>
+            <TimePicker
+              times={form.times}
+              onChange={v => setForm(f => ({ ...f, times: v }))}
             />
-            {form.notify?.enabled && (
-              <TextControl
-                label={__('Email address', 'linkdigest')}
-                type="email"
-                value={form.notify?.email ?? ''}
-                placeholder={__('Leave blank to use admin email', 'linkdigest')}
-                onChange={email => setForm(f => ({ ...f, notify: { ...f.notify, email } }))}
-                __nextHasNoMarginBottom
-              />
-            )}
-          </PanelBody>
-        </Panel>
+          </Section>
+        )}
+
+        <Section title={__('Notifications', 'linkdigest')}>
+          <CheckboxControl
+            label={__('Email me after each run', 'linkdigest')}
+            checked={form.notify?.enabled ?? false}
+            onChange={enabled => setForm(f => ({ ...f, notify: { ...f.notify, enabled } }))}
+          />
+          {form.notify?.enabled && (
+            <TextControl
+              label={__('Email address', 'linkdigest')}
+              type="email"
+              value={form.notify?.email ?? ''}
+              placeholder={__('Leave blank to use admin email', 'linkdigest')}
+              onChange={email => setForm(f => ({ ...f, notify: { ...f.notify, email } }))}
+              __nextHasNoMarginBottom
+            />
+          )}
+        </Section>
 
         <div className="linkdigest-schedule-actions">
           <Button variant="primary" onClick={handleSave} isBusy={saving} disabled={saving}>
             {__('Save Schedule', 'linkdigest')}
           </Button>
           {' '}
-          <Button variant="secondary" onClick={handleRunNow} isBusy={runBusy} disabled={runBusy || previewBusy}>
-            {__('Run Now', 'linkdigest')}
-          </Button>
+          {confirmRun ? (
+            <>
+              <Button
+                variant="secondary"
+                onClick={() => { handleRunNow(); }}
+                isBusy={runBusy}
+                className="linkdigest-run-confirm"
+              >
+                {__('Confirm run?', 'linkdigest')}
+              </Button>
+              {' '}
+              <Button variant="tertiary" onClick={() => setConfirmRun(false)}>
+                {__('Cancel', 'linkdigest')}
+              </Button>
+            </>
+          ) : (
+            <Button variant="secondary" onClick={() => setConfirmRun(true)} disabled={runBusy || previewBusy}>
+              {__('Run Now', 'linkdigest')}
+            </Button>
+          )}
           {' '}
-          <Button variant="secondary" onClick={handlePreview} isBusy={previewBusy} disabled={runBusy || previewBusy}>
+          <Button
+            variant="secondary"
+            onClick={handlePreview}
+            isBusy={previewBusy}
+            disabled={runBusy || previewBusy}
+            title={__('Show what would be published without actually running', 'linkdigest')}
+          >
             {__('Preview', 'linkdigest')}
           </Button>
         </div>
@@ -277,7 +312,7 @@ export default function App() {
 
       <div className="linkdigest-schedule-sidebar">
         <NextSchedules config={config} form={form} />
-        <DiagnosticsPanel />
+        <DiagnosticsPanel data={diag} loading={diagLoading} onRefresh={refreshDiag} />
       </div>
     </div>
   );
