@@ -61,8 +61,8 @@ trait LinkDigest_Admin_Menu {
 
         add_submenu_page(
             'linkdigest-dashboard',
-            __('Settings', 'linkdigest'),
-            __('Settings', 'linkdigest'),
+            __('Chrome Extension', 'linkdigest'),
+            __('Chrome Extension', 'linkdigest'),
             'manage_options',
             'linkdigest-settings',
             [$this, 'settingsPage']
@@ -70,8 +70,8 @@ trait LinkDigest_Admin_Menu {
 
         add_submenu_page(
             'linkdigest-dashboard',
-            __('Setting X', 'linkdigest'),
-            __('Setting X', 'linkdigest'),
+            __('Settings', 'linkdigest'),
+            __('Settings', 'linkdigest'),
             'manage_options',
             'linkdigest-setting-x',
             [$this, 'settingXPage']
@@ -138,24 +138,38 @@ trait LinkDigest_Admin_Menu {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('New API key generated successfully!', 'linkdigest') . '</p></div>';
         }
 
-        $api_key = get_option('linkdigest_api_key');
-        $site_url = get_site_url();
+        $api_key     = get_option('linkdigest_api_key');
+        $site_url    = get_site_url();
+        $endpoint    = $site_url . '/wp-json/linkdigest/v1';
+        $has_key_attr = $api_key ? 'data-has-key="1"' : '';
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('LinkDigest Settings', 'linkdigest'); ?></h1>
+            <h1><?php esc_html_e('LinkDigest Extension', 'linkdigest'); ?></h1>
 
             <div class="card" style="max-width: 800px;">
                 <h2><?php esc_html_e('Chrome Extension Access Data', 'linkdigest'); ?></h2>
                 <p><?php esc_html_e('Use these credentials to connect the LinkDigest Chrome extension to your WordPress site.', 'linkdigest'); ?></p>
 
                 <div style="margin: 20px 0;">
-                    <label for="linkdigest-api-endpoint" style="display: block; margin-bottom: 8px; font-weight: 600;">
-                        <?php esc_html_e('API Endpoint:', 'linkdigest'); ?>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                        <?php esc_html_e('API Endpoint', 'linkdigest'); ?>
+                        <span style="font-weight: 400; color: #666; font-size: 12px;">(<?php esc_html_e('read-only', 'linkdigest'); ?>)</span>
                     </label>
-                    <?php $this->renderCopyableField('linkdigest-api-endpoint', $site_url . '/wp-json/linkdigest/v1'); ?>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input
+                            type="text"
+                            id="linkdigest-api-endpoint"
+                            value="<?php echo esc_attr($endpoint); ?>"
+                            disabled
+                            style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1; color: #a0a0a0; cursor: not-allowed;"
+                        >
+                        <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-endpoint">
+                            <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+                        </button>
+                    </div>
                     <p class="description">
                         <?php esc_html_e('Use this URL in the Chrome extension settings.', 'linkdigest'); ?>
-                        <a href="<?php echo esc_url($site_url . '/wp-json/linkdigest/v1'); ?>" target="_blank" style="margin-left: 8px;">
+                        <a href="<?php echo esc_url($endpoint); ?>" target="_blank" style="margin-left: 8px;">
                             <?php esc_html_e('View REST API', 'linkdigest'); ?> ↗
                         </a>
                     </p>
@@ -166,61 +180,163 @@ trait LinkDigest_Admin_Menu {
                         <label for="linkdigest-api-key" style="display: block; margin-bottom: 8px; font-weight: 600;">
                             <?php esc_html_e('API Key:', 'linkdigest'); ?>
                         </label>
-                        <?php $this->renderCopyableField('linkdigest-api-key', $api_key); ?>
-                        <p class="description">
-                            <?php esc_html_e('Click to select and copy this key. Keep it secure!', 'linkdigest'); ?>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input
+                                type="password"
+                                id="linkdigest-api-key"
+                                value="<?php echo esc_attr($api_key); ?>"
+                                readonly
+                                style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
+                            >
+                            <button type="button" class="button linkdigest-toggle-key" title="<?php esc_attr_e('Show / hide API key', 'linkdigest'); ?>">
+                                <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span>
+                            </button>
+                            <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-key">
+                                <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+                            </button>
+                        </div>
+                        <p class="description" style="margin-top: 6px;">
+                            <?php esc_html_e('Keep this key secure. Use the copy button to transfer it without revealing it.', 'linkdigest'); ?>
                         </p>
+                        <div style="margin-top: 12px;">
+                            <button type="button" id="linkdigest-test-connection" class="button">
+                                <?php esc_html_e('Test Connection', 'linkdigest'); ?>
+                            </button>
+                            <span id="linkdigest-connection-status" style="margin-left: 10px; font-weight: 600;"></span>
+                        </div>
                     </div>
                 <?php endif; ?>
 
-                <form method="post" action="">
+                <form method="post" action="" id="linkdigest-generate-form" <?php echo $has_key_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php wp_nonce_field('linkdigest_settings', 'linkdigest_settings_nonce'); ?>
+                    <?php if ($api_key) : ?>
+                        <div class="notice notice-warning inline" style="margin: 0 0 12px; padding: 8px 12px;">
+                            <p><?php esc_html_e('Warning: Generating a new key will permanently invalidate the current one. You will need to update the Chrome extension with the new key.', 'linkdigest'); ?></p>
+                        </div>
+                    <?php endif; ?>
                     <button type="submit" name="linkdigest_generate_api_key" class="button button-primary">
                         <?php echo $api_key ? esc_html__('Generate New API Key', 'linkdigest') : esc_html__('Generate API Key', 'linkdigest'); ?>
                     </button>
-                    <?php if ($api_key) : ?>
-                        <p class="description">
-                            <?php esc_html_e('Warning: Generating a new key will invalidate the old one.', 'linkdigest'); ?>
-                        </p>
-                    <?php endif; ?>
                 </form>
             </div>
 
-            <div class="card" style="max-width: 800px; margin-top: 20px;">
-                <h2><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
-                <ol>
-                    <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
-                    <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
-                    <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkdigest'); ?></li>
-                    <li><?php esc_html_e('Click Save', 'linkdigest'); ?></li>
-                    <li><?php esc_html_e('Now you can save links directly from any webpage!', 'linkdigest'); ?></li>
-                </ol>
-            </div>
+            <details style="max-width: 800px; margin-top: 20px;" <?php echo $api_key ? '' : 'open'; ?>>
+                <summary style="cursor: pointer; list-style: none; outline: none;">
+                    <div class="card" style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer;">
+                        <span class="dashicons dashicons-arrow-right-alt2" id="linkdigest-setup-arrow" style="margin-top: 2px; transition: transform 0.2s;"></span>
+                        <h2 style="margin: 0; font-size: 14px;"><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
+                    </div>
+                </summary>
+                <div class="card" style="border-top: none; margin-top: -1px;">
+                    <ol>
+                        <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
+                        <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
+                        <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkdigest'); ?></li>
+                        <li><?php esc_html_e('Click Save', 'linkdigest'); ?></li>
+                        <li><?php esc_html_e('Now you can save links directly from any webpage!', 'linkdigest'); ?></li>
+                    </ol>
+                </div>
+            </details>
         </div>
 
         <script>
         jQuery(document).ready(function($) {
+            // Copy to clipboard
             $('.linkdigest-copy-btn').on('click', function() {
                 var targetId = $(this).data('clipboard-target');
                 var input = document.getElementById(targetId);
+                if (!input) { return; }
 
-                if (input) {
+                var $btn = $(this);
+                var value = input.value;
+
+                function showSuccess() {
+                    var originalHtml = $btn.html();
+                    $btn.html('<span class="dashicons dashicons-yes" style="margin-top: 3px; color: #00a32a;"></span>');
+                    setTimeout(function() { $btn.html(originalHtml); }, 2000);
+                }
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(value).then(showSuccess).catch(function() {});
+                } else {
+                    var prevType = input.type;
+                    var wasDisabled = input.disabled;
+                    input.type = 'text';
+                    input.disabled = false;
                     input.select();
-                    input.setSelectionRange(0, 99999); // For mobile devices
-
-                    try {
-                        document.execCommand('copy');
-
-                        // Visual feedback
-                        var originalHtml = $(this).html();
-                        $(this).html('<span class="dashicons dashicons-yes" style="margin-top: 3px; color: #00a32a;"></span>');
-
-                        setTimeout(function() {
-                            $('.linkdigest-copy-btn').html(originalHtml);
-                        }, 2000);
-                    } catch (err) { /* copy failed — ignore */ }
+                    input.setSelectionRange(0, 99999);
+                    try { document.execCommand('copy'); showSuccess(); } catch (err) {}
+                    input.disabled = wasDisabled;
+                    input.type = prevType;
                 }
             });
+
+            // Show / hide API key toggle
+            $('.linkdigest-toggle-key').on('click', function() {
+                var input = document.getElementById('linkdigest-api-key');
+                if (!input) { return; }
+                var $icon = $(this).find('.dashicons');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    $icon.removeClass('dashicons-visibility').addClass('dashicons-hidden');
+                } else {
+                    input.type = 'password';
+                    $icon.removeClass('dashicons-hidden').addClass('dashicons-visibility');
+                }
+            });
+
+            // Confirm before regenerating API key
+            $('#linkdigest-generate-form').on('submit', function(e) {
+                if ($(this).data('has-key')) {
+                    var ok = window.confirm('<?php echo esc_js(__('This will permanently invalidate your current API key. You will need to update the Chrome extension with the new key. Continue?', 'linkdigest')); ?>');
+                    if (!ok) { e.preventDefault(); }
+                }
+            });
+
+            // Test Connection
+            $('#linkdigest-test-connection').on('click', function() {
+                var endpoint = (document.getElementById('linkdigest-api-endpoint') || {}).value || '';
+                var apiKey   = (document.getElementById('linkdigest-api-key') || {}).value || '';
+                var $status  = $('#linkdigest-connection-status');
+
+                if (!endpoint || !apiKey) {
+                    $status.css('color', '#d63638').text('<?php echo esc_js(__('Missing endpoint or API key.', 'linkdigest')); ?>');
+                    return;
+                }
+
+                var $btn = $(this);
+                $btn.prop('disabled', true);
+                $status.css('color', '#666').text('<?php echo esc_js(__('Testing…', 'linkdigest')); ?>');
+
+                fetch(endpoint.replace(/\/$/, '') + '/categories', {
+                    headers: { 'X-Api-Key': apiKey }
+                })
+                .then(function(res) {
+                    if (res.ok) {
+                        $status.css('color', '#00a32a').text('✓ <?php echo esc_js(__('Connected successfully.', 'linkdigest')); ?>');
+                    } else {
+                        $status.css('color', '#d63638').text('✗ <?php echo esc_js(__('Connection failed', 'linkdigest')); ?> (HTTP ' + res.status + ')');
+                    }
+                })
+                .catch(function() {
+                    $status.css('color', '#d63638').text('✗ <?php echo esc_js(__('Could not reach endpoint.', 'linkdigest')); ?>');
+                })
+                .finally(function() { $btn.prop('disabled', false); });
+            });
+
+            // Rotate setup section arrow on toggle
+            var $details = $('details[style*="800px"]');
+            $details.on('toggle', function() {
+                var $arrow = $('#linkdigest-setup-arrow');
+                if (this.open) {
+                    $arrow.css('transform', 'rotate(90deg)');
+                } else {
+                    $arrow.css('transform', 'rotate(0deg)');
+                }
+            });
+            if ($details[0] && $details[0].open) {
+                $('#linkdigest-setup-arrow').css('transform', 'rotate(90deg)');
+            }
         });
         </script>
         <?php
