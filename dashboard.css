@@ -394,6 +394,44 @@ td.lb-cat-count-col {
 	color: #8a1f1f;
 }
 
+/* ── Category inline edit ────────────────────────────────── */
+.lb-cat-inline-input {
+	width: 100%;
+	box-sizing: border-box;
+	font-size: 13px;
+	padding: 3px 6px;
+	border: 1px solid #8c8f94;
+	border-radius: 3px;
+}
+
+textarea.lb-cat-inline-input {
+	resize: vertical;
+	min-height: 42px;
+}
+
+.lb-cat-inline-slug {
+	font-family: monospace;
+	font-size: 12px;
+}
+
+.lb-cat-inline-error {
+	display: block;
+	color: #b32d2e;
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+.lb-cat-editing td {
+	vertical-align: top;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+.lb-cat-actions {
+	white-space: nowrap;
+	min-width: 120px;
+}
+
 /* === Setting X: Expansion Layout === */
 .lb-x-badge {
 	font-size: 11px;

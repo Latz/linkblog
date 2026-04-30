@@ -42,6 +42,18 @@ trait LinkDigest_RestApi {
             'permission_callback' => [$this, 'restPermissionCheck'],
         ));
 
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/categories/(?P<id>\d+)', array(
+            'methods'             => 'POST',
+            'callback'            => [$this, 'updateCategory'],
+            'permission_callback' => fn() => current_user_can('manage_categories'),
+            'args'                => array(
+                'id'          => array( 'required' => true,  'type' => 'integer' ),
+                'name'        => array( 'required' => true,  'type' => 'string',  'sanitize_callback' => 'sanitize_text_field' ),
+                'description' => array( 'required' => false, 'type' => 'string',  'sanitize_callback' => 'sanitize_textarea_field' ),
+                'slug'        => array( 'required' => false, 'type' => 'string',  'sanitize_callback' => 'sanitize_title' ),
+            ),
+        ));
+
         register_rest_route(LINKDIGEST_REST_NAMESPACE, '/links/(?P<id>\d+)', array(
             'methods'             => 'DELETE',
             'callback'            => [$this, 'restDeleteLink'],
@@ -304,6 +316,29 @@ trait LinkDigest_RestApi {
             set_transient($cache_key, $category_list, HOUR_IN_SECONDS);
         }
         return rest_ensure_response($category_list);
+    }
+
+    public function updateCategory( \WP_REST_Request $request ): mixed {
+        $term_id = (int) $request['id'];
+        $args    = array( 'name' => $request['name'] );
+        if ( $request->has_param('description') ) {
+            $args['description'] = $request['description'];
+        }
+        if ( $request->has_param('slug') && $request['slug'] !== '' ) {
+            $args['slug'] = $request['slug'];
+        }
+        $result = wp_update_term( $term_id, 'linkdigest_category', $args );
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+        $this->invalidateCategoriesCache();
+        $term = get_term( $result['term_id'], 'linkdigest_category' );
+        return rest_ensure_response( array(
+            'id'          => $term->term_id,
+            'name'        => $term->name,
+            'slug'        => $term->slug,
+            'description' => $term->description,
+        ) );
     }
 
     public function invalidateCategoriesCache(): void {
