@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Notice, CheckboxControl, TextControl } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { buildRRule } from './lib/rrule';
 import { SCHEDULE_MODES } from './lib/modes';
 import ScheduleTypePicker from './components/ScheduleTypePicker';
@@ -33,11 +33,6 @@ export default function App() {
   const [savedForm, setSavedForm]   = useState(null);
   const [saving, setSaving]         = useState(false);
   const [notice, setNotice]         = useState(null);
-  const [runBusy, setRunBusy]       = useState(false);
-  const [runResult, setRunResult]   = useState(null);
-  const [previewBusy, setPreviewBusy]     = useState(false);
-  const [previewResult, setPreviewResult] = useState(null);
-  const [confirmRun, setConfirmRun] = useState(false);
   // Initialised from diag.cron_notice_dismissed once diagnostics load.
   const [cronNoticeDismissed, setCronNoticeDismissed] = useState(false);
 
@@ -80,7 +75,6 @@ export default function App() {
   async function handleSave() {
     setSaving(true);
     setNotice(null);
-    setConfirmRun(false);
     if (new Set(form.times).size !== form.times.length) {
       setNotice({ status: 'error', message: __('Execution times must be unique.', 'linkdigest') });
       setSaving(false);
@@ -95,36 +89,6 @@ export default function App() {
       setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkdigest') });
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleRunNow() {
-    setRunBusy(true);
-    setRunResult(null);
-    setPreviewResult(null);
-    setConfirmRun(false);
-    try {
-      const res = await apiFetch({ path: '/linkdigest/v1/schedule/run', method: 'POST' });
-      setRunResult(res);
-    } catch (err) {
-      setRunResult({ error: err?.message || __('Run failed.', 'linkdigest') });
-    } finally {
-      setRunBusy(false);
-    }
-  }
-
-  async function handlePreview() {
-    setPreviewBusy(true);
-    setPreviewResult(null);
-    setRunResult(null);
-    setConfirmRun(false);
-    try {
-      const res = await apiFetch({ path: '/linkdigest/v1/schedule/preview', method: 'POST' });
-      setPreviewResult(res);
-    } catch (err) {
-      setPreviewResult({ error: err?.message || __('Preview failed.', 'linkdigest') });
-    } finally {
-      setPreviewBusy(false);
     }
   }
 
@@ -172,53 +136,6 @@ export default function App() {
         value={form.trigger}
         onChange={v => setForm(f => ({ ...f, trigger: v }))}
       />
-    );
-  }
-
-  function renderRunResult() {
-    if (!runResult) return null;
-    if (runResult.error) {
-      return <p className="linkdigest-run-result linkdigest-run-result--error">{runResult.error}</p>;
-    }
-    const msg = runResult.published
-      ? sprintf(__('Published %d links.', 'linkdigest'), runResult.link_count)
-      : (runResult.reason === 'condition_not_met'
-          ? __('Condition not met — no post published.', 'linkdigest')
-          : __('No post published.', 'linkdigest'));
-    return (
-      <p className={`linkdigest-run-result ${runResult.published ? 'linkdigest-run-result--ok' : 'linkdigest-run-result--skip'}`}>
-        {msg}
-      </p>
-    );
-  }
-
-  function renderPreviewResult() {
-    if (!previewResult) return null;
-    if (previewResult.error) {
-      return <p className="linkdigest-run-result linkdigest-run-result--error">{previewResult.error}</p>;
-    }
-    if (!previewResult.would_publish) {
-      return (
-        <p className="linkdigest-run-result linkdigest-run-result--skip">
-          {sprintf(__('Would NOT publish — %d links pending, condition not met.', 'linkdigest'), previewResult.total_pending)}
-        </p>
-      );
-    }
-    return (
-      <div className="linkdigest-preview-result">
-        <p className="linkdigest-preview-result__summary">
-          {sprintf(__('Would publish %d links:', 'linkdigest'), previewResult.link_count)}
-        </p>
-        {previewResult.by_category.length > 0 && (
-          <ul className="linkdigest-preview-result__cats">
-            {previewResult.by_category.map(({ name, count }) => (
-              <li key={name}>
-                {sprintf(__('%1$s (%2$d)', 'linkdigest'), name, count)}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
     );
   }
 
@@ -289,40 +206,7 @@ export default function App() {
           <Button variant="primary" onClick={handleSave} isBusy={saving} disabled={saving}>
             {__('Save Schedule', 'linkdigest')}
           </Button>
-          {' '}
-          {confirmRun ? (
-            <>
-              <Button
-                variant="secondary"
-                onClick={() => { handleRunNow(); }}
-                isBusy={runBusy}
-                className="linkdigest-run-confirm"
-              >
-                {__('Confirm run?', 'linkdigest')}
-              </Button>
-              {' '}
-              <Button variant="tertiary" onClick={() => setConfirmRun(false)}>
-                {__('Cancel', 'linkdigest')}
-              </Button>
-            </>
-          ) : (
-            <Button variant="secondary" onClick={() => setConfirmRun(true)} disabled={runBusy || previewBusy}>
-              {__('Run Now', 'linkdigest')}
-            </Button>
-          )}
-          {' '}
-          <Button
-            variant="secondary"
-            onClick={handlePreview}
-            isBusy={previewBusy}
-            disabled={runBusy || previewBusy}
-            title={__('Show what would be published without actually running', 'linkdigest')}
-          >
-            {__('Preview', 'linkdigest')}
-          </Button>
         </div>
-        {renderRunResult()}
-        {renderPreviewResult()}
       </div>
 
       <div className="linkdigest-schedule-sidebar">
