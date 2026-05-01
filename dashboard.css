@@ -552,3 +552,11 @@ textarea.lb-cat-inline-input {
 	color: #787c82;
 	margin-left: 6px;
 }
+
+.lb-box-subtitle .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	vertical-align: middle;
+	margin-right: 2px;
+}

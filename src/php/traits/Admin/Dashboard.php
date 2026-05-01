@@ -150,37 +150,43 @@ trait LinkDigest_Admin_Dashboard {
         }
     }
 
-    private function unpublishedLinksSubtitle(): string {
+    private function unpublishedLinksSubtitle(): array {
         $schedule = get_option( 'linkdigest_schedule', null );
         if ( ! $schedule || ! isset( $schedule['mode'] ) ) {
-            return '';
+            return [ 'text' => '', 'icon' => '' ];
         }
         $mode = $schedule['mode'];
         if ( in_array( $mode, [ 'daily', 'weekly', 'monthly', 'age' ], true ) ) {
             $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
             if ( ! $next_ts ) {
-                return '';
+                return [ 'text' => '', 'icon' => '' ];
             }
             $formatted = wp_date(
                 get_option( 'date_format' ) . ', ' . get_option( 'time_format' ),
                 $next_ts
             );
             /* translators: %s: formatted next publish datetime */
-            return sprintf( __( 'next: %s', 'linkdigest' ), $formatted );
+            return [
+                'text' => sprintf( __( 'next: %s', 'linkdigest' ), $formatted ),
+                'icon' => 'dashicons-calendar-alt',
+            ];
         }
         if ( $mode === 'count' ) {
             $threshold = (int) ( $schedule['trigger']['count'] ?? 10 );
             $stats     = $this->getPublishStatistics();
             $pending   = (int) $stats['unpublished_links'];
             $remaining = max( 0, $threshold - $pending );
-            return sprintf(
-                /* translators: 1: remaining links needed, 2: threshold */
-                _n( '%1$d of %2$d link until publish', '%1$d of %2$d links until publish', $remaining, 'linkdigest' ),
-                $remaining,
-                $threshold
-            );
+            return [
+                'text' => sprintf(
+                    /* translators: 1: remaining links needed, 2: threshold */
+                    _n( '%1$d out of %2$d left until publish', '%1$d out of %2$d left until publish', $remaining, 'linkdigest' ),
+                    $remaining,
+                    $threshold
+                ),
+                'icon' => '',
+            ];
         }
-        return '';
+        return [ 'text' => '', 'icon' => '' ];
     }
 
     public function renderUnpublishedLinksBox( array $recent_links ): void {
@@ -190,8 +196,13 @@ trait LinkDigest_Admin_Dashboard {
             <div class="postbox-header">
                 <h2 class="hndle">
                     <?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?>
-                    <?php if ( $subtitle ) : ?>
-                        <span class="lb-box-subtitle">(<?php echo esc_html( $subtitle ); ?>)</span>
+                    <?php if ( $subtitle['text'] ) : ?>
+                        <span class="lb-box-subtitle">
+                            <?php if ( $subtitle['icon'] ) : ?>
+                                <span class="dashicons <?php echo esc_attr( $subtitle['icon'] ); ?>"></span>
+                            <?php endif; ?>
+                            <?php echo esc_html( $subtitle['text'] ); ?>
+                        </span>
                     <?php endif; ?>
                 </h2>
             </div>
@@ -268,8 +279,14 @@ trait LinkDigest_Admin_Dashboard {
             <div class="inside">
                 <?php if ( $unpublished_count > 0 ) : ?>
                     <?php
-                    /* translators: %d is the number of unpublished links */
-                    printf( '<p>' . wp_kses( __( 'You have <strong>%d</strong> unpublished link(s) ready to publish.', 'linkdigest' ), array( 'strong' => array() ) ) . '</p>', (int) $unpublished_count );
+                    printf(
+                        '<p>' . wp_kses(
+                            /* translators: %d: number of unpublished links */
+                            _n( 'You have <strong>%d</strong> unpublished link ready to publish.', 'You have <strong>%d</strong> unpublished links ready to publish.', (int) $unpublished_count, 'linkdigest' ),
+                            array( 'strong' => array() )
+                        ) . '</p>',
+                        (int) $unpublished_count
+                    );
                     ?>
                     <form method="post" action="">
                         <?php wp_nonce_field( 'linkdigest_create_roundup', 'linkdigest_roundup_nonce' ); ?>
@@ -589,8 +606,6 @@ trait LinkDigest_Admin_Dashboard {
                 </a>
             </div>
             <?php endif; ?>
-
-            <?php $this->renderScheduleStatusBar(); ?>
 
             <!-- Main Content -->
             <div class="metabox-holder">
