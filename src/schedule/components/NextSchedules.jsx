@@ -32,12 +32,15 @@ function formatDate(d) {
 export default function NextSchedules({ config, form }) {
   const isSchedule = SCHEDULE_MODES.has(form.mode);
 
+  const displayTimes = form.times.length > 0 ? form.times : ['00:00'];
+
   const nextDates = useMemo(() => {
     if (!isSchedule || !config.rrule) return [];
     try {
       const now = new Date();
+      const times = form.times.length > 0 ? form.times : ['00:00'];
 
-      const allTimesPast = form.times.every(t => {
+      const allTimesPast = times.every(t => {
         const [h, m] = t.split(':').map(Number);
         const todayAt = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
         return now >= todayAt;
@@ -65,9 +68,7 @@ export default function NextSchedules({ config, form }) {
             {nextDates.map(d => (
               <li key={d.toISOString()} className="linkdigest-next-schedule-row">
                 <span className="linkdigest-next-date">{formatDate(d)}</span>
-                {form.times.length > 0 && (
-                  <span className="linkdigest-next-time">{form.times.join(', ')}</span>
-                )}
+                <span className="linkdigest-next-time">{displayTimes.join(', ')}</span>
               </li>
             ))}
           </ol>
