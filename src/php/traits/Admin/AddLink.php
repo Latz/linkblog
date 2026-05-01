@@ -172,6 +172,7 @@ trait LinkDigest_Admin_AddLink {
             wp_set_object_terms($post_id, array_map('trim', explode(',', $input['tags'])), 'linkdigest_tag');
         }
 
+        delete_transient('linkdigest_publish_stats');
         $_POST = array();
         return [__('Link added successfully!', 'linkdigest'), ''];
     }

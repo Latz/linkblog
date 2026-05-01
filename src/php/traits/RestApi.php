@@ -135,6 +135,7 @@ trait LinkDigest_RestApi {
         if (!$result) {
             return new \WP_Error('delete_failed', 'Could not delete link', array('status' => 500));
         }
+        delete_transient('linkdigest_publish_stats');
         return new \WP_REST_Response(null, 204);
     }
 
@@ -148,7 +149,7 @@ trait LinkDigest_RestApi {
                 'nthWeek'   => null,
             ),
             'trigger' => array('count' => 10, 'tag_id' => null, 'days' => 7),
-            'times'   => array('09:00'),
+            'times'   => array(),
         );
         $config = get_option('linkdigest_schedule', $default);
         return rest_ensure_response($config);
@@ -226,6 +227,8 @@ trait LinkDigest_RestApi {
         if (is_wp_error($post_id)) {
             return new \WP_Error('insert_failed', __('Failed to create link.', 'linkdigest'), array('status' => 500));
         }
+
+        delete_transient('linkdigest_publish_stats');
 
         if (!empty($url)) {
             update_post_meta($post_id, '_linkdigest_url', $url);
