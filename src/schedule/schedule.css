@@ -389,25 +389,6 @@
   background: #f0f6fc;
 }
 
-.linkdigest-mode-card__check {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid #c3c4c7;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.linkdigest-mode-card--active .linkdigest-mode-card__check {
-  border-color: #2271b1;
-  background: #2271b1;
-}
-
 .linkdigest-mode-card__title {
   font-size: 13px;
   font-weight: 600;
