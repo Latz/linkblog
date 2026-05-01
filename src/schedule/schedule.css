@@ -333,3 +333,86 @@
   font-size: 11px;
   color: #787c82;
 }
+
+/* Radio card picker */
+.linkdigest-mode-picker-v2 {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.linkdigest-mode-card-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.linkdigest-mode-card-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #787c82;
+  padding-left: 2px;
+}
+
+.linkdigest-mode-cards {
+  display: flex;
+  gap: 6px;
+}
+
+.linkdigest-mode-card {
+  position: relative;
+  width: 96px;
+  padding: 10px 12px;
+  border: 2px solid #c3c4c7;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  transition: border-color 0.1s, box-shadow 0.1s;
+  text-align: left;
+}
+
+.linkdigest-mode-card:hover {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+}
+
+.linkdigest-mode-card--active {
+  border-color: #2271b1;
+  box-shadow: 0 0 0 1px #2271b1;
+  background: #f0f6fc;
+}
+
+.linkdigest-mode-card__check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid #c3c4c7;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkdigest-mode-card--active .linkdigest-mode-card__check {
+  border-color: #2271b1;
+  background: #2271b1;
+}
+
+.linkdigest-mode-card__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e1e1e;
+  margin-bottom: 3px;
+}
+
+.linkdigest-mode-card__desc {
+  font-size: 11px;
+  color: #787c82;
+  line-height: 1.4;
+}
