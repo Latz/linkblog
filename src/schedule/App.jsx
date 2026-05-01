@@ -15,7 +15,7 @@ const DEFAULT_FORM = {
   mode: 'daily',
   recurrence: { interval: 1, weekdays: [], monthDays: [{ type: 'day', value: 1, nth: 1, weekday: 'MO' }], nthWeek: null },
   trigger: { count: 10, tag_id: null, days: 7 },
-  times: ['09:00'],
+  times: [],
   notify: { enabled: false, email: '' },
 };
 
@@ -30,6 +30,7 @@ function Section({ title, children }) {
 
 export default function App() {
   const [form, setForm]             = useState(DEFAULT_FORM);
+  const [savedForm, setSavedForm]   = useState(null);
   const [saving, setSaving]         = useState(false);
   const [notice, setNotice]         = useState(null);
   const [runBusy, setRunBusy]       = useState(false);
@@ -57,11 +58,24 @@ export default function App() {
 
   useEffect(() => {
     apiFetch({ path: '/linkdigest/v1/schedule' })
-      .then(data => setForm({ ...DEFAULT_FORM, ...data }))
+      .then(data => {
+        const loaded = { ...DEFAULT_FORM, ...data };
+        setForm(loaded);
+        setSavedForm(loaded);
+      })
       .catch(() => {});
   }, []);
 
   useEffect(refreshDiag, [refreshDiag]);
+
+  const isDirty = savedForm !== null && JSON.stringify(form) !== JSON.stringify(savedForm);
+
+  useEffect(() => {
+    if (!isDirty) return;
+    const handler = e => { e.preventDefault(); e.returnValue = ''; };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
 
   async function handleSave() {
     setSaving(true);
@@ -74,6 +88,7 @@ export default function App() {
     }
     try {
       await apiFetch({ path: '/linkdigest/v1/schedule', method: 'POST', data: form });
+      setSavedForm(form);
       setNotice({ status: 'success', message: __('Schedule saved.', 'linkdigest') });
       refreshDiag();
     } catch {
