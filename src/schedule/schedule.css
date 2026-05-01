@@ -132,6 +132,10 @@
   gap: 6px;
   border-radius: 2px;
   transition: opacity 0.15s;
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
 }
 
 .linkdigest-opt--off {
