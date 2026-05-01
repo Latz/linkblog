@@ -13,6 +13,9 @@
 .linkdigest-schedule-sidebar {
   width: 280px;
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .linkdigest-schedule-actions {
@@ -223,7 +226,6 @@
 
 /* Diagnostics panel */
 .linkdigest-diagnostics {
-  margin-top: 16px;
 }
 
 .linkdigest-diag-list {
