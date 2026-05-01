@@ -169,8 +169,8 @@ trait LinkDigest_Admin_Dashboard {
                             <li class="lb-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
                                 <div class="lb-link-item-header">
                                     <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                                    <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
                                 </div>
+                                <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
                                 <?php if ( $url ) : ?>
                                     <a href="<?php echo esc_url( $url ); ?>" class="lb-link-url" target="_blank" rel="noopener">
                                         <?php echo esc_html( wp_parse_url( $url, PHP_URL_HOST ) ); ?> ↗
@@ -440,6 +440,10 @@ trait LinkDigest_Admin_Dashboard {
                     });
                     if (res.ok || res.status === 204) {
                         li.remove();
+                        ['lb-stat-total', 'lb-stat-unpublished'].forEach(function(id) {
+                            var el = document.getElementById(id);
+                            if (el) { el.textContent = Math.max(0, parseInt(el.textContent.replace(/,/g, ''), 10) - 1).toLocaleString(); }
+                        });
                     } else {
                         li.querySelector('.lb-delete-confirm-row').remove();
                         li.querySelector('.lb-delete-btn').style.display = '';
@@ -526,7 +530,7 @@ trait LinkDigest_Admin_Dashboard {
             <div class="lb-stats-grid">
                 <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $total_links ) ); ?></span>
+                    <div><span class="lb-stat-value" id="lb-stat-total"><?php echo esc_html( number_format( $total_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
                 </a>
                 <a href="<?php echo $categories_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
@@ -541,7 +545,7 @@ trait LinkDigest_Admin_Dashboard {
                 </a>
                 <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $unpublished_links ) ); ?></span>
+                    <div><span class="lb-stat-value" id="lb-stat-unpublished"><?php echo esc_html( number_format( $unpublished_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
                 </a>
             </div>
