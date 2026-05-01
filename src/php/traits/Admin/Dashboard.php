@@ -150,11 +150,50 @@ trait LinkDigest_Admin_Dashboard {
         }
     }
 
+    private function unpublishedLinksSubtitle(): string {
+        $schedule = get_option( 'linkdigest_schedule', null );
+        if ( ! $schedule || ! isset( $schedule['mode'] ) ) {
+            return '';
+        }
+        $mode = $schedule['mode'];
+        if ( in_array( $mode, [ 'daily', 'weekly', 'monthly', 'age' ], true ) ) {
+            $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
+            if ( ! $next_ts ) {
+                return '';
+            }
+            $formatted = wp_date(
+                get_option( 'date_format' ) . ', ' . get_option( 'time_format' ),
+                $next_ts
+            );
+            /* translators: %s: formatted next publish datetime */
+            return sprintf( __( 'next: %s', 'linkdigest' ), $formatted );
+        }
+        if ( $mode === 'count' ) {
+            $threshold = (int) ( $schedule['trigger']['count'] ?? 10 );
+            $stats     = $this->getPublishStatistics();
+            $pending   = (int) $stats['unpublished_links'];
+            $remaining = max( 0, $threshold - $pending );
+            return sprintf(
+                /* translators: 1: remaining links needed, 2: threshold */
+                _n( '%1$d of %2$d link until publish', '%1$d of %2$d links until publish', $remaining, 'linkdigest' ),
+                $remaining,
+                $threshold
+            );
+        }
+        return '';
+    }
+
     public function renderUnpublishedLinksBox( array $recent_links ): void {
+        $subtitle = $this->unpublishedLinksSubtitle();
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?></h2>
+                <h2 class="hndle">
+                    <?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?>
+                    <?php if ( $subtitle ) : ?>
+                        <span class="lb-box-subtitle">(<?php echo esc_html( $subtitle ); ?>)</span>
+                    <?php endif; ?>
+                </h2>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recent_links ) ) : ?>

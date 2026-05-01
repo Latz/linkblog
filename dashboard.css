@@ -545,3 +545,10 @@ textarea.lb-cat-inline-input {
 @media (max-width: 782px) {
 	.lb-x-sticky-bar { left: 0; }
 }
+
+.lb-box-subtitle {
+	font-size: 12px;
+	font-weight: 400;
+	color: #787c82;
+	margin-left: 6px;
+}
