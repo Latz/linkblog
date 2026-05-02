@@ -142,7 +142,11 @@
       "Bash(identify chrome-extension/icon32.png chrome-extension/icon64.png chrome-extension/icon128.png chrome-extension/icon256.png)",
       "Bash(identify -verbose chrome-extension/icon256.png)",
       "Bash(identify -verbose icon_raw.png)",
-      "Bash(identify chrome-extension/icon48.png)"
+      "Bash(identify chrome-extension/icon48.png)",
+      "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon16.png)",
+      "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon32.png)",
+      "Bash(identify -verbose /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon16.png)",
+      "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu.png /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu-2x.png)"
     ]
   }
 }

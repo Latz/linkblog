@@ -56,7 +56,7 @@ trait LinkDigest_PostType {
 			'show_ui'             => true,
 			'show_in_menu'        => false,      // Suppressed: plugin uses a custom admin menu.
 			'menu_position'       => 5,
-			'menu_icon'           => plugins_url( 'assets/icon-20x20.png', LINKDIGEST_PLUGIN_FILE ),
+			'menu_icon'           => plugins_url( 'assets/icon-menu.png', LINKDIGEST_PLUGIN_FILE ),
 			'show_in_admin_bar'   => true,
 			'show_in_nav_menus'   => true,
 			'can_export'          => true,

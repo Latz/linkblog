@@ -11,7 +11,7 @@ trait LinkDigest_Admin_Menu {
             'read',
             'linkdigest-dashboard',
             [$this, 'dashboardPage'],
-            plugins_url('assets/icon-20x20.png', LINKDIGEST_PLUGIN_FILE),
+            plugins_url('assets/icon-menu.png', LINKDIGEST_PLUGIN_FILE),
             6
         );
 

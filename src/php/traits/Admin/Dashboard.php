@@ -205,6 +205,7 @@ trait LinkDigest_Admin_Dashboard {
                         </span>
                     <?php endif; ?>
                 </h2>
+                <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recent_links ) ) : ?>
@@ -253,6 +254,7 @@ trait LinkDigest_Admin_Dashboard {
         <div class="postbox">
             <div class="postbox-header">
                 <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'linkdigest' ); ?></h2>
+                <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
             <div class="inside" style="margin:0;padding:0;">
                 <?php if ( empty( $recently_published ) ) : ?>
@@ -275,6 +277,7 @@ trait LinkDigest_Admin_Dashboard {
         <div class="postbox">
             <div class="postbox-header">
                 <h2 class="hndle"><?php esc_html_e( 'Publish Now', 'linkdigest' ); ?></h2>
+                <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
             <div class="inside">
                 <?php if ( $unpublished_count > 0 ) : ?>
@@ -370,6 +373,7 @@ trait LinkDigest_Admin_Dashboard {
         <div class="postbox">
             <div class="postbox-header">
                 <h2 class="hndle"><?php esc_html_e( 'Quick Add', 'linkdigest' ); ?></h2>
+                <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
             <div class="inside">
                 <?php if ( $quick_add_success ) : ?>
