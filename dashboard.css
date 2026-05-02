@@ -290,10 +290,8 @@ a.lb-stat-card--link .lb-stat-value {
 /* ── Status badges ───────────────────────────────────────── */
 .lb-status-badge {
 	display: inline-block;
-	padding: 1px 6px;
+	padding: 1px 6px 1px 0;
 	border-radius: 2px;
-	font-size: 10px;
-	font-weight: 600;
 	white-space: nowrap;
 	flex-shrink: 0;
 }
@@ -350,7 +348,6 @@ a.lb-stat-card--link .lb-stat-value {
 	color: #1d2327;
 	margin: 16px 0 8px;
 	padding-bottom: 6px;
-	border-bottom: 2px solid #2271b1;
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
@@ -366,6 +363,39 @@ a.lb-stat-card--link .lb-stat-value {
 	.lb-stats-grid {
 		flex-direction: column;
 	}
+}
+
+/* ── Filter + search bar alignment ──────────────────────── */
+.lb-links-tablenav {
+	display: flex;
+	align-items: center;
+	height: auto;
+	padding-top: 0;
+}
+
+.lb-links-tablenav .alignleft {
+	float: none;
+}
+
+.lb-links-tablenav p.search-box {
+	float: none;
+	margin: 0;
+	margin-left: auto;
+}
+
+/* ── All Links table column widths ──────────────────────── */
+.fixed .column-title     { width: 28%; }
+.fixed .column-url       { width: 26%; }
+.fixed .column-status    { width: 10%; }
+.fixed .column-published { width: 10%; }
+.fixed .column-date      { width: 10%; }
+.fixed .column-actions   { white-space: nowrap; }
+
+/* ── Align sortable th content with td padding (WP uses 8px, td uses 10px) */
+.wp-list-table th.sortable a,
+.wp-list-table th.sorted a {
+	padding-left: 10px;
+	padding-right: 10px;
 }
 
 /* ── Categories table ────────────────────────────────────── */

@@ -5,9 +5,33 @@ declare(strict_types=1);
 trait LinkDigest_Admin_LinksPage {
 
     public function showLinksPage(): void {
+        global $wpdb, $wp_locale;
+
         [$action_message, $action_error] = $this->processLinksPageAction();
-        $grouped_links = $this->getLinksGroupedByCategory();
-        $has_links = $this->hasLinks($grouped_links);
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $search = isset($_GET['s'])              ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
+        $month  = isset($_GET['m'])              ? absint($_GET['m']) : 0;
+        $cat    = isset($_GET['linkdigest_cat']) ? absint($_GET['linkdigest_cat']) : 0;
+        // phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+        $grouped_links = $this->getLinksGroupedByCategory($search, $month, $cat);
+        $has_links     = $this->hasLinks($grouped_links);
+        $is_filtered   = $search !== '' || $month > 0 || $cat > 0;
+
+        // Date options: distinct year/month from linkdigest posts.
+        $date_options = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+            "SELECT DISTINCT YEAR(post_date) AS year, MONTH(post_date) AS month
+             FROM {$wpdb->posts}
+             WHERE post_type = 'linkdigest'
+               AND post_status IN ('linkdigest_pending','linkdigest_published','linkdigest_draft')
+             ORDER BY post_date DESC"
+        );
+
+        $categories = get_terms(['taxonomy' => 'linkdigest_category', 'hide_empty' => false]);
+        if (is_wp_error($categories)) {
+            $categories = [];
+        }
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e('LinkDigest - All Links', 'linkdigest'); ?></h1>
@@ -22,12 +46,109 @@ trait LinkDigest_Admin_LinksPage {
                 <div class="notice notice-error is-dismissible"><p><?php echo esc_html($action_error); ?></p></div>
             <?php endif; ?>
 
-            <?php if (!$has_links) : ?>
+            <form method="get" style="margin-top: 16px;">
+                <input type="hidden" name="page" value="linkdigest-admin">
+
+                <div class="tablenav top lb-links-tablenav">
+                    <div class="alignleft actions">
+                        <label class="screen-reader-text" for="filter-by-date"><?php esc_html_e('Filter by date', 'linkdigest'); ?></label>
+                        <select name="m" id="filter-by-date">
+                            <option value="0"<?php selected($month, 0); ?>><?php esc_html_e('All dates', 'linkdigest'); ?></option>
+                            <?php foreach ($date_options as $row) :
+                                $val = (int) $row->year * 100 + (int) $row->month;
+                                $label = sprintf(
+                                    /* translators: 1: month name, 2: year */
+                                    _x('%1$s %2$d', 'month year', 'linkdigest'),
+                                    $wp_locale->get_month($row->month),
+                                    $row->year
+                                );
+                            ?>
+                                <option value="<?php echo esc_attr((string) $val); ?>"<?php selected($month, $val); ?>><?php echo esc_html($label); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <label class="screen-reader-text" for="linkdigest-filter-cat"><?php esc_html_e('Filter by category', 'linkdigest'); ?></label>
+                        <select name="linkdigest_cat" id="linkdigest-filter-cat">
+                            <option value="0"<?php selected($cat, 0); ?>><?php esc_html_e('All categories', 'linkdigest'); ?></option>
+                            <?php foreach ($categories as $term) : ?>
+                                <option value="<?php echo esc_attr((string) $term->term_id); ?>"<?php selected($cat, $term->term_id); ?>><?php echo esc_html($term->name); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <input type="submit" name="filter_action" id="post-query-submit" class="button" value="<?php esc_attr_e('Filter', 'linkdigest'); ?>">
+                    </div>
+
+                    <p class="search-box">
+                        <label class="screen-reader-text" for="link-search-input"><?php esc_html_e('Search Links', 'linkdigest'); ?></label>
+                        <input type="search" id="link-search-input" name="s" value="<?php echo esc_attr($search); ?>">
+                        <input type="submit" class="button" value="<?php esc_attr_e('Search Links', 'linkdigest'); ?>">
+                    </p>
+
+                    <br class="clear">
+                </div>
+            </form>
+
+            <?php if (!$has_links && !$is_filtered) : ?>
                 <p><?php esc_html_e('No links found. Add your first link!', 'linkdigest'); ?></p>
+            <?php elseif (!$has_links) : ?>
+                <table class="wp-list-table widefat fixed striped">
+                    <thead><tr>
+                        <th class="manage-column column-title"><?php esc_html_e('Title', 'linkdigest'); ?></th>
+                        <th class="manage-column column-url"><?php esc_html_e('URL', 'linkdigest'); ?></th>
+                        <th class="manage-column column-status"><?php esc_html_e('Status', 'linkdigest'); ?></th>
+                        <th class="manage-column column-published"><?php esc_html_e('Published', 'linkdigest'); ?></th>
+                        <th class="manage-column column-date"><?php esc_html_e('Date', 'linkdigest'); ?></th>
+                        <th class="manage-column column-actions"><?php esc_html_e('Actions', 'linkdigest'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                        <tr class="no-items">
+                            <td class="colspanchange" colspan="6"><?php esc_html_e('No links found.', 'linkdigest'); ?></td>
+                        </tr>
+                    </tbody>
+                </table>
             <?php else : ?>
                 <?php $this->renderCategoryLinks($grouped_links); ?>
             <?php endif; ?>
         </div>
+        <script>
+        (function() {
+            document.querySelectorAll('th[data-col]').forEach(function(th) {
+                th.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var table = th.closest('table');
+                    var col   = parseInt(th.dataset.col, 10);
+                    var asc   = !(th.classList.contains('sorted') && th.classList.contains('asc'));
+
+                    table.querySelectorAll('th[data-col]').forEach(function(h) {
+                        h.classList.remove('sorted', 'asc', 'desc');
+                        h.classList.add('sortable', 'desc');
+                    });
+
+                    th.classList.remove('sortable');
+                    th.classList.add('sorted', asc ? 'asc' : 'desc');
+
+                    var tbody = table.querySelector('tbody');
+                    var rows  = Array.from(tbody.querySelectorAll('tr'));
+
+                    rows.sort(function(a, b) {
+                        var cellA = a.cells[col];
+                        var cellB = b.cells[col];
+                        var valA  = (cellA.dataset.sortVal !== undefined) ? cellA.dataset.sortVal : cellA.textContent.trim().toLowerCase();
+                        var valB  = (cellB.dataset.sortVal !== undefined) ? cellB.dataset.sortVal : cellB.textContent.trim().toLowerCase();
+
+                        if (valA === '-' && valB !== '-') return 1;
+                        if (valB === '-' && valA !== '-') return -1;
+
+                        if (valA < valB) return asc ? -1 : 1;
+                        if (valA > valB) return asc ? 1 : -1;
+                        return 0;
+                    });
+
+                    rows.forEach(function(row) { tbody.appendChild(row); });
+                });
+            });
+        })();
+        </script>
         <?php
     }
 
@@ -48,12 +169,12 @@ trait LinkDigest_Admin_LinksPage {
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
                         <tr>
-                            <th style="width: 25%;"><?php esc_html_e('Title', 'linkdigest'); ?></th>
-                            <th style="width: 25%;"><?php esc_html_e('URL', 'linkdigest'); ?></th>
-                            <th style="width: 10%;"><?php esc_html_e('Status', 'linkdigest'); ?></th>
-                            <th style="width: 10%;"><?php esc_html_e('Published Date', 'linkdigest'); ?></th>
-                            <th style="width: 10%;"><?php esc_html_e('Date', 'linkdigest'); ?></th>
-                            <th style="width: 20%;"><?php esc_html_e('Actions', 'linkdigest'); ?></th>
+                            <th class="manage-column column-title sortable desc" data-col="0"><a href="#"><span><?php esc_html_e('Title', 'linkdigest'); ?></span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a></th>
+                            <th class="manage-column column-url sortable desc" data-col="1"><a href="#"><span><?php esc_html_e('URL', 'linkdigest'); ?></span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a></th>
+                            <th class="manage-column column-status sortable desc" data-col="2"><a href="#"><span><?php esc_html_e('Status', 'linkdigest'); ?></span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a></th>
+                            <th class="manage-column column-published sortable desc" data-col="3"><a href="#"><span><?php esc_html_e('Published', 'linkdigest'); ?></span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a></th>
+                            <th class="manage-column column-date sortable desc" data-col="4"><a href="#"><span><?php esc_html_e('Date', 'linkdigest'); ?></span><span class="sorting-indicators"><span class="sorting-indicator asc" aria-hidden="true"></span><span class="sorting-indicator desc" aria-hidden="true"></span></span></a></th>
+                            <th class="manage-column column-actions"><?php esc_html_e('Actions', 'linkdigest'); ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -76,24 +197,24 @@ trait LinkDigest_Admin_LinksPage {
         }
         ?>
         <tr>
-            <td><strong><?php echo esc_html($link->post_title); ?></strong></td>
-            <td>
+            <td class="column-title"><strong><?php echo esc_html($link->post_title); ?></strong></td>
+            <td class="column-url">
                 <?php if ($url) : ?>
                     <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
                 <?php else : ?>
                     -
                 <?php endif; ?>
             </td>
-            <td><?php $this->renderLinkStatusBadge($publish_status); ?></td>
-            <td>
+            <td class="column-status" data-sort-val="<?php echo $publish_status === 'published' ? '1' : ($publish_status === 'draft' ? '2' : '3'); ?>"><?php $this->renderLinkStatusBadge($publish_status); ?></td>
+            <td class="column-published">
                 <?php if ($published_date) : ?>
                     <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>
                 <?php else : ?>
                     -
                 <?php endif; ?>
             </td>
-            <td><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
-            <td><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
+            <td class="column-date"><?php echo esc_html(get_the_date('Y-m-d', $link->ID)); ?></td>
+            <td class="column-actions"><?php $this->renderLinkActions($link, $publish_status, $published_post_id); ?></td>
         </tr>
         <?php
     }
@@ -160,21 +281,15 @@ trait LinkDigest_Admin_LinksPage {
     private function renderLinkActions(\WP_Post $link, string $publish_status, mixed $published_post_id): void {
         $confirm_unpublish = "return confirm('" . esc_js(__('Are you sure you want to unpublish this link?', 'linkdigest')) . "');";
         $confirm_delete    = "return confirm('" . esc_js(__('Are you sure you want to delete this link?', 'linkdigest')) . "');";
-        $publish_url       = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=publish_link&link_id=' . $link->ID), 'publish_link_' . $link->ID));
         $unpublish_url     = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=unpublish_link&link_id=' . $link->ID), 'unpublish_link_' . $link->ID));
         $delete_url        = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=delete&link_id=' . $link->ID), 'delete_link_' . $link->ID));
         $onclick_attr      = ' onclick="';
 
-        if ($publish_status === 'unpublished') {
-            $draft_url = esc_url(wp_nonce_url(admin_url(self::ADMIN_LINKS_PAGE . '&action=draft_link&link_id=' . $link->ID), 'draft_link_' . $link->ID));
-            echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'linkdigest') . '</a> | ';
-            echo '<a href="' . esc_url($draft_url) . '">' . esc_html__('Save as Draft', 'linkdigest') . '</a> | ';
-        } elseif ($publish_status === 'published') {
+        if ($publish_status === 'published') {
             echo '<a href="' . esc_url(get_permalink($published_post_id)) . '" target="_blank">' . esc_html__('View Post', 'linkdigest') . '</a> | ';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
             echo '<a href="' . esc_url($unpublish_url) . '"' . $onclick_attr . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkdigest') . '</a> | ';
         } elseif ($publish_status === 'draft') {
-            echo '<a href="' . esc_url($publish_url) . '">' . esc_html__('Publish', 'linkdigest') . '</a> | ';
             echo '<a href="' . esc_url(get_edit_post_link($published_post_id)) . '" target="_blank">' . esc_html__('View Draft', 'linkdigest') . '</a> | ';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $confirm_unpublish uses esc_js() internally
             echo '<a href="' . esc_url($unpublish_url) . '"' . $onclick_attr . $confirm_unpublish . '">' . esc_html__('Unpublish', 'linkdigest') . '</a> | ';

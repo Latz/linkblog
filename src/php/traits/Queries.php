@@ -34,15 +34,32 @@ trait LinkDigest_Queries {
         return $cache;
     }
 
-    public function getLinksGroupedByCategory(): array {
-        $all_links = get_posts([
+    public function getLinksGroupedByCategory(string $search = '', int $month = 0, int $cat = 0): array {
+        $args = [
             'post_type'              => 'linkdigest',
             'post_status'            => ['linkdigest_pending', 'linkdigest_published', 'linkdigest_draft'],
             'posts_per_page'         => -1,
             'orderby'                => 'date',
             'order'                  => 'DESC',
             'update_post_term_cache' => false,
-        ]);
+        ];
+        if ($search !== '') {
+            $args['s'] = $search;
+        }
+        if ($month > 0) {
+            $args['date_query'] = [[
+                'year'  => (int) substr((string) $month, 0, 4),
+                'month' => (int) substr((string) $month, 4, 2),
+            ]];
+        }
+        if ($cat > 0) {
+            $args['tax_query'] = [[ // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query
+                'taxonomy' => 'linkdigest_category',
+                'field'    => 'term_id',
+                'terms'    => $cat,
+            ]];
+        }
+        $all_links = get_posts($args);
         if (empty($all_links)) {
             return [];
         }

@@ -6,8 +6,8 @@ trait LinkDigest_Admin_Menu {
 
     public function adminMenu(): void {
         add_menu_page(
-            __('linkdigest', 'linkdigest'),
-            __('linkdigest', 'linkdigest'),
+            __('Link Digest', 'linkdigest'),
+            __('Link Digest', 'linkdigest'),
             'read',
             'linkdigest-dashboard',
             [$this, 'dashboardPage'],
