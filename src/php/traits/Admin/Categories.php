@@ -43,11 +43,11 @@ trait LinkDigest_Admin_Categories {
                 </div>
             <?php endif; ?>
 
-            <div class="metabox-holder">
-                <div id="postbox-container-1" class="postbox-container">
+            <div class="metabox-holder lb-dashboard">
+                <div id="lb-postbox-container-1" class="postbox-container">
                     <?php $this->renderCategoriesTable( $terms, $counts ); ?>
                 </div>
-                <div id="postbox-container-2" class="postbox-container">
+                <div id="lb-postbox-container-2" class="postbox-container">
                     <?php $this->renderCategoryForm(); ?>
                 </div>
             </div>

@@ -528,21 +528,21 @@ trait LinkDigest_Admin_Dashboard {
             <?php endif; ?>
 
             <!-- Main Content -->
-            <div class="metabox-holder">
-                <div id="postbox-container-1" class="postbox-container meta-box-sortables">
+            <div class="metabox-holder lb-dashboard">
+                <div id="lb-postbox-container-1" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderUnpublishedLinksBox( $recent_links );
                     $this->renderRecentlyPublishedBox( $recently_published );
                     ?>
-                </div><!-- #postbox-container-1 -->
+                </div><!-- #lb-postbox-container-1 -->
 
-                <div id="postbox-container-2" class="postbox-container meta-box-sortables">
+                <div id="lb-postbox-container-2" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderQuickAddBox( $quick_add_success );
                     $this->renderPublishBox( $unpublished_links );
                     ?>
-                </div><!-- #postbox-container-2 -->
-            </div><!-- .metabox-holder -->
+                </div><!-- #lb-postbox-container-2 -->
+            </div><!-- .lb-dashboard -->
         </div>
 
         <?php $this->renderDashboardJs(); ?>
