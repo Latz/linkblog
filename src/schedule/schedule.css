@@ -1,3 +1,17 @@
+/* Status colors from WordPress admin palette */
+:root {
+	--linkdigest-color-success-bg: #edfaef;
+	--linkdigest-color-success-text: #005a12;
+	--linkdigest-color-error-bg: #fce8e8;
+	--linkdigest-color-error-text: #b32d2e;
+	--linkdigest-color-warning-bg: #fcf9e8;
+	--linkdigest-color-warning-text: #674200;
+	--linkdigest-color-neutral-bg: #f0f0f1;
+	--linkdigest-color-neutral-text: #646970;
+	--linkdigest-color-info-bg: #f0f6fc;
+	--linkdigest-color-info-border: #72aee6;
+}
+
 .linkdigest-schedule-wrap {
   display: flex;
   gap: 24px;
@@ -271,18 +285,18 @@
 }
 
 .linkdigest-diag-badge--success {
-	background: #edfaef;
-	color: #005a12;
+	background: var(--linkdigest-color-success-bg);
+	color: var(--linkdigest-color-success-text);
 }
 
 .linkdigest-diag-badge--neutral {
-	background: #f0f0f1;
-	color: #646970;
+	background: var(--linkdigest-color-neutral-bg);
+	color: var(--linkdigest-color-neutral-text);
 }
 
 .linkdigest-diag-badge--warn {
-	background: #fcf9e8;
-	color: #674200;
+	background: var(--linkdigest-color-warning-bg);
+	color: var(--linkdigest-color-warning-text);
 }
 
 .linkdigest-diag-meta {
@@ -304,25 +318,25 @@
 }
 
 .linkdigest-run-result--ok {
-	background: #edfaef;
-	color: #005a12;
+	background: var(--linkdigest-color-success-bg);
+	color: var(--linkdigest-color-success-text);
 }
 
 .linkdigest-run-result--skip {
-	background: #f0f0f1;
-	color: #646970;
+	background: var(--linkdigest-color-neutral-bg);
+	color: var(--linkdigest-color-neutral-text);
 }
 
 .linkdigest-run-result--error {
-	background: #fce8e8;
-	color: #b32d2e;
+	background: var(--linkdigest-color-error-bg);
+	color: var(--linkdigest-color-error-text);
 }
 
 .linkdigest-preview-result {
   margin-top: 8px;
   font-size: 13px;
-  background: #f0f6fc;
-  border: 1px solid #72aee6;
+  background: var(--linkdigest-color-info-bg);
+  border: 1px solid var(--linkdigest-color-info-border);
   border-radius: 3px;
   padding: 8px 12px;
 }
