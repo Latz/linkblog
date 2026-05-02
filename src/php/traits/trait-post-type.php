@@ -81,6 +81,17 @@ trait LinkDigest_PostType {
 				'auth_callback' => '__return_true',
 			)
 		);
+		register_post_meta(
+			'linkdigest',
+			'_linkdigest_url',
+			array(
+				'show_in_rest'      => false,
+				'single'            => true,
+				'type'              => 'string',
+				'sanitize_callback' => 'esc_url_raw',
+				'auth_callback'     => '__return_true',
+			)
+		);
 	}
 
 	/**

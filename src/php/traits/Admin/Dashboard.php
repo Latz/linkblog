@@ -20,15 +20,15 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="linkdigest-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format($stats['total_links'])); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format_i18n($stats['total_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format($stats['published_links'])); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format_i18n($stats['published_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkdigest'); ?></div>
             </div>
             <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format($stats['unpublished_links'])); ?></div>
+                <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format_i18n($stats['unpublished_links'])); ?></div>
                 <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkdigest'); ?></div>
             </div>
         </div>
@@ -452,95 +452,7 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
-    public function renderDashboardJs(): void {
-        $js_data = wp_json_encode( array(
-            'restUrl' => rest_url( LINKDIGEST_REST_NAMESPACE . '/links/' ),
-            'nonce'   => wp_create_nonce( 'wp_rest' ),
-            'labels'  => array(
-                'delete' => __( 'Delete?', 'linkdigest' ),
-                'yes'    => __( 'Yes', 'linkdigest' ),
-                'cancel' => __( 'Cancel', 'linkdigest' ),
-            ),
-        ) );
-        ?>
-        <script>
-        var linkdigestDash = <?php echo $js_data; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        ?>;
-
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof postboxes !== 'undefined') {
-                postboxes.add_postbox_toggles(pagenow);
-            }
-
-            document.querySelectorAll('.lb-date-time').forEach(function(element) {
-                const timestamp = Number.parseInt(element.dataset.timestamp);
-                if (!timestamp) return;
-                const date = new Date(timestamp * 1000);
-                element.textContent = date.toLocaleString(navigator.language, {
-                    year: 'numeric', month: 'short', day: 'numeric',
-                    hour: 'numeric', minute: '2-digit', hour12: true
-                });
-            });
-        });
-
-        document.addEventListener('click', async function(e) {
-            if (e.target.closest('.lb-delete-cancel')) {
-                const li = e.target.closest('li');
-                li.querySelector('.lb-delete-confirm-row').remove();
-                li.querySelector('.lb-delete-btn').style.display = '';
-                return;
-            }
-
-            if (e.target.closest('.lb-delete-confirm-yes')) {
-                const btn = e.target.closest('.lb-delete-confirm-yes');
-                const li = btn.closest('li');
-                btn.disabled = true;
-                btn.textContent = '...';
-                try {
-                    const res = await fetch(linkdigestDash.restUrl + li.dataset.linkId, {
-                        method: 'DELETE',
-                        credentials: 'same-origin',
-                        headers: { 'X-WP-Nonce': linkdigestDash.nonce }
-                    });
-                    if (res.ok || res.status === 204) {
-                        li.remove();
-                        ['lb-stat-total', 'lb-stat-unpublished'].forEach(function(id) {
-                            var el = document.getElementById(id);
-                            if (el) { el.textContent = Math.max(0, parseInt(el.textContent.replace(/,/g, ''), 10) - 1).toLocaleString(); }
-                        });
-                    } else {
-                        li.querySelector('.lb-delete-confirm-row').remove();
-                        li.querySelector('.lb-delete-btn').style.display = '';
-                    }
-                } catch (err) {
-                    li.querySelector('.lb-delete-confirm-row').remove();
-                    li.querySelector('.lb-delete-btn').style.display = '';
-                }
-                return;
-            }
-
-            const btn = e.target.closest('.lb-delete-btn');
-            if (!btn) return;
-            const li = btn.closest('li');
-            if (li.querySelector('.lb-delete-confirm-row')) return;
-            btn.style.display = 'none';
-            const row = document.createElement('div');
-            row.className = 'lb-delete-confirm-row';
-            const lbl = document.createElement('span');
-            lbl.className = 'lb-delete-confirm-label';
-            lbl.textContent = linkdigestDash.labels.delete;
-            const yes = document.createElement('button');
-            yes.className = 'lb-delete-confirm-yes';
-            yes.textContent = linkdigestDash.labels.yes;
-            const no = document.createElement('button');
-            no.className = 'lb-delete-cancel';
-            no.textContent = linkdigestDash.labels.cancel;
-            row.append(lbl, yes, no);
-            btn.parentElement.appendChild(row);
-        });
-        </script>
-        <?php
-    }
+    public function renderDashboardJs(): void {}
 
     public function dashboardPage(): void {
         $batch_result      = $this->handleBatchPublishRequest();
@@ -594,22 +506,22 @@ trait LinkDigest_Admin_Dashboard {
             <div class="lb-stats-grid">
                 <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
-                    <div><span class="lb-stat-value" id="lb-stat-total"><?php echo esc_html( number_format( $total_links ) ); ?></span>
+                    <div><span class="lb-stat-value" id="lb-stat-total"><?php echo esc_html( number_format_i18n( $total_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
                 </a>
                 <a href="<?php echo $categories_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-category lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $total_categories ) ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format_i18n( $total_categories ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
                 </a>
                 <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format( $published_links ) ); ?></span>
+                    <div><span class="lb-stat-value"><?php echo esc_html( number_format_i18n( $published_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
                 </a>
                 <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
                     <span class="dashicons dashicons-clock lb-stat-icon"></span>
-                    <div><span class="lb-stat-value" id="lb-stat-unpublished"><?php echo esc_html( number_format( $unpublished_links ) ); ?></span>
+                    <div><span class="lb-stat-value" id="lb-stat-unpublished"><?php echo esc_html( number_format_i18n( $unpublished_links ) ); ?></span>
                     <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
                 </a>
             </div>

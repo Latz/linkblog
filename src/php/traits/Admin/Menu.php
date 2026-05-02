@@ -139,8 +139,7 @@ trait LinkDigest_Admin_Menu {
         }
 
         $api_key     = get_option('linkdigest_api_key');
-        $site_url    = get_site_url();
-        $endpoint    = $site_url . '/wp-json/linkdigest/v1';
+        $endpoint    = rest_url(LINKDIGEST_REST_NAMESPACE);
         $has_key_attr = $api_key ? 'data-has-key="1"' : '';
         ?>
         <div class="wrap">
@@ -239,106 +238,6 @@ trait LinkDigest_Admin_Menu {
             </details>
         </div>
 
-        <script>
-        jQuery(document).ready(function($) {
-            // Copy to clipboard
-            $('.linkdigest-copy-btn').on('click', function() {
-                var targetId = $(this).data('clipboard-target');
-                var input = document.getElementById(targetId);
-                if (!input) { return; }
-
-                var $btn = $(this);
-                var value = input.value;
-
-                function showSuccess() {
-                    var originalHtml = $btn.html();
-                    $btn.html('<span class="dashicons dashicons-yes" style="margin-top: 3px; color: #00a32a;"></span>');
-                    setTimeout(function() { $btn.html(originalHtml); }, 2000);
-                }
-
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(value).then(showSuccess).catch(function() {});
-                } else {
-                    var prevType = input.type;
-                    var wasDisabled = input.disabled;
-                    input.type = 'text';
-                    input.disabled = false;
-                    input.select();
-                    input.setSelectionRange(0, 99999);
-                    try { document.execCommand('copy'); showSuccess(); } catch (err) {}
-                    input.disabled = wasDisabled;
-                    input.type = prevType;
-                }
-            });
-
-            // Show / hide API key toggle
-            $('.linkdigest-toggle-key').on('click', function() {
-                var input = document.getElementById('linkdigest-api-key');
-                if (!input) { return; }
-                var $icon = $(this).find('.dashicons');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    $icon.removeClass('dashicons-visibility').addClass('dashicons-hidden');
-                } else {
-                    input.type = 'password';
-                    $icon.removeClass('dashicons-hidden').addClass('dashicons-visibility');
-                }
-            });
-
-            // Confirm before regenerating API key
-            $('#linkdigest-generate-form').on('submit', function(e) {
-                if ($(this).data('has-key')) {
-                    var ok = window.confirm('<?php echo esc_js(__('This will permanently invalidate your current API key. You will need to update the Chrome extension with the new key. Continue?', 'linkdigest')); ?>');
-                    if (!ok) { e.preventDefault(); }
-                }
-            });
-
-            // Test Connection
-            $('#linkdigest-test-connection').on('click', function() {
-                var endpoint = (document.getElementById('linkdigest-api-endpoint') || {}).value || '';
-                var apiKey   = (document.getElementById('linkdigest-api-key') || {}).value || '';
-                var $status  = $('#linkdigest-connection-status');
-
-                if (!endpoint || !apiKey) {
-                    $status.css('color', '#d63638').text('<?php echo esc_js(__('Missing endpoint or API key.', 'linkdigest')); ?>');
-                    return;
-                }
-
-                var $btn = $(this);
-                $btn.prop('disabled', true);
-                $status.css('color', '#666').text('<?php echo esc_js(__('Testing…', 'linkdigest')); ?>');
-
-                fetch(endpoint.replace(/\/$/, '') + '/categories', {
-                    headers: { 'X-Api-Key': apiKey }
-                })
-                .then(function(res) {
-                    if (res.ok) {
-                        $status.css('color', '#00a32a').text('✓ <?php echo esc_js(__('Connected successfully.', 'linkdigest')); ?>');
-                    } else {
-                        $status.css('color', '#d63638').text('✗ <?php echo esc_js(__('Connection failed', 'linkdigest')); ?> (HTTP ' + res.status + ')');
-                    }
-                })
-                .catch(function() {
-                    $status.css('color', '#d63638').text('✗ <?php echo esc_js(__('Could not reach endpoint.', 'linkdigest')); ?>');
-                })
-                .finally(function() { $btn.prop('disabled', false); });
-            });
-
-            // Rotate setup section arrow on toggle
-            var $details = $('details[style*="800px"]');
-            $details.on('toggle', function() {
-                var $arrow = $('#linkdigest-setup-arrow');
-                if (this.open) {
-                    $arrow.css('transform', 'rotate(90deg)');
-                } else {
-                    $arrow.css('transform', 'rotate(0deg)');
-                }
-            });
-            if ($details[0] && $details[0].open) {
-                $('#linkdigest-setup-arrow').css('transform', 'rotate(90deg)');
-            }
-        });
-        </script>
         <?php
     }
 
@@ -356,9 +255,8 @@ trait LinkDigest_Admin_Menu {
             return;
         }
 
-        if (strpos($hook, 'linkdigest-dashboard') !== false) {
-            wp_enqueue_script('postbox');
-        }
+        $js_dir  = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
+        $js_url  = plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
 
         wp_enqueue_style('dashicons');
         wp_enqueue_style(
@@ -367,6 +265,92 @@ trait LinkDigest_Admin_Menu {
             array(),
             (string) filemtime(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'dashboard.css')
         );
+
+        if (strpos($hook, 'linkdigest-dashboard') !== false) {
+            wp_enqueue_script('postbox');
+            wp_enqueue_script(
+                'linkdigest-dashboard-js',
+                $js_url . 'dashboard.js',
+                array(),
+                (string) filemtime($js_dir . 'dashboard.js'),
+                true
+            );
+            wp_localize_script('linkdigest-dashboard-js', 'linkdigestDash', array(
+                'restUrl' => rest_url(LINKDIGEST_REST_NAMESPACE . '/links/'),
+                'nonce'   => wp_create_nonce('wp_rest'),
+                'labels'  => array(
+                    'delete' => __('Delete?', 'linkdigest'),
+                    'yes'    => __('Yes', 'linkdigest'),
+                    'cancel' => __('Cancel', 'linkdigest'),
+                ),
+            ));
+        }
+
+        if (strpos($hook, 'linkdigest-settings') !== false) {
+            wp_enqueue_script(
+                'linkdigest-settings-page',
+                $js_url . 'settings-page.js',
+                array('jquery'),
+                (string) filemtime($js_dir . 'settings-page.js'),
+                true
+            );
+            wp_localize_script('linkdigest-settings-page', 'linkdigestSettings', array(
+                'labels' => array(
+                    'confirmRegenerate' => __('This will permanently invalidate your current API key. You will need to update the Chrome extension with the new key. Continue?', 'linkdigest'),
+                    'missingFields'     => __('Missing endpoint or API key.', 'linkdigest'),
+                    'statusTesting'     => __('Testing…', 'linkdigest'),
+                    'statusOk'          => __('Connected successfully.', 'linkdigest'),
+                    'statusFail'        => __('Connection failed', 'linkdigest'),
+                    'statusUnreachable' => __('Could not reach endpoint.', 'linkdigest'),
+                ),
+            ));
+        }
+
+        if (strpos($hook, 'linkdigest-setting-x') !== false) {
+            wp_enqueue_script(
+                'linkdigest-setting-x-page',
+                $js_url . 'setting-x-page.js',
+                array('jquery'),
+                (string) filemtime($js_dir . 'setting-x-page.js'),
+                true
+            );
+        }
+
+        if (strpos($hook, 'linkdigest-admin') !== false) {
+            wp_enqueue_script(
+                'linkdigest-links-page',
+                $js_url . 'links-page.js',
+                array(),
+                (string) filemtime($js_dir . 'links-page.js'),
+                true
+            );
+        }
+
+        if (strpos($hook, 'linkdigest-categories') !== false) {
+            wp_enqueue_script(
+                'linkdigest-categories-js',
+                $js_url . 'categories.js',
+                array(),
+                (string) filemtime($js_dir . 'categories.js'),
+                true
+            );
+            wp_localize_script('linkdigest-categories-js', 'linkdigestCats', array(
+                'restUrl' => rest_url(LINKDIGEST_REST_NAMESPACE . '/categories/'),
+                'nonce'   => wp_create_nonce('wp_rest'),
+                'labels'  => array(
+                    'edit'            => __('Edit', 'linkdigest'),
+                    'save'            => __('Save', 'linkdigest'),
+                    'cancel'          => __('Cancel', 'linkdigest'),
+                    'saving'          => __('Saving…', 'linkdigest'),
+                    'saveError'       => __('Save failed.', 'linkdigest'),
+                    'nameRequired'    => __('Name is required.', 'linkdigest'),
+                    'descPlaceholder' => __('Description (optional)', 'linkdigest'),
+                    'slugPlaceholder' => __('Leave blank to keep current', 'linkdigest'),
+                    'deleteOne'       => __('link will become uncategorized.', 'linkdigest'),
+                    'deleteMany'      => __('links will become uncategorized.', 'linkdigest'),
+                ),
+            ));
+        }
 
         if (strpos($hook, 'linkdigest-schedule') !== false) {
             $asset_file = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/schedule.asset.php';
@@ -758,15 +742,6 @@ trait LinkDigest_Admin_Menu {
             </form>
         </div>
 
-        <script>
-        jQuery(document).ready(function($) {
-            $('.lb-expansion-trigger').on('click', function() {
-                $(this).closest('.lb-expansion-row').toggleClass('is-open');
-            });
-            $('.js-lb-expand-all').on('click', function() { $('.lb-expansion-row').addClass('is-open'); });
-            $('.js-lb-collapse-all').on('click', function() { $('.lb-expansion-row').removeClass('is-open'); });
-        });
-        </script>
         <?php
     }
 

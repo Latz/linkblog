@@ -363,7 +363,7 @@ trait LinkDigest_RestApi {
         if (!$request_uri || strpos($request_uri, '/wp-json/') === false) {
             return;
         }
-        if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        if (isset($_SERVER['REQUEST_METHOD']) && sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])) === 'OPTIONS') {
             $origin = get_http_origin();
             if ($this->isFromChromeExtension($origin)) {
                 $this->setCorsOriginHeaders($origin);

@@ -48,7 +48,15 @@ trait LinkDigest_Batch {
         }
 
         // Prime caches: 3 queries instead of ~5×N in the batch publishing path
-        _prime_post_caches($link_ids, false, false);
+        get_posts([
+            'post__in'               => $link_ids,
+            'posts_per_page'         => -1,
+            'post_type'              => 'any',
+            'post_status'            => 'any',
+            'no_found_rows'          => true,
+            'update_post_meta_cache' => false,
+            'update_post_term_cache' => false,
+        ]);
         update_meta_cache('post', $link_ids);
         update_object_term_cache($link_ids, 'linkdigest');
 
