@@ -40,7 +40,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $this->plugin->showLinksPage();
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-category-section');
+        expect($html)->toContain('linkdigest-category-section');
         expect($html)->toContain('Tech');
     });
 
@@ -81,7 +81,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $this->plugin->showLinksPage();
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-status-unpublished');
+        expect($html)->toContain('linkdigest-status-unpublished');
         expect($html)->not->toContain('target="_blank"');
     });
 
@@ -94,7 +94,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $this->plugin->showLinksPage();
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-status-unpublished');
+        expect($html)->toContain('linkdigest-status-unpublished');
     });
 
     it('shows published status badge for a published link', function (): void {
@@ -109,7 +109,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $this->plugin->showLinksPage();
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-status-published');
+        expect($html)->toContain('linkdigest-status-published');
     });
 
     it('shows the published date when set', function (): void {

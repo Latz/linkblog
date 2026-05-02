@@ -25,7 +25,7 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $html = ob_get_clean();
 
         expect($html)->toContain('No published links yet.');
-        expect($html)->not->toContain('lb-recent-links');
+        expect($html)->not->toContain('linkdigest-recent-links');
     });
 
     it('shows the link list when links are provided', function (): void {
@@ -35,7 +35,7 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $this->plugin->renderRecentlyPublishedBox([$link]);
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-recent-links');
+        expect($html)->toContain('linkdigest-recent-links');
         expect($html)->toContain('Test Link');
     });
 
@@ -49,8 +49,8 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $this->plugin->renderRecentlyPublishedBox([$link]);
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-status-published');
-        expect($html)->not->toContain('lb-status-draft');
+        expect($html)->toContain('linkdigest-status-published');
+        expect($html)->not->toContain('linkdigest-status-draft');
     });
 
     it('shows draft badge for a draft link', function (): void {
@@ -63,8 +63,8 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $this->plugin->renderRecentlyPublishedBox([$link]);
         $html = ob_get_clean();
 
-        expect($html)->toContain('lb-status-draft');
-        expect($html)->not->toContain('lb-status-published');
+        expect($html)->toContain('linkdigest-status-draft');
+        expect($html)->not->toContain('linkdigest-status-published');
     });
 
     it('shows no badge when status is neither published nor draft', function (): void {
@@ -77,8 +77,8 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $this->plugin->renderRecentlyPublishedBox([$link]);
         $html = ob_get_clean();
 
-        expect($html)->not->toContain('lb-status-published');
-        expect($html)->not->toContain('lb-status-draft');
+        expect($html)->not->toContain('linkdigest-status-published');
+        expect($html)->not->toContain('linkdigest-status-draft');
     });
 
     it('shows View Post link for a published link with published_post_id', function (): void {
@@ -96,7 +96,7 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $html = ob_get_clean();
 
         expect($html)->toContain('View Post');
-        expect($html)->toContain('lb-link-url');
+        expect($html)->toContain('linkdigest-link-url');
     });
 
     it('shows View Draft link for a draft link with published_post_id', function (): void {

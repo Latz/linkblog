@@ -41,7 +41,7 @@ test.describe('LinkDigest dashboard', () => {
     test('stats header is visible', async ({ page }) => {
         await page.goto(DASHBOARD_URL);
         // The compact stats header added during the dashboard redesign.
-        await expect(page.locator('.lb-stats-grid')).toBeVisible();
+        await expect(page.locator('.linkdigest-stats-grid')).toBeVisible();
     });
 
     test('link list renders in the page', async ({ page }) => {
@@ -59,7 +59,7 @@ test('clicking trash shows inline confirmation, not browser dialog', async ({ pa
     await wpLogin(page);
     await page.goto(DASHBOARD_URL);
 
-    const trashBtn = page.locator('.lb-delete-btn').first();
+    const trashBtn = page.locator('.linkdigest-delete-btn').first();
 
     // Only run if there is at least one link to trash.
     if (await trashBtn.count() === 0) {
@@ -74,5 +74,5 @@ test('clicking trash shows inline confirmation, not browser dialog', async ({ pa
     await trashBtn.click();
 
     // Inline confirm UI should appear instead.
-    await expect(page.locator('.lb-delete-confirm-row')).toBeVisible();
+    await expect(page.locator('.linkdigest-delete-confirm-row')).toBeVisible();
 });
