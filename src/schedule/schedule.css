@@ -78,7 +78,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #787c82;
-  padding-left: 2px;
+  padding-inline-start: 2px;
 }
 
 .linkdigest-btn-group {
@@ -89,16 +89,18 @@
 .linkdigest-btn-group .components-button {
   border-radius: 0;
   margin: 0;
-  border-right-width: 0;
+  border-inline-end-width: 0;
 }
 
 .linkdigest-btn-group .components-button:first-child {
-	border-radius: 2px 0 0 2px;
+	border-start-start-radius: 2px;
+	border-end-start-radius: 2px;
 }
 
 .linkdigest-btn-group .components-button:last-child {
-	border-radius: 0 2px 2px 0;
-	border-right-width: 1px;
+	border-start-end-radius: 2px;
+	border-end-end-radius: 2px;
+	border-inline-end-width: 1px;
 }
 
 .linkdigest-btn-group-sep {
@@ -145,7 +147,7 @@
   font-size: 11px;
   color: #787c82;
   width: 18px;
-  text-align: right;
+  text-align: end;
   flex-shrink: 0;
 }
 
@@ -191,7 +193,7 @@
 }
 
 .linkdigest-time-row .components-button.is-compact {
-  padding-left: 2px;
+  padding-inline-start: 2px;
 }
 
 .linkdigest-time-input {
@@ -270,7 +272,7 @@
 
 .linkdigest-diag-row dd {
   margin: 0;
-  text-align: right;
+  text-align: end;
   word-break: break-word;
 }
 
@@ -349,7 +351,7 @@
 
 .linkdigest-preview-result__cats {
   margin: 0;
-  padding-left: 16px;
+  padding-inline-start: 16px;
   color: var(--wp-admin-theme-color-darker-10, #135e96);
 }
 
@@ -363,7 +365,7 @@
   margin: 8px 0 0;
   font-size: 11px;
   color: #787c82;
-  text-align: right;
+  text-align: end;
 }
 
 /* Diagnostics: reason note next to Not scheduled */
@@ -392,7 +394,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #787c82;
-  padding-left: 2px;
+  padding-inline-start: 2px;
 }
 
 .linkdigest-mode-cards {
@@ -409,7 +411,7 @@
   background: #fff;
   cursor: pointer;
   transition: border-color 0.1s, box-shadow 0.1s;
-  text-align: left;
+  text-align: start;
 }
 
 .linkdigest-mode-card:hover {
