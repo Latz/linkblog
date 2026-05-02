@@ -16,6 +16,13 @@ beforeEach(function (): void {
     Functions\when('wp_nonce_url')->returnArg();
     Functions\when('get_permalink')->justReturn('https://example.com/post/1');
     Functions\when('get_edit_post_link')->justReturn('https://example.com/wp-admin/edit?p=1');
+    Functions\when('selected')->justReturn('');
+    Functions\when('esc_attr')->returnArg(1);
+    Functions\when('esc_attr_e')->returnArg(1);
+    Functions\when('get_the_terms')->justReturn(false);
+    $GLOBALS['wpdb'] = Mockery::mock('wpdb');
+    $GLOBALS['wpdb']->posts = '{prefix}posts';
+    $GLOBALS['wpdb']->shouldReceive('get_results')->andReturn([]);
     $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 

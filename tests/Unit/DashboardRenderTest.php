@@ -14,6 +14,7 @@ beforeEach(function (): void {
     Functions\when('mysql2date')->returnArg(2);
     Functions\when('get_permalink')->justReturn('https://example.com/post/1');
     Functions\when('get_edit_post_link')->justReturn('https://example.com/wp-admin/edit?p=1');
+    Functions\when('admin_url')->justReturn('https://example.com/wp-admin/admin.php?page=linkdigest');
     $this->plugin = Mockery::mock(LinkDigest::class)->makePartial();
 });
 
