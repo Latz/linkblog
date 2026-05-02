@@ -13,7 +13,7 @@
 .lb-stat-card {
 	background: #fff;
 	border: 1px solid #c3c4c7;
-	border-left: 4px solid var(--wp-admin-theme-color, #2271b1);
+	border-inline-start: 4px solid var(--wp-admin-theme-color, #2271b1);
 	padding: 10px 14px;
 	display: flex;
 	align-items: center;
@@ -50,11 +50,11 @@
 a.lb-stat-card--link {
 	text-decoration: none;
 	color: inherit;
-	transition: border-left-color .15s, box-shadow .15s;
+	transition: border-inline-start-color .15s, box-shadow .15s;
 }
 
 a.lb-stat-card--link:hover {
-	border-left-color: var(--wp-admin-theme-color-darker-10, #135e96);
+	border-inline-start-color: var(--wp-admin-theme-color-darker-10, #135e96);
 	box-shadow: 0 2px 6px rgba(0,0,0,.1);
 }
 
@@ -69,7 +69,7 @@ a.lb-stat-card--link .lb-stat-value {
 	gap: 12px;
 	background: #fff;
 	border: 1px solid #c3c4c7;
-	border-left: 4px solid var(--wp-admin-theme-color, #2271b1);
+	border-inline-start: 4px solid var(--wp-admin-theme-color, #2271b1);
 	padding: 16px 20px;
 	margin-bottom: 16px;
 	box-shadow: 0 1px 1px rgba(0,0,0,.04);
@@ -133,21 +133,21 @@ a.lb-stat-card--link .lb-stat-value {
 	font-weight: normal;
 	color: #646970;
 	font-size: 12px;
-	margin-left: 3px;
+	margin-inline-start: 3px;
 }
 
 /* ── Two-column layout ───────────────────────────────────── */
 #lb-postbox-container-1 {
 	width: 65%;
-	float: left;
-	padding-right: 8px;
+	float: inline-start;
+	padding-inline-end: 8px;
 	box-sizing: border-box;
 }
 
 #lb-postbox-container-2 {
 	width: 35%;
-	float: left;
-	padding-left: 8px;
+	float: inline-start;
+	padding-inline-start: 8px;
 	box-sizing: border-box;
 }
 
@@ -290,7 +290,8 @@ a.lb-stat-card--link .lb-stat-value {
 /* ── Status badges ───────────────────────────────────────── */
 .lb-status-badge {
 	display: inline-block;
-	padding: 1px 6px 1px 0;
+	padding-block: 1px;
+	padding-inline: 0 6px;
 	border-radius: 2px;
 	white-space: nowrap;
 	flex-shrink: 0;
@@ -380,7 +381,7 @@ a.lb-stat-card--link .lb-stat-value {
 .lb-links-tablenav p.search-box {
 	float: none;
 	margin: 0;
-	margin-left: auto;
+	margin-inline-start: auto;
 }
 
 /* ── All Links table column widths ──────────────────────── */
@@ -394,8 +395,7 @@ a.lb-stat-card--link .lb-stat-value {
 /* ── Align sortable th content with td padding (WP uses 8px, td uses 10px) */
 .wp-list-table th.sortable a,
 .wp-list-table th.sorted a {
-	padding-left: 10px;
-	padding-right: 10px;
+	padding-inline: 10px;
 }
 
 /* ── Categories table ────────────────────────────────────── */
@@ -480,7 +480,7 @@ textarea.lb-cat-inline-input {
 	padding: 2px 8px;
 	border-radius: 10px;
 	vertical-align: middle;
-	margin-left: 8px;
+	margin-inline-start: 8px;
 }
 
 .lb-x-controls {
@@ -514,12 +514,12 @@ textarea.lb-cat-inline-input {
 
 .lb-expansion-row {
 	border-bottom: 1px solid #f0f0f1;
-	border-left: 0 solid var(--wp-admin-theme-color, #2271b1);
-	transition: border-left-width .2s;
+	border-inline-start: 0 solid var(--wp-admin-theme-color, #2271b1);
+	transition: border-inline-start-width .2s;
 }
 
 .lb-expansion-row:last-child { border-bottom: 0; }
-.lb-expansion-row.is-open { border-left: 4px solid var(--wp-admin-theme-color, #2271b1); }
+.lb-expansion-row.is-open { border-inline-start: 4px solid var(--wp-admin-theme-color, #2271b1); }
 
 .lb-expansion-trigger {
 	width: 100%;
@@ -534,7 +534,7 @@ textarea.lb-cat-inline-input {
 }
 
 .lb-expansion-trigger:hover { background: #f9f9f9; }
-.lb-setting-title { flex: 1; font-weight: 600; text-align: left; }
+.lb-setting-title { flex: 1; font-weight: 600; text-align: start; }
 .lb-setting-summary { color: #646970; font-size: 12px; }
 .lb-expansion-trigger .dashicons { transition: transform .2s; color: #646970; }
 .lb-expansion-row.is-open .lb-expansion-trigger .dashicons { transform: rotate(180deg); }
@@ -555,8 +555,8 @@ textarea.lb-cat-inline-input {
 .lb-x-sticky-bar {
 	position: fixed;
 	bottom: 0;
-	left: 160px;
-	right: 0;
+	inset-inline-start: 160px;
+	inset-inline-end: 0;
 	padding: 14px 30px;
 	background: rgba(255,255,255,.88);
 	backdrop-filter: blur(8px);
@@ -573,14 +573,14 @@ textarea.lb-cat-inline-input {
 }
 
 @media (max-width: 782px) {
-	.lb-x-sticky-bar { left: 0; }
+	.lb-x-sticky-bar { inset-inline-start: 0; }
 }
 
 .lb-box-subtitle {
 	font-size: 12px;
 	font-weight: 400;
 	color: #787c82;
-	margin-left: 6px;
+	margin-inline-start: 6px;
 }
 
 .lb-box-subtitle .dashicons {
@@ -588,5 +588,5 @@ textarea.lb-cat-inline-input {
 	width: 14px;
 	height: 14px;
 	vertical-align: middle;
-	margin-right: 2px;
+	margin-inline-end: 2px;
 }
