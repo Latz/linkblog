@@ -46,10 +46,10 @@ trait LinkDigest_Admin_LinksPage {
                 <div class="notice notice-error is-dismissible"><p><?php echo esc_html($action_error); ?></p></div>
             <?php endif; ?>
 
-            <form method="get" style="margin-top: 16px;">
+            <form method="get" class="linkdigest-filter-form">
                 <input type="hidden" name="page" value="linkdigest-admin">
 
-                <div class="tablenav top lb-links-tablenav">
+                <div class="tablenav top linkdigest-links-tablenav">
                     <div class="alignleft actions">
                         <label class="screen-reader-text" for="filter-by-date"><?php esc_html_e('Filter by date', 'linkdigest'); ?></label>
                         <select name="m" id="filter-by-date">
@@ -124,8 +124,8 @@ trait LinkDigest_Admin_LinksPage {
 
     private function renderCategoryLinks(array $grouped_links): void {
         foreach ($grouped_links as $category_name => $category_links) : ?>
-            <div class="lb-category-section">
-                <h2 class="lb-category-heading"><?php echo esc_html($category_name); ?></h2>
+            <div class="linkdigest-category-section">
+                <h2 class="linkdigest-category-heading"><?php echo esc_html($category_name); ?></h2>
 
                 <table class="wp-list-table widefat fixed striped">
                     <thead>
@@ -231,11 +231,11 @@ trait LinkDigest_Admin_LinksPage {
 
     private function renderLinkStatusBadge(string $publish_status): void {
         if ($publish_status === 'published') {
-            echo '<span class="lb-status-badge lb-status-published">✓ ' . esc_html__('Published', 'linkdigest') . '</span>';
+            echo '<span class="linkdigest-status-badge linkdigest-status-published">✓ ' . esc_html__('Published', 'linkdigest') . '</span>';
         } elseif ($publish_status === 'draft') {
-            echo '<span class="lb-status-badge lb-status-draft">📝 ' . esc_html__('Draft', 'linkdigest') . '</span>';
+            echo '<span class="linkdigest-status-badge linkdigest-status-draft">📝 ' . esc_html__('Draft', 'linkdigest') . '</span>';
         } else {
-            echo '<span class="lb-status-badge lb-status-unpublished">' . esc_html__('Unpublished', 'linkdigest') . '</span>';
+            echo '<span class="linkdigest-status-badge linkdigest-status-unpublished">' . esc_html__('Unpublished', 'linkdigest') . '</span>';
         }
     }
 

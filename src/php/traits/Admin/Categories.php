@@ -43,11 +43,11 @@ trait LinkDigest_Admin_Categories {
                 </div>
             <?php endif; ?>
 
-            <div class="metabox-holder lb-dashboard">
-                <div id="lb-postbox-container-1" class="postbox-container">
+            <div class="metabox-holder linkdigest-dashboard">
+                <div id="linkdigest-postbox-container-1" class="postbox-container">
                     <?php $this->renderCategoriesTable( $terms, $counts ); ?>
                 </div>
-                <div id="lb-postbox-container-2" class="postbox-container">
+                <div id="linkdigest-postbox-container-2" class="postbox-container">
                     <?php $this->renderCategoryForm(); ?>
                 </div>
             </div>
@@ -128,13 +128,13 @@ trait LinkDigest_Admin_Categories {
             return;
         }
         ?>
-        <table class="wp-list-table widefat striped lb-cat-table">
+        <table class="wp-list-table widefat striped linkdigest-cat-table">
             <thead>
                 <tr>
                     <th><?php esc_html_e( 'Name', 'linkdigest' ); ?></th>
                     <th><?php esc_html_e( 'Description', 'linkdigest' ); ?></th>
                     <th><?php esc_html_e( 'Slug', 'linkdigest' ); ?></th>
-                    <th class="lb-cat-count-col"><?php esc_html_e( 'Links', 'linkdigest' ); ?></th>
+                    <th class="linkdigest-cat-count-col"><?php esc_html_e( 'Links', 'linkdigest' ); ?></th>
                     <th><?php esc_html_e( 'Actions', 'linkdigest' ); ?></th>
                 </tr>
             </thead>
@@ -142,25 +142,25 @@ trait LinkDigest_Admin_Categories {
                 <?php foreach ( $terms as $term ) :
                     $count = (int) ( $counts[ $term->term_id ] ?? 0 );
                 ?>
-                <tr class="lb-cat-row"
+                <tr class="linkdigest-cat-row"
                     data-id="<?php echo (int) $term->term_id; ?>"
                     data-name="<?php echo esc_attr( $term->name ); ?>"
                     data-description="<?php echo esc_attr( $term->description ); ?>"
                     data-slug="<?php echo esc_attr( $term->slug ); ?>"
                     data-count="<?php echo (int) $count; ?>">
-                    <td class="lb-cat-cell-name"><strong><?php echo esc_html( $term->name ); ?></strong></td>
-                    <td class="lb-cat-cell-description lb-cat-desc"><?php echo esc_html( $term->description ); ?></td>
-                    <td class="lb-cat-cell-slug"><code><?php echo esc_html( $term->slug ); ?></code></td>
-                    <td class="lb-cat-count-col"><?php echo (int) $count; ?></td>
-                    <td class="lb-cat-actions">
-                        <button type="button" class="button-link lb-cat-edit-btn"><?php esc_html_e( 'Edit', 'linkdigest' ); ?></button>
+                    <td class="linkdigest-cat-cell-name"><strong><?php echo esc_html( $term->name ); ?></strong></td>
+                    <td class="linkdigest-cat-cell-description linkdigest-cat-desc"><?php echo esc_html( $term->description ); ?></td>
+                    <td class="linkdigest-cat-cell-slug"><code><?php echo esc_html( $term->slug ); ?></code></td>
+                    <td class="linkdigest-cat-count-col"><?php echo (int) $count; ?></td>
+                    <td class="linkdigest-cat-actions">
+                        <button type="button" class="button-link linkdigest-cat-edit-btn"><?php esc_html_e( 'Edit', 'linkdigest' ); ?></button>
                         &nbsp;|&nbsp;
-                        <form method="post" action="" class="lb-cat-delete-form" style="display:inline;"
+                        <form method="post" action="" class="linkdigest-cat-delete-form"
                               data-name="<?php echo esc_attr( $term->name ); ?>"
                               data-count="<?php echo (int) $count; ?>">
                             <?php wp_nonce_field( 'linkdigest_delete_category', 'linkdigest_cat_nonce' ); ?>
                             <input type="hidden" name="cat_term_id" value="<?php echo (int) $term->term_id; ?>">
-                            <button type="submit" name="linkdigest_delete_category" class="button-link lb-cat-delete-btn">
+                            <button type="submit" name="linkdigest_delete_category" class="button-link linkdigest-cat-delete-btn">
                                 <?php esc_html_e( 'Delete', 'linkdigest' ); ?>
                             </button>
                         </form>
@@ -188,7 +188,7 @@ trait LinkDigest_Admin_Categories {
                     <p>
                         <label for="cat_description">
                             <strong><?php esc_html_e( 'Description', 'linkdigest' ); ?></strong>
-                            <span class="lb-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
+                            <span class="linkdigest-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
                         </label><br>
                         <textarea id="cat_description" name="cat_description" class="regular-text" rows="3"></textarea>
                     </p>

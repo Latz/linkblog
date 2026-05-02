@@ -18,34 +18,34 @@ trait LinkDigest_Admin_Dashboard {
         ));
 
         ?>
-        <div class="linkdigest-widget-stats" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
-            <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #2271b1;"><?php echo esc_html(number_format_i18n($stats['total_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Total', 'linkdigest'); ?></div>
+        <div class="linkdigest-widget-stats">
+            <div class="linkdigest-widget-stat-cell">
+                <div class="linkdigest-widget-stat-value linkdigest-widget-stat-value--total"><?php echo esc_html(number_format_i18n($stats['total_links'])); ?></div>
+                <div class="linkdigest-widget-stat-label"><?php esc_html_e('Total', 'linkdigest'); ?></div>
             </div>
-            <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #00a32a;"><?php echo esc_html(number_format_i18n($stats['published_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Published', 'linkdigest'); ?></div>
+            <div class="linkdigest-widget-stat-cell">
+                <div class="linkdigest-widget-stat-value linkdigest-widget-stat-value--published"><?php echo esc_html(number_format_i18n($stats['published_links'])); ?></div>
+                <div class="linkdigest-widget-stat-label"><?php esc_html_e('Published', 'linkdigest'); ?></div>
             </div>
-            <div style="text-align: center; padding: 12px; background: #f0f0f1; border-radius: 4px;">
-                <div style="font-size: 24px; font-weight: 600; color: #dba617;"><?php echo esc_html(number_format_i18n($stats['unpublished_links'])); ?></div>
-                <div style="font-size: 11px; color: #646970; text-transform: uppercase; margin-top: 4px;"><?php esc_html_e('Unpublished', 'linkdigest'); ?></div>
+            <div class="linkdigest-widget-stat-cell">
+                <div class="linkdigest-widget-stat-value linkdigest-widget-stat-value--unpublished"><?php echo esc_html(number_format_i18n($stats['unpublished_links'])); ?></div>
+                <div class="linkdigest-widget-stat-label"><?php esc_html_e('Unpublished', 'linkdigest'); ?></div>
             </div>
         </div>
 
         <?php if (!empty($recent_unpublished)) : ?>
-            <div style="margin-bottom: 12px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; color: #1d2327;"><?php esc_html_e('Recent Unpublished', 'linkdigest'); ?></h4>
-                <ul style="margin: 0; padding: 0; list-style: none;">
+            <div class="linkdigest-widget-recent">
+                <h4 class="linkdigest-widget-heading"><?php esc_html_e('Recent Unpublished', 'linkdigest'); ?></h4>
+                <ul class="linkdigest-widget-list">
                     <?php foreach ($recent_unpublished as $link) :
                         $url = get_post_meta($link->ID, '_linkdigest_url', true);
                     ?>
-                        <li style="margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f1;">
-                            <div style="font-weight: 500; font-size: 13px; margin-bottom: 2px;">
+                        <li class="linkdigest-widget-item">
+                            <div class="linkdigest-widget-link-title">
                                 <?php echo esc_html($link->post_title); ?>
                             </div>
                             <?php if ($url) : ?>
-                                <div style="font-size: 12px; color: #646970; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                <div class="linkdigest-widget-link-url">
                                     <?php echo esc_html($url); ?>
                                 </div>
                             <?php endif; ?>
@@ -55,7 +55,7 @@ trait LinkDigest_Admin_Dashboard {
             </div>
         <?php endif; ?>
 
-        <div style="text-align: center; padding-top: 8px; border-top: 1px solid #f0f0f1;">
+        <div class="linkdigest-widget-footer">
             <a href="<?php echo esc_url(admin_url('admin.php?page=linkdigest-dashboard')); ?>" class="button button-primary">
                 <?php esc_html_e('Go to LinkDigest', 'linkdigest'); ?>
             </a>
@@ -197,7 +197,7 @@ trait LinkDigest_Admin_Dashboard {
                 <h2 class="hndle">
                     <?php esc_html_e( 'Recent Unpublished Links', 'linkdigest' ); ?>
                     <?php if ( $subtitle['text'] ) : ?>
-                        <span class="lb-box-subtitle">
+                        <span class="linkdigest-box-subtitle">
                             <?php if ( $subtitle['icon'] ) : ?>
                                 <span class="dashicons <?php echo esc_attr( $subtitle['icon'] ); ?>"></span>
                             <?php endif; ?>
@@ -207,38 +207,38 @@ trait LinkDigest_Admin_Dashboard {
                 </h2>
                 <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
-            <div class="inside" style="margin:0;padding:0;">
+            <div class="inside linkdigest-box-flush">
                 <?php if ( empty( $recent_links ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
+                    <p class="linkdigest-box-empty"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php else : ?>
-                    <ul class="lb-recent-links">
+                    <ul class="linkdigest-recent-links">
                         <?php foreach ( $recent_links as $link ) :
                             $url             = get_post_meta( $link->ID, '_linkdigest_url', true );
                             $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
                             $category_name   = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
                         ?>
-                            <li class="lb-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
-                                <div class="lb-link-item-header">
-                                    <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
+                            <li class="linkdigest-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
+                                <div class="linkdigest-link-item-header">
+                                    <strong class="linkdigest-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
                                 </div>
-                                <button class="lb-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
+                                <button class="linkdigest-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
                                 <?php if ( $url ) : ?>
-                                    <a href="<?php echo esc_url( $url ); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                                    <a href="<?php echo esc_url( $url ); ?>" class="linkdigest-link-url" target="_blank" rel="noopener">
                                         <?php echo esc_html( wp_parse_url( $url, PHP_URL_HOST ) ); ?> ↗
                                     </a>
                                 <?php endif; ?>
-                                <div class="lb-link-meta">
+                                <div class="linkdigest-link-meta">
                                     <?php if ( $category_name ) : ?>
                                         <span><?php echo esc_html( $category_name ); ?></span>
                                     <?php endif; ?>
-                                    <span class="lb-date-time" data-timestamp="<?php echo esc_attr( get_the_time( 'U', $link->ID ) ); ?>">
+                                    <span class="linkdigest-date-time" data-timestamp="<?php echo esc_attr( get_the_time( 'U', $link->ID ) ); ?>">
                                         <?php echo esc_html( get_the_date( 'M j, Y', $link->ID ) ); ?> <?php echo esc_html( get_the_time( 'g:i a', $link->ID ) ); ?>
                                     </span>
                                 </div>
                             </li>
                         <?php endforeach; ?>
                     </ul>
-                    <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
+                    <div class="linkdigest-box-footer">
                         <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>" class="button">
                             <?php esc_html_e( 'View All Links', 'linkdigest' ); ?>
                         </a>
@@ -256,12 +256,12 @@ trait LinkDigest_Admin_Dashboard {
                 <h2 class="hndle"><?php esc_html_e( 'Recently Published', 'linkdigest' ); ?></h2>
                 <button type="button" class="handlediv" aria-expanded="true"><span class="toggle-indicator" aria-hidden="true"></span></button>
             </div>
-            <div class="inside" style="margin:0;padding:0;">
+            <div class="inside linkdigest-box-flush">
                 <?php if ( empty( $recently_published ) ) : ?>
-                    <p style="padding:12px 16px;margin:0;color:#646970;"><?php esc_html_e( 'No published links yet.', 'linkdigest' ); ?></p>
+                    <p class="linkdigest-box-empty"><?php esc_html_e( 'No published links yet.', 'linkdigest' ); ?></p>
                 <?php else : ?>
                     <?php $this->renderRecentlyPublishedList( $recently_published ); ?>
-                    <div style="padding:8px 12px;border-top:1px solid #f0f0f1;">
+                    <div class="linkdigest-box-footer">
                         <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>">
                             <?php esc_html_e( 'View all links →', 'linkdigest' ); ?>
                         </a>
@@ -309,7 +309,7 @@ trait LinkDigest_Admin_Dashboard {
                         </p>
                     </form>
                 <?php else : ?>
-                    <p style="color:#646970;"><?php esc_html_e( 'No pending links to publish. Add links first, then come back here to publish a roundup.', 'linkdigest' ); ?></p>
+                    <p class="linkdigest-muted"><?php esc_html_e( 'No pending links to publish. Add links first, then come back here to publish a roundup.', 'linkdigest' ); ?></p>
                 <?php endif; ?>
             </div>
         </div>
@@ -318,21 +318,21 @@ trait LinkDigest_Admin_Dashboard {
 
     private function renderRecentlyPublishedList( array $recently_published ): void {
         ?>
-        <ul class="lb-recent-links">
+        <ul class="linkdigest-recent-links">
             <?php foreach ( $recently_published as $link ) :
                 $meta = $this->getRecentlyPublishedLinkMetadata( $link );
             ?>
-                <li class="lb-link-item">
-                    <div class="lb-link-item-header">
-                        <strong class="lb-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
+                <li class="linkdigest-link-item">
+                    <div class="linkdigest-link-item-header">
+                        <strong class="linkdigest-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
                         <?php $this->renderPublishedLinkBadge( $meta['publish_status'], $meta['is_draft'] ); ?>
                     </div>
                     <?php if ( $meta['published_post_id'] ) : ?>
-                        <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="lb-link-url" target="_blank" rel="noopener">
+                        <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="linkdigest-link-url" target="_blank" rel="noopener">
                             <?php echo $meta['is_draft'] ? esc_html__( 'View Draft', 'linkdigest' ) : esc_html__( 'View Post', 'linkdigest' ); ?> ↗
                         </a>
                     <?php endif; ?>
-                    <div class="lb-link-meta">
+                    <div class="linkdigest-link-meta">
                         <?php if ( $meta['category_name'] ) : ?>
                             <span><?php echo esc_html( $meta['category_name'] ); ?></span>
                         <?php endif; ?>
@@ -348,9 +348,9 @@ trait LinkDigest_Admin_Dashboard {
 
     private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
         if ( 'published' === $publish_status ) {
-            echo '<span class="lb-status-badge lb-status-published">' . esc_html__( 'Published', 'linkdigest' ) . '</span>';
+            echo '<span class="linkdigest-status-badge linkdigest-status-published">' . esc_html__( 'Published', 'linkdigest' ) . '</span>';
         } elseif ( $is_draft ) {
-            echo '<span class="lb-status-badge lb-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
+            echo '<span class="linkdigest-status-badge linkdigest-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }
     }
 
@@ -389,7 +389,7 @@ trait LinkDigest_Admin_Dashboard {
                     <p>
                         <label for="quick_url">
                             <strong><?php esc_html_e( 'URL', 'linkdigest' ); ?></strong>
-                            <span class="lb-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
+                            <span class="linkdigest-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
                         </label><br>
                         <input type="url" id="quick_url" name="quick_url" class="regular-text"
                             placeholder="https://example.com">
@@ -398,7 +398,7 @@ trait LinkDigest_Admin_Dashboard {
                     <p>
                         <label for="quick_category">
                             <strong><?php esc_html_e( 'Category', 'linkdigest' ); ?></strong>
-                            <span class="lb-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
+                            <span class="linkdigest-optional"><?php esc_html_e( '(optional)', 'linkdigest' ); ?></span>
                         </label><br>
                         <select id="quick_category" name="quick_category" class="regular-text">
                             <option value=""><?php esc_html_e( '— No category —', 'linkdigest' ); ?></option>
@@ -427,10 +427,10 @@ trait LinkDigest_Admin_Dashboard {
         $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
         $schedule_url = esc_url( admin_url( 'admin.php?page=linkdigest-schedule' ) );
         ?>
-        <div class="lb-schedule-status">
+        <div class="linkdigest-schedule-status">
             <?php if ( $next_ts ) : ?>
-                <span class="dashicons dashicons-calendar-alt lb-schedule-status-icon"></span>
-                <span class="lb-schedule-status-text">
+                <span class="dashicons dashicons-calendar-alt linkdigest-schedule-status-icon"></span>
+                <span class="linkdigest-schedule-status-text">
                     <?php
                     /* translators: %s: formatted next run datetime */
                     printf(
@@ -440,12 +440,12 @@ trait LinkDigest_Admin_Dashboard {
                     ?>
                 </span>
             <?php else : ?>
-                <span class="dashicons dashicons-info lb-schedule-status-icon lb-schedule-status-icon--muted"></span>
-                <span class="lb-schedule-status-text lb-schedule-status-text--muted">
+                <span class="dashicons dashicons-info linkdigest-schedule-status-icon linkdigest-schedule-status-icon--muted"></span>
+                <span class="linkdigest-schedule-status-text linkdigest-schedule-status-text--muted">
                     <?php esc_html_e( 'No automatic schedule active.', 'linkdigest' ); ?>
                 </span>
             <?php endif; ?>
-            <a href="<?php echo $schedule_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-schedule-status-link">
+            <a href="<?php echo $schedule_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="linkdigest-schedule-status-link">
                 <?php esc_html_e( 'Schedule settings →', 'linkdigest' ); ?>
             </a>
         </div>
@@ -493,8 +493,8 @@ trait LinkDigest_Admin_Dashboard {
 
             <?php if ( $total_links === 0 ) : ?>
             <!-- Onboarding -->
-            <div class="lb-onboarding">
-                <span class="dashicons dashicons-admin-links lb-onboarding-icon"></span>
+            <div class="linkdigest-onboarding">
+                <span class="dashicons dashicons-admin-links linkdigest-onboarding-icon"></span>
                 <p><strong><?php esc_html_e( 'No links yet.', 'linkdigest' ); ?></strong>
                    <?php esc_html_e( 'Start by adding your first link.', 'linkdigest' ); ?></p>
                 <a href="<?php echo esc_url( admin_url( 'admin.php?page=linkdigest-add' ) ); ?>" class="button button-primary">
@@ -503,46 +503,46 @@ trait LinkDigest_Admin_Dashboard {
             </div>
             <?php else : ?>
             <!-- Statistics -->
-            <div class="lb-stats-grid">
-                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
-                    <span class="dashicons dashicons-admin-links lb-stat-icon"></span>
-                    <div><span class="lb-stat-value" id="lb-stat-total"><?php echo esc_html( number_format_i18n( $total_links ) ); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
+            <div class="linkdigest-stats-grid">
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="linkdigest-stat-card linkdigest-stat-card--link">
+                    <span class="dashicons dashicons-admin-links linkdigest-stat-icon"></span>
+                    <div><span class="linkdigest-stat-value" id="linkdigest-stat-total"><?php echo esc_html( number_format_i18n( $total_links ) ); ?></span>
+                    <span class="linkdigest-stat-label"><?php esc_html_e( 'Total Links', 'linkdigest' ); ?></span></div>
                 </a>
-                <a href="<?php echo $categories_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
-                    <span class="dashicons dashicons-category lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format_i18n( $total_categories ) ); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
+                <a href="<?php echo $categories_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="linkdigest-stat-card linkdigest-stat-card--link">
+                    <span class="dashicons dashicons-category linkdigest-stat-icon"></span>
+                    <div><span class="linkdigest-stat-value"><?php echo esc_html( number_format_i18n( $total_categories ) ); ?></span>
+                    <span class="linkdigest-stat-label"><?php esc_html_e( 'Categories', 'linkdigest' ); ?></span></div>
                 </a>
-                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
-                    <span class="dashicons dashicons-yes-alt lb-stat-icon"></span>
-                    <div><span class="lb-stat-value"><?php echo esc_html( number_format_i18n( $published_links ) ); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="linkdigest-stat-card linkdigest-stat-card--link">
+                    <span class="dashicons dashicons-yes-alt linkdigest-stat-icon"></span>
+                    <div><span class="linkdigest-stat-value"><?php echo esc_html( number_format_i18n( $published_links ) ); ?></span>
+                    <span class="linkdigest-stat-label"><?php esc_html_e( 'Published', 'linkdigest' ); ?></span></div>
                 </a>
-                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="lb-stat-card lb-stat-card--link">
-                    <span class="dashicons dashicons-clock lb-stat-icon"></span>
-                    <div><span class="lb-stat-value" id="lb-stat-unpublished"><?php echo esc_html( number_format_i18n( $unpublished_links ) ); ?></span>
-                    <span class="lb-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
+                <a href="<?php echo $all_links_url; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>" class="linkdigest-stat-card linkdigest-stat-card--link">
+                    <span class="dashicons dashicons-clock linkdigest-stat-icon"></span>
+                    <div><span class="linkdigest-stat-value" id="linkdigest-stat-unpublished"><?php echo esc_html( number_format_i18n( $unpublished_links ) ); ?></span>
+                    <span class="linkdigest-stat-label"><?php esc_html_e( 'Unpublished', 'linkdigest' ); ?></span></div>
                 </a>
             </div>
             <?php endif; ?>
 
             <!-- Main Content -->
-            <div class="metabox-holder lb-dashboard">
-                <div id="lb-postbox-container-1" class="postbox-container meta-box-sortables">
+            <div class="metabox-holder linkdigest-dashboard">
+                <div id="linkdigest-postbox-container-1" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderUnpublishedLinksBox( $recent_links );
                     $this->renderRecentlyPublishedBox( $recently_published );
                     ?>
-                </div><!-- #lb-postbox-container-1 -->
+                </div><!-- #linkdigest-postbox-container-1 -->
 
-                <div id="lb-postbox-container-2" class="postbox-container meta-box-sortables">
+                <div id="linkdigest-postbox-container-2" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderQuickAddBox( $quick_add_success );
                     $this->renderPublishBox( $unpublished_links );
                     ?>
-                </div><!-- #lb-postbox-container-2 -->
-            </div><!-- .lb-dashboard -->
+                </div><!-- #linkdigest-postbox-container-2 -->
+            </div><!-- .linkdigest-dashboard -->
         </div>
 
         <?php $this->renderDashboardJs(); ?>

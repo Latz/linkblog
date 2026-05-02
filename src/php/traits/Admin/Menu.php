@@ -113,17 +113,17 @@ trait LinkDigest_Admin_Menu {
 
     private function renderCopyableField(string $id, string $value): void {
         ?>
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div class="linkdigest-row">
             <input
                 type="text"
                 id="<?php echo esc_attr($id); ?>"
                 value="<?php echo esc_attr($value); ?>"
                 readonly
                 onclick="this.select();"
-                style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
+                class="large-text code"
             >
             <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="<?php echo esc_attr($id); ?>">
-                <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+                <span class="dashicons dashicons-clipboard linkdigest-btn-icon"></span>
             </button>
         </div>
         <?php
@@ -145,63 +145,63 @@ trait LinkDigest_Admin_Menu {
         <div class="wrap">
             <h1><?php esc_html_e('LinkDigest Extension', 'linkdigest'); ?></h1>
 
-            <div class="card" style="max-width: 800px;">
+            <div class="card linkdigest-settings-card">
                 <h2><?php esc_html_e('Chrome Extension Access Data', 'linkdigest'); ?></h2>
                 <p><?php esc_html_e('Use these credentials to connect the LinkDigest Chrome extension to your WordPress site.', 'linkdigest'); ?></p>
 
-                <div style="margin: 20px 0;">
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">
+                <div class="linkdigest-settings-field">
+                    <label class="linkdigest-settings-label">
                         <?php esc_html_e('API Endpoint', 'linkdigest'); ?>
-                        <span style="font-weight: 400; color: #666; font-size: 12px;">(<?php esc_html_e('read-only', 'linkdigest'); ?>)</span>
+                        <span class="linkdigest-settings-note">(<?php esc_html_e('read-only', 'linkdigest'); ?>)</span>
                     </label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                    <div class="linkdigest-row">
                         <input
                             type="text"
                             id="linkdigest-api-endpoint"
                             value="<?php echo esc_attr($endpoint); ?>"
-                            disabled
-                            style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1; color: #a0a0a0; cursor: not-allowed;"
+                            readonly
+                            class="large-text code"
                         >
                         <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-endpoint">
-                            <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+                            <span class="dashicons dashicons-clipboard linkdigest-btn-icon"></span>
                         </button>
                     </div>
                     <p class="description">
                         <?php esc_html_e('Use this URL in the Chrome extension settings.', 'linkdigest'); ?>
-                        <a href="<?php echo esc_url($endpoint); ?>" target="_blank" style="margin-left: 8px;">
+                        <a href="<?php echo esc_url($endpoint); ?>" target="_blank" class="linkdigest-rest-link">
                             <?php esc_html_e('View REST API', 'linkdigest'); ?> ↗
                         </a>
                     </p>
                 </div>
 
                 <?php if ($api_key) : ?>
-                    <div style="margin: 20px 0;">
-                        <label for="linkdigest-api-key" style="display: block; margin-bottom: 8px; font-weight: 600;">
+                    <div class="linkdigest-settings-field">
+                        <label for="linkdigest-api-key" class="linkdigest-settings-label">
                             <?php esc_html_e('API Key:', 'linkdigest'); ?>
                         </label>
-                        <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="linkdigest-row">
                             <input
                                 type="password"
                                 id="linkdigest-api-key"
                                 value="<?php echo esc_attr($api_key); ?>"
                                 readonly
-                                style="flex: 1; font-family: monospace; padding: 8px; background: #f0f0f1;"
+                                class="large-text code"
                             >
                             <button type="button" class="button linkdigest-toggle-key" title="<?php esc_attr_e('Show / hide API key', 'linkdigest'); ?>">
-                                <span class="dashicons dashicons-visibility" style="margin-top: 3px;"></span>
+                                <span class="dashicons dashicons-visibility linkdigest-btn-icon"></span>
                             </button>
                             <button type="button" class="button linkdigest-copy-btn" data-clipboard-target="linkdigest-api-key">
-                                <span class="dashicons dashicons-clipboard" style="margin-top: 3px;"></span>
+                                <span class="dashicons dashicons-clipboard linkdigest-btn-icon"></span>
                             </button>
                         </div>
-                        <p class="description" style="margin-top: 6px;">
+                        <p class="description linkdigest-settings-desc">
                             <?php esc_html_e('Keep this key secure. Use the copy button to transfer it without revealing it.', 'linkdigest'); ?>
                         </p>
-                        <div style="margin-top: 12px;">
+                        <div class="linkdigest-settings-test-row">
                             <button type="button" id="linkdigest-test-connection" class="button">
                                 <?php esc_html_e('Test Connection', 'linkdigest'); ?>
                             </button>
-                            <span id="linkdigest-connection-status" style="margin-left: 10px; font-weight: 600;"></span>
+                            <span id="linkdigest-connection-status"></span>
                         </div>
                     </div>
                 <?php endif; ?>
@@ -209,7 +209,7 @@ trait LinkDigest_Admin_Menu {
                 <form method="post" action="" id="linkdigest-generate-form" <?php echo $has_key_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>>
                     <?php wp_nonce_field('linkdigest_settings', 'linkdigest_settings_nonce'); ?>
                     <?php if ($api_key) : ?>
-                        <div class="notice notice-warning inline" style="margin: 0 0 12px; padding: 8px 12px;">
+                        <div class="notice notice-warning inline">
                             <p><?php esc_html_e('Warning: Generating a new key will permanently invalidate the current one. You will need to update the Chrome extension with the new key.', 'linkdigest'); ?></p>
                         </div>
                     <?php endif; ?>
@@ -219,14 +219,14 @@ trait LinkDigest_Admin_Menu {
                 </form>
             </div>
 
-            <details style="max-width: 800px; margin-top: 20px;" <?php echo $api_key ? '' : 'open'; ?>>
-                <summary style="cursor: pointer; list-style: none; outline: none;">
-                    <div class="card" style="display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer;">
-                        <span class="dashicons dashicons-arrow-right-alt2" id="linkdigest-setup-arrow" style="margin-top: 2px; transition: transform 0.2s;"></span>
-                        <h2 style="margin: 0; font-size: 14px;"><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
+            <details class="linkdigest-setup-details" <?php echo $api_key ? '' : 'open'; ?>>
+                <summary>
+                    <div class="card linkdigest-row linkdigest-setup-summary-card">
+                        <span class="dashicons dashicons-arrow-right-alt2" id="linkdigest-setup-arrow"></span>
+                        <h2 class="linkdigest-setup-heading"><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
                     </div>
                 </summary>
-                <div class="card" style="border-top: none; margin-top: -1px;">
+                <div class="card linkdigest-setup-content">
                     <ol>
                         <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
                         <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
@@ -251,20 +251,25 @@ trait LinkDigest_Admin_Menu {
     }
 
     public function enqueueAdminAssets(string $hook): void {
-        if (strpos($hook, 'linkdigest') === false) {
+        $is_linkdigest = strpos($hook, 'linkdigest') !== false;
+
+        // CSS must also load on the WP core dashboard (index.php) for the linkdigest widget
+        if ($is_linkdigest || $hook === 'index.php') {
+            wp_enqueue_style('dashicons');
+            wp_enqueue_style(
+                'linkdigest-dashboard',
+                plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'dashboard.css',
+                array(),
+                (string) filemtime(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'dashboard.css')
+            );
+        }
+
+        if (!$is_linkdigest) {
             return;
         }
 
         $js_dir  = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
         $js_url  = plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
-
-        wp_enqueue_style('dashicons');
-        wp_enqueue_style(
-            'linkdigest-dashboard',
-            plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'dashboard.css',
-            array(),
-            (string) filemtime(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'dashboard.css')
-        );
 
         if (strpos($hook, 'linkdigest-dashboard') !== false) {
             wp_enqueue_script('postbox');
@@ -445,81 +450,81 @@ trait LinkDigest_Admin_Menu {
         <div class="wrap">
             <h1>
                 <?php esc_html_e('Setting X', 'linkdigest'); ?>
-                <span class="lb-x-badge"><?php esc_html_e('Experimental', 'linkdigest'); ?></span>
+                <span class="linkdigest-x-badge"><?php esc_html_e('Experimental', 'linkdigest'); ?></span>
             </h1>
 
-            <div class="lb-x-controls">
+            <div class="linkdigest-row linkdigest-x-controls">
                 <strong><?php esc_html_e('Quick View:', 'linkdigest'); ?></strong>
-                <button type="button" class="button js-lb-expand-all"><?php esc_html_e('Expand All', 'linkdigest'); ?></button>
-                <button type="button" class="button js-lb-collapse-all"><?php esc_html_e('Collapse All', 'linkdigest'); ?></button>
+                <button type="button" class="button js-linkdigest-expand-all"><?php esc_html_e('Expand All', 'linkdigest'); ?></button>
+                <button type="button" class="button js-linkdigest-collapse-all"><?php esc_html_e('Collapse All', 'linkdigest'); ?></button>
             </div>
 
             <form method="post" action="options.php">
                 <?php settings_fields('linkdigest_x_group'); ?>
 
-                <div class="lb-expansion-list">
+                <div class="linkdigest-expansion-list">
 
                     <!-- Chrome Extension -->
-                    <div class="lb-category-block">
-                        <div class="lb-category-header">
+                    <div class="linkdigest-category-block">
+                        <div class="linkdigest-category-header">
                             <span class="dashicons dashicons-admin-plugins"></span>
                             <h2><?php esc_html_e('Chrome Extension', 'linkdigest'); ?></h2>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Extension enabled', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ext_enabled'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Extension enabled', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ext_enabled'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ext_enabled]" value="1" <?php checked(1, $o['ext_enabled']); ?>>
                                 <?php esc_html_e('Enable the Chrome extension integration', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Default category', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($o['ext_default_category'] ?: __('Not set', 'linkdigest')); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Default category', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($o['ext_default_category'] ?: __('Not set', 'linkdigest')); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <input type="text" name="linkdigest_x_settings[ext_default_category]" value="<?php echo esc_attr($o['ext_default_category']); ?>" class="regular-text">
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Save as draft', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ext_save_as_draft'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Save as draft', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ext_save_as_draft'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ext_save_as_draft]" value="1" <?php checked(1, $o['ext_save_as_draft']); ?>>
                                 <?php esc_html_e('Save links as drafts by default', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Auto-fill title', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ext_auto_title'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Auto-fill title', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ext_auto_title'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ext_auto_title]" value="1" <?php checked(1, $o['ext_auto_title']); ?>>
                                 <?php esc_html_e('Pre-fill title from page title', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Show tag input', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ext_show_tags'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Show tag input', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ext_show_tags'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ext_show_tags]" value="1" <?php checked(1, $o['ext_show_tags']); ?>>
                                 <?php esc_html_e('Show tag input field in the extension popup', 'linkdigest'); ?></label>
                             </div>
@@ -527,19 +532,19 @@ trait LinkDigest_Admin_Menu {
                     </div>
 
                     <!-- Post Settings -->
-                    <div class="lb-category-block">
-                        <div class="lb-category-header">
+                    <div class="linkdigest-category-block">
+                        <div class="linkdigest-category-header">
                             <span class="dashicons dashicons-admin-post"></span>
                             <h2><?php esc_html_e('Post Settings', 'linkdigest'); ?></h2>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Default post status', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html(ucfirst($o['post_default_status'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Default post status', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html(ucfirst($o['post_default_status'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <select name="linkdigest_x_settings[post_default_status]">
                                     <option value="draft" <?php selected('draft', $o['post_default_status']); ?>><?php esc_html_e('Draft', 'linkdigest'); ?></option>
                                     <option value="publish" <?php selected('publish', $o['post_default_status']); ?>><?php esc_html_e('Publish', 'linkdigest'); ?></option>
@@ -547,115 +552,115 @@ trait LinkDigest_Admin_Menu {
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Add source URL to content', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['post_add_source'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Add source URL to content', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['post_add_source'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[post_add_source]" value="1" <?php checked(1, $o['post_add_source']); ?>>
                                 <?php esc_html_e('Append source URL to post content', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Auto-generate excerpt', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['post_auto_excerpt'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Auto-generate excerpt', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['post_auto_excerpt'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[post_auto_excerpt]" value="1" <?php checked(1, $o['post_auto_excerpt']); ?>>
                                 <?php esc_html_e('Generate excerpt from link description', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Archive posts after roundup', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['post_archive'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Archive posts after roundup', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['post_archive'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[post_archive]" value="1" <?php checked(1, $o['post_archive']); ?>>
                                 <?php esc_html_e('Move source posts to trash after roundup is published', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Override post author ID', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo $o['post_author'] ? esc_html((string) $o['post_author']) : esc_html__('Default', 'linkdigest'); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Override post author ID', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo $o['post_author'] ? esc_html((string) $o['post_author']) : esc_html__('Default', 'linkdigest'); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
-                                <input type="number" name="linkdigest_x_settings[post_author]" value="<?php echo esc_attr((string) $o['post_author']); ?>" min="0" style="width:80px;">
+                            <div class="linkdigest-expansion-content">
+                                <input type="number" name="linkdigest_x_settings[post_author]" value="<?php echo esc_attr((string) $o['post_author']); ?>" min="0" class="linkdigest-narrow-input">
                                 <p class="description"><?php esc_html_e('0 = use current user', 'linkdigest'); ?></p>
                             </div>
                         </div>
                     </div>
 
                     <!-- UI / Appearance -->
-                    <div class="lb-category-block">
-                        <div class="lb-category-header">
+                    <div class="linkdigest-category-block">
+                        <div class="linkdigest-category-header">
                             <span class="dashicons dashicons-art"></span>
                             <h2><?php esc_html_e('UI / Appearance', 'linkdigest'); ?></h2>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Accent color', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($o['ui_accent_color']); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Accent color', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($o['ui_accent_color']); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <input type="color" name="linkdigest_x_settings[ui_accent_color]" value="<?php echo esc_attr($o['ui_accent_color']); ?>">
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Compact dashboard', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ui_compact_view'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Compact dashboard', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ui_compact_view'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ui_compact_view]" value="1" <?php checked(1, $o['ui_compact_view']); ?>>
                                 <?php esc_html_e('Use compact spacing on the dashboard', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Links per page', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html((string) $o['ui_links_per_page']); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Links per page', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html((string) $o['ui_links_per_page']); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
-                                <input type="number" name="linkdigest_x_settings[ui_links_per_page]" value="<?php echo esc_attr((string) $o['ui_links_per_page']); ?>" min="1" max="200" style="width:80px;">
+                            <div class="linkdigest-expansion-content">
+                                <input type="number" name="linkdigest_x_settings[ui_links_per_page]" value="<?php echo esc_attr((string) $o['ui_links_per_page']); ?>" min="1" max="200" class="linkdigest-narrow-input">
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Show category badges', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['ui_category_badges'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Show category badges', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['ui_category_badges'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[ui_category_badges]" value="1" <?php checked(1, $o['ui_category_badges']); ?>>
                                 <?php esc_html_e('Display category badges on link items', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Date format', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html(ucfirst($o['ui_date_format'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Date format', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html(ucfirst($o['ui_date_format'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <select name="linkdigest_x_settings[ui_date_format]">
                                     <option value="relative" <?php selected('relative', $o['ui_date_format']); ?>><?php esc_html_e('Relative (e.g. 2 hours ago)', 'linkdigest'); ?></option>
                                     <option value="absolute" <?php selected('absolute', $o['ui_date_format']); ?>><?php esc_html_e('Absolute (e.g. 2026-04-20)', 'linkdigest'); ?></option>
@@ -665,75 +670,75 @@ trait LinkDigest_Admin_Menu {
                     </div>
 
                     <!-- Advanced / API -->
-                    <div class="lb-category-block">
-                        <div class="lb-category-header">
+                    <div class="linkdigest-category-block">
+                        <div class="linkdigest-category-header">
                             <span class="dashicons dashicons-rest-api"></span>
                             <h2><?php esc_html_e('Advanced / API', 'linkdigest'); ?></h2>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Enable public API', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['api_public'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Enable public API', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['api_public'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[api_public]" value="1" <?php checked(1, $o['api_public']); ?>>
                                 <?php esc_html_e('Allow unauthenticated read access to the REST API', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Allow CORS', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['api_cors'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Allow CORS', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['api_cors'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[api_cors]" value="1" <?php checked(1, $o['api_cors']); ?>>
                                 <?php esc_html_e('Send CORS headers for cross-origin requests', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Cache duration (min)', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html((string) $o['api_cache_minutes']); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Cache duration (min)', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html((string) $o['api_cache_minutes']); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
-                                <input type="number" name="linkdigest_x_settings[api_cache_minutes]" value="<?php echo esc_attr((string) $o['api_cache_minutes']); ?>" min="1" style="width:80px;">
+                            <div class="linkdigest-expansion-content">
+                                <input type="number" name="linkdigest_x_settings[api_cache_minutes]" value="<?php echo esc_attr((string) $o['api_cache_minutes']); ?>" min="1" class="linkdigest-narrow-input">
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Debug mode', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['api_debug'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Debug mode', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['api_debug'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[api_debug]" value="1" <?php checked(1, $o['api_debug']); ?>>
                                 <?php esc_html_e('Log API requests and errors', 'linkdigest'); ?></label>
                             </div>
                         </div>
 
-                        <div class="lb-expansion-row">
-                            <button type="button" class="lb-expansion-trigger">
-                                <span class="lb-setting-title"><?php esc_html_e('Auto-trash after publishing', 'linkdigest'); ?></span>
-                                <span class="lb-setting-summary"><?php echo esc_html($tog((bool) $o['api_auto_trash'])); ?></span>
+                        <div class="linkdigest-expansion-row">
+                            <button type="button" class="linkdigest-expansion-trigger">
+                                <span class="linkdigest-setting-title"><?php esc_html_e('Auto-trash after publishing', 'linkdigest'); ?></span>
+                                <span class="linkdigest-setting-summary"><?php echo esc_html($tog((bool) $o['api_auto_trash'])); ?></span>
                                 <span class="dashicons dashicons-arrow-down-alt2"></span>
                             </button>
-                            <div class="lb-expansion-content">
+                            <div class="linkdigest-expansion-content">
                                 <label><input type="checkbox" name="linkdigest_x_settings[api_auto_trash]" value="1" <?php checked(1, $o['api_auto_trash']); ?>>
                                 <?php esc_html_e('Automatically trash links after they are published', 'linkdigest'); ?></label>
                             </div>
                         </div>
                     </div>
 
-                </div><!-- .lb-expansion-list -->
+                </div><!-- .linkdigest-expansion-list -->
 
-                <div class="lb-x-sticky-bar">
+                <div class="linkdigest-x-sticky-bar">
                     <div class="bar-inner">
                         <span><?php esc_html_e('20 total options available.', 'linkdigest'); ?></span>
                         <?php submit_button(__('Save All Changes', 'linkdigest'), 'primary', 'submit', false); ?>

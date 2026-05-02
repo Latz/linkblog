@@ -3,7 +3,7 @@
     var cfg = window.linkdigestCats || {};
 
     // ── Delete confirmation ───────────────────────────────────────────
-    document.querySelectorAll('.lb-cat-delete-form').forEach(function(form) {
+    document.querySelectorAll('.linkdigest-cat-delete-form').forEach(function(form) {
         form.addEventListener('submit', function(e) {
             var name  = form.dataset.name;
             var count = parseInt(form.dataset.count, 10);
@@ -16,35 +16,35 @@
 
     // ── Inline edit ───────────────────────────────────────────────────
     document.addEventListener('click', function(e) {
-        var editBtn   = e.target.closest('.lb-cat-edit-btn');
-        var cancelBtn = e.target.closest('.lb-cat-cancel-btn');
-        var saveBtn   = e.target.closest('.lb-cat-save-btn');
+        var editBtn   = e.target.closest('.linkdigest-cat-edit-btn');
+        var cancelBtn = e.target.closest('.linkdigest-cat-cancel-btn');
+        var saveBtn   = e.target.closest('.linkdigest-cat-save-btn');
         if (editBtn)   { enterEdit(editBtn.closest('tr'));   return; }
         if (cancelBtn) { exitEdit(cancelBtn.closest('tr'), null); return; }
         if (saveBtn)   { saveEdit(saveBtn.closest('tr')); }
     });
 
     function enterEdit(tr) {
-        if (tr.classList.contains('lb-cat-editing')) { return; }
-        tr.classList.add('lb-cat-editing');
+        if (tr.classList.contains('linkdigest-cat-editing')) { return; }
+        tr.classList.add('linkdigest-cat-editing');
 
         var nameInput = mkInput('text',     tr.dataset.name,        '');
         var descInput = mkTextarea(          tr.dataset.description, cfg.labels.descPlaceholder);
         var slugInput = mkInput('text',     tr.dataset.slug,        cfg.labels.slugPlaceholder);
-        slugInput.classList.add('lb-cat-inline-slug');
+        slugInput.classList.add('linkdigest-cat-inline-slug');
 
         cell(tr, 'name').innerHTML        = '';  cell(tr, 'name').appendChild(nameInput);
         cell(tr, 'description').innerHTML = '';  cell(tr, 'description').appendChild(descInput);
         cell(tr, 'slug').innerHTML        = '';  cell(tr, 'slug').appendChild(slugInput);
 
-        var actionsCell = tr.querySelector('.lb-cat-actions');
-        var deleteForm  = actionsCell.querySelector('.lb-cat-delete-form');
+        var actionsCell = tr.querySelector('.linkdigest-cat-actions');
+        var deleteForm  = actionsCell.querySelector('.linkdigest-cat-delete-form');
         actionsCell.innerHTML = '';
 
-        var saveBtn   = mkBtn(cfg.labels.save,   'button button-primary lb-cat-save-btn');
-        var cancelBtn = mkBtn(cfg.labels.cancel, 'button-link lb-cat-cancel-btn');
+        var saveBtn   = mkBtn(cfg.labels.save,   'button button-primary linkdigest-cat-save-btn');
+        var cancelBtn = mkBtn(cfg.labels.cancel, 'button-link linkdigest-cat-cancel-btn');
         var errSpan   = document.createElement('span');
-        errSpan.className = 'lb-cat-inline-error';
+        errSpan.className = 'linkdigest-cat-inline-error';
 
         actionsCell.appendChild(saveBtn);
         actionsCell.appendChild(document.createTextNode(' '));
@@ -59,7 +59,7 @@
     }
 
     function exitEdit(tr, updated) {
-        tr.classList.remove('lb-cat-editing');
+        tr.classList.remove('linkdigest-cat-editing');
 
         var name = updated ? updated.name        : tr.dataset.name;
         var desc = updated ? updated.description : tr.dataset.description;
@@ -75,12 +75,12 @@
         cell(tr, 'description').innerHTML = esc(desc);
         cell(tr, 'slug').innerHTML        = '<code>' + esc(slug) + '</code>';
 
-        var actionsCell = tr.querySelector('.lb-cat-actions');
-        var deleteForm  = actionsCell.querySelector('.lb-cat-delete-form');
+        var actionsCell = tr.querySelector('.linkdigest-cat-actions');
+        var deleteForm  = actionsCell.querySelector('.linkdigest-cat-delete-form');
         if (updated && deleteForm) { deleteForm.dataset.name = updated.name; }
         actionsCell.innerHTML = '';
 
-        var editBtn = mkBtn(cfg.labels.edit, 'button-link lb-cat-edit-btn');
+        var editBtn = mkBtn(cfg.labels.edit, 'button-link linkdigest-cat-edit-btn');
         actionsCell.appendChild(editBtn);
         actionsCell.appendChild(document.createTextNode(' | '));
         if (deleteForm) {
@@ -90,8 +90,8 @@
     }
 
     async function saveEdit(tr) {
-        var saveBtn = tr.querySelector('.lb-cat-save-btn');
-        var errSpan = tr.querySelector('.lb-cat-inline-error');
+        var saveBtn = tr.querySelector('.linkdigest-cat-save-btn');
+        var errSpan = tr.querySelector('.linkdigest-cat-inline-error');
         saveBtn.disabled    = true;
         saveBtn.textContent = cfg.labels.saving;
         errSpan.textContent = '';
@@ -131,17 +131,17 @@
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
-    function cell(tr, name) { return tr.querySelector('.lb-cat-cell-' + name); }
+    function cell(tr, name) { return tr.querySelector('.linkdigest-cat-cell-' + name); }
     function mkInput(type, value, placeholder) {
         var el = document.createElement('input');
         el.type = type; el.value = value || ''; el.placeholder = placeholder;
-        el.className = 'lb-cat-inline-input';
+        el.className = 'linkdigest-cat-inline-input';
         return el;
     }
     function mkTextarea(value, placeholder) {
         var el = document.createElement('textarea');
         el.value = value || ''; el.placeholder = placeholder; el.rows = 2;
-        el.className = 'lb-cat-inline-input';
+        el.className = 'linkdigest-cat-inline-input';
         return el;
     }
     function mkBtn(label, cls) {

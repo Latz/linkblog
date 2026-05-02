@@ -21,7 +21,7 @@ trait LinkDigest_MetaBoxes {
         ?>
         <p>
             <label for="linkdigest_url_meta"><?php esc_html_e('URL:', 'linkdigest'); ?></label><br>
-            <input type="url" id="linkdigest_url_meta" name="linkdigest_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" style="width: 100%;">
+            <input type="url" id="linkdigest_url_meta" name="linkdigest_url" value="<?php echo esc_attr($url); ?>" size="50" placeholder="https://example.com" class="large-text">
         </p>
         <?php
     }

@@ -55,3 +55,4 @@ bin/*.bak
 /docs/plans/
 /docs/design/.env
 /ftp.login
+/nimbalyst-local

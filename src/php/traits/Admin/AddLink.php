@@ -85,9 +85,9 @@ trait LinkDigest_Admin_AddLink {
                             <fieldset>
                                 <legend class="screen-reader-text"><?php esc_html_e('Categories', 'linkdigest'); ?></legend>
                                 <?php if (!empty($all_categories)) : ?>
-                                    <div style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #fff;">
+                                    <div class="linkdigest-cat-scroll-list">
                                         <?php foreach ($all_categories as $category) : ?>
-                                            <label style="display: block; margin-bottom: 5px;">
+                                            <label class="linkdigest-cat-scroll-label">
                                                 <input type="checkbox" name="linkdigest_categories[]" value="<?php echo esc_attr($category->term_id); ?>" <?php echo in_array((int) $category->term_id, $current_cats, true) ? 'checked' : ''; ?>>
                                                 <?php echo esc_html($category->name); ?>
                                             </label>

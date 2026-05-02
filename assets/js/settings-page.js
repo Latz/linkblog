@@ -84,7 +84,7 @@ jQuery(document).ready(function($) {
     });
 
     // Rotate setup section arrow on toggle
-    var $details = $('details[style*="800px"]');
+    var $details = $('details.linkdigest-setup-details');
     $details.on('toggle', function() {
         var $arrow = $('#linkdigest-setup-arrow');
         $arrow.css('transform', this.open ? 'rotate(90deg)' : 'rotate(0deg)');
