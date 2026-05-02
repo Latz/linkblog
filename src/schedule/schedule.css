@@ -320,12 +320,6 @@
   margin-bottom: 12px;
 }
 
-/* Run Now confirm button */
-.linkdigest-run-confirm {
-  border-color: #d63638 !important;
-  color: #d63638 !important;
-}
-
 /* Next schedules timezone label */
 .linkdigest-next-tz {
   margin: 8px 0 0;
