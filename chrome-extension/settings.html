@@ -194,13 +194,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="apiEndpoint" data-i18n="labelApiEndpoint">API Endpoint *</label>
+                    <label for="apiEndpoint" data-i18n="labelApiEndpoint">API Endpoint</label>
                     <input
                         type="url"
                         id="apiEndpoint"
                         name="apiEndpoint"
-                        required
+                        readonly
                         placeholder="https://yoursite.com/wp-json/linkdigest/v1"
+                        style="background:#f0f0f1;color:#a0a0a0;cursor:not-allowed;"
                     >
                     <p class="description" data-i18n="descApiEndpoint">
                         The API endpoint URL from your WordPress LinkDigest settings page.

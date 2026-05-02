@@ -356,6 +356,10 @@ trait LinkDigest_Admin_Menu {
             return;
         }
 
+        if (strpos($hook, 'linkdigest-dashboard') !== false) {
+            wp_enqueue_script('postbox');
+        }
+
         wp_enqueue_style('dashicons');
         wp_enqueue_style(
             'linkdigest-dashboard',

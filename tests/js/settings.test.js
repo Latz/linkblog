@@ -146,12 +146,29 @@ describe('checkWpLogin', () => {
         expect(status.textContent).toContain('No WordPress installation found');
     });
 
+    it('recognises wordpress_sec_ cookie as logged-in', async () => {
+        global.fetch = vi.fn()
+            .mockResolvedValueOnce({
+                ok:   true,
+                url:  'https://example.com/wp-json/',
+                json: async () => ({ namespaces: ['linkdigest/v1'] }),
+            })
+            .mockRejectedValue(new Error('nonce fetch not mocked'));
+        chrome.cookies.getAll.mockResolvedValueOnce([{ name: 'wordpress_sec_abc123' }]);
+
+        await checkWpLogin('https://example.com');
+
+        const status = document.getElementById('wpLoginStatus');
+        expect(status.textContent).not.toContain('Not logged in');
+    });
+
     it('shows logged-out message when no WP cookies are found', async () => {
         global.fetch = vi.fn().mockResolvedValue({
             ok:   true,
+            url:  'https://example.com/wp-json/',
             json: async () => ({ namespaces: ['linkdigest/v1'] }),
         });
-        chrome.cookies.getAll.mockResolvedValue([]);
+        chrome.cookies.getAll.mockResolvedValueOnce([]);
 
         await checkWpLogin('https://example.com');
 

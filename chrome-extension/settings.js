@@ -88,11 +88,14 @@ export async function checkWpLogin(url) {
     status.style.display = 'block';
 
     // Verify this is a WordPress installation
+    let resolvedOrigin;
     try {
         const wpBase = url.replace(/\/$/, '');
         const res = await fetch(`${wpBase}/wp-json/`, { method: 'GET' });
         const data = await res.json();
         if (!res.ok || !Array.isArray(data.namespaces)) throw new Error('not wp');
+        // Use the final URL after redirects (e.g. http→https) so cookie lookup hits the right origin
+        resolvedOrigin = new URL(res.url).origin;
     } catch {
         status.textContent = chrome.i18n.getMessage('msgNoWp');
         status.className = 'wp-login-status logged-out';
@@ -100,11 +103,17 @@ export async function checkWpLogin(url) {
     }
 
     try {
-        // Use the root origin so the cookie lookup isn't restricted by path
-        let cookieUrl = url;
-        try { cookieUrl = new URL(url).origin; } catch {}
+        // Use the resolved origin so Secure cookies are included
+        const cookieUrl = resolvedOrigin;
+        console.log('[linkdigest] input url:', url);
+        console.log('[linkdigest] resolved origin:', resolvedOrigin);
         const cookies = await chrome.cookies.getAll({ url: cookieUrl });
-        const loggedIn = cookies.some(c => c.name.startsWith('wordpress_logged_in_'));
+        console.log('[linkdigest] cookies for origin:', cookies.map(c => c.name));
+        const loggedIn = cookies.some(c =>
+            c.name.startsWith('wordpress_logged_in_') ||
+            c.name.startsWith('wordpress_sec_')
+        );
+        console.log('[linkdigest] loggedIn:', loggedIn);
 
         if (!loggedIn) {
             status.textContent = chrome.i18n.getMessage('msgNotLoggedIn');

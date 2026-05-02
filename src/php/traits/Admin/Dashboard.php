@@ -274,7 +274,7 @@ trait LinkDigest_Admin_Dashboard {
         ?>
         <div class="postbox">
             <div class="postbox-header">
-                <h2 class="hndle"><?php esc_html_e( 'Publish Links', 'linkdigest' ); ?></h2>
+                <h2 class="hndle"><?php esc_html_e( 'Publish Now', 'linkdigest' ); ?></h2>
             </div>
             <div class="inside">
                 <?php if ( $unpublished_count > 0 ) : ?>
@@ -464,6 +464,10 @@ trait LinkDigest_Admin_Dashboard {
         ?>;
 
         document.addEventListener('DOMContentLoaded', function() {
+            if (typeof postboxes !== 'undefined') {
+                postboxes.add_postbox_toggles(pagenow);
+            }
+
             document.querySelectorAll('.lb-date-time').forEach(function(element) {
                 const timestamp = Number.parseInt(element.dataset.timestamp);
                 if (!timestamp) return;
@@ -609,14 +613,14 @@ trait LinkDigest_Admin_Dashboard {
 
             <!-- Main Content -->
             <div class="metabox-holder">
-                <div id="postbox-container-1" class="postbox-container">
+                <div id="postbox-container-1" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderUnpublishedLinksBox( $recent_links );
                     $this->renderRecentlyPublishedBox( $recently_published );
                     ?>
                 </div><!-- #postbox-container-1 -->
 
-                <div id="postbox-container-2" class="postbox-container">
+                <div id="postbox-container-2" class="postbox-container meta-box-sortables">
                     <?php
                     $this->renderQuickAddBox( $quick_add_success );
                     $this->renderPublishBox( $unpublished_links );
