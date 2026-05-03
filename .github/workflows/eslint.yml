@@ -30,15 +30,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-        - name: Install dependencies
-                  run: npm ci
+      - name: Install dependencies
+        run: npm ci
       - name: Run ESLint
-          # This generates the actual file needed for the next step
-          run: npx eslint . --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
-          continue-on-error: true # Ensure the upload happens even if linting finds errors
+        # This generates the actual file needed for the next step
+        run: npx eslint . --format @microsoft/eslint-formatter-sarif --output-file eslint-results.sarif
+        continue-on-error: true # Ensure the upload happens even if linting finds errors
 
       - name: Upload results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4  # Updated to v4
         with:
-           sarif_file: eslint-results.sarif
-           wait-for-processing: true
+          sarif_file: eslint-results.sarif
+          wait-for-processing: true
