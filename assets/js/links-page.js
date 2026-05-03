@@ -1,4 +1,12 @@
+/**
+ * LinkDigest All-Links page — client-side table sorting.
+ *
+ * Makes table headers clickable to sort columns by text or custom data-sortVal attribute.
+ *
+ * @since 1.0.0
+ */
 (function() {
+    // Make table headers sortable
     document.querySelectorAll('th[data-col]').forEach(function(th) {
         th.addEventListener('click', function(e) {
             e.preventDefault();

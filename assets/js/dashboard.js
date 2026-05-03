@@ -1,3 +1,8 @@
+/**
+ * LinkDigest Dashboard — format timestamps and handle link deletion.
+ *
+ * @since 1.0.0
+ */
 /* global linkdigestDash */
 
 document.addEventListener('DOMContentLoaded', function() {

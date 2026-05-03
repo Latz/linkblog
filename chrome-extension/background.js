@@ -1,6 +1,19 @@
+/**
+ * LinkDigest Chrome Extension — background service worker.
+ *
+ * @since 1.0.0
+ */
+
 const MENU_ID = 'linkdigest-admin';
 const MENU_ID_REFRESH = 'linkdigest-refresh-categories';
 
+/**
+ * Fetch and cache categories from the LinkDigest API.
+ *
+ * @since 1.0.0
+ * @async
+ * @returns {Promise<void>}
+ */
 export async function refreshCategories() {
     const { apiEndpoint, apiKey } = await chrome.storage.sync.get(['apiEndpoint', 'apiKey']);
     if (!apiEndpoint || !apiKey) return;
@@ -44,6 +57,14 @@ chrome.runtime.onInstalled.addListener(() => {
     refreshCategories();
 });
 
+/**
+ * Handle context menu clicks from the extension.
+ *
+ * @since 1.0.0
+ * @async
+ * @param {chrome.contextMenus.OnClickData} info - Context menu click info.
+ * @returns {Promise<void>}
+ */
 export async function handleContextMenuClick(info) {
     if (info.menuItemId === MENU_ID_REFRESH) {
         refreshCategories();
