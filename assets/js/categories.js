@@ -1,3 +1,8 @@
+/**
+ * LinkDigest Categories inline editor — edit, delete, and manage categories.
+ *
+ * @since 1.0.0
+ */
 /* global linkdigestCats */
 (function() {
     var cfg = window.linkdigestCats || {};
@@ -24,6 +29,12 @@
         if (saveBtn)   { saveEdit(saveBtn.closest('tr')); }
     });
 
+    /**
+     * Enter edit mode for a category row.
+     *
+     * @since 1.0.0
+     * @param {HTMLTableRowElement} tr - The category table row.
+     */
     function enterEdit(tr) {
         if (tr.classList.contains('linkdigest-cat-editing')) { return; }
         tr.classList.add('linkdigest-cat-editing');
@@ -58,6 +69,13 @@
         nameInput.focus();
     }
 
+    /**
+     * Exit edit mode and revert or save the category data.
+     *
+     * @since 1.0.0
+     * @param {HTMLTableRowElement} tr - The category table row.
+     * @param {?{name: string, description: string, slug: string}} updated - Updated values, or null to discard.
+     */
     function exitEdit(tr, updated) {
         tr.classList.remove('linkdigest-cat-editing');
 
@@ -89,6 +107,13 @@
         }
     }
 
+    /**
+     * Save edited category data via REST API.
+     *
+     * @since 1.0.0
+     * @async
+     * @param {HTMLTableRowElement} tr - The category table row being edited.
+     */
     async function saveEdit(tr) {
         var saveBtn = tr.querySelector('.linkdigest-cat-save-btn');
         var errSpan = tr.querySelector('.linkdigest-cat-inline-error');
@@ -131,24 +156,68 @@
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
+    /**
+     * Get a cell element from a category table row.
+     *
+     * @since 1.0.0
+     * @param {HTMLTableRowElement} tr
+     * @param {string} name - Cell name (e.g., 'name', 'description', 'slug').
+     * @returns {HTMLElement}
+     */
     function cell(tr, name) { return tr.querySelector('.linkdigest-cat-cell-' + name); }
+
+    /**
+     * Create an input element with the given type, value, and placeholder.
+     *
+     * @since 1.0.0
+     * @param {string} type - Input type (e.g., 'text', 'email').
+     * @param {string} value - Initial value.
+     * @param {string} placeholder - Placeholder text.
+     * @returns {HTMLInputElement}
+     */
     function mkInput(type, value, placeholder) {
         var el = document.createElement('input');
         el.type = type; el.value = value || ''; el.placeholder = placeholder;
         el.className = 'linkdigest-cat-inline-input';
         return el;
     }
+
+    /**
+     * Create a textarea element with the given value and placeholder.
+     *
+     * @since 1.0.0
+     * @param {string} value - Initial value.
+     * @param {string} placeholder - Placeholder text.
+     * @returns {HTMLTextAreaElement}
+     */
     function mkTextarea(value, placeholder) {
         var el = document.createElement('textarea');
         el.value = value || ''; el.placeholder = placeholder; el.rows = 2;
         el.className = 'linkdigest-cat-inline-input';
         return el;
     }
+
+    /**
+     * Create a button element with the given label and CSS class.
+     *
+     * @since 1.0.0
+     * @param {string} label - Button text.
+     * @param {string} cls - CSS class(es).
+     * @returns {HTMLButtonElement}
+     */
     function mkBtn(label, cls) {
         var el = document.createElement('button');
         el.type = 'button'; el.textContent = label; el.className = cls;
         return el;
     }
+
+    /**
+     * Escape HTML special characters to prevent XSS.
+     *
+     * @since 1.0.0
+     * @param {string} str - String to escape.
+     * @returns {string}
+     */
     function esc(str) {
         return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
