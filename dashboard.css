@@ -375,11 +375,6 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 	flex-shrink: 0;
 }
 
-.linkdigest-status-published {
-	background: #005a12;
-	color: #fff;
-}
-
 .linkdigest-status-draft {
 	background: #646970;
 	color: #fff;

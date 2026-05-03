@@ -275,11 +275,9 @@ trait LinkDigest_Admin_LinksPage {
     }
 
     private function renderLinkStatusBadge(string $publish_status): void {
-        if ($publish_status === 'published') {
-            echo '<span class="linkdigest-status-badge linkdigest-status-published">✓ ' . esc_html__('Published', 'linkdigest') . '</span>';
-        } elseif ($publish_status === 'draft') {
+        if ($publish_status === 'draft') {
             echo '<span class="linkdigest-status-badge linkdigest-status-draft">📝 ' . esc_html__('Draft', 'linkdigest') . '</span>';
-        } else {
+        } elseif ($publish_status === 'unpublished') {
             echo '<span class="linkdigest-status-badge linkdigest-status-unpublished">' . esc_html__('Unpublished', 'linkdigest') . '</span>';
         }
     }
