@@ -13,9 +13,16 @@ trait LinkDigest_Admin_LinksPage {
         $search = isset($_GET['s'])              ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
         $month  = isset($_GET['m'])              ? absint($_GET['m']) : 0;
         $cat    = isset($_GET['linkdigest_cat']) ? absint($_GET['linkdigest_cat']) : 0;
+        $paged  = isset($_GET['paged'])          ? max(1, absint($_GET['paged'])) : 1;
         // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-        $grouped_links = $this->getLinksGroupedByCategory($search, $month, $cat);
+        $settings = wp_parse_args((array) get_option('linkdigest_x_settings', []), ['ui_links_per_page' => 20]);
+        $per_page = max(1, (int) $settings['ui_links_per_page']);
+
+        $result        = $this->getLinksGroupedByCategory($search, $month, $cat, $paged, $per_page);
+        $grouped_links = $result['grouped'];
+        $max_num_pages = $result['max_num_pages'];
+        $total_items   = $result['total_items'];
         $has_links     = $this->hasLinks($grouped_links);
         $is_filtered   = $search !== '' || $month > 0 || $cat > 0;
 
@@ -28,10 +35,28 @@ trait LinkDigest_Admin_LinksPage {
              ORDER BY post_date DESC"
         );
 
-        $categories = get_terms(['taxonomy' => 'linkdigest_category', 'hide_empty' => false]);
-        if (is_wp_error($categories)) {
-            $categories = [];
-        }
+        $categories = $this->getCachedCategories();
+
+        // Build pagination links, preserving current filters.
+        $base_url = add_query_arg(
+            array_filter([
+                'page'           => 'linkdigest-admin',
+                's'              => $search ?: null,
+                'm'              => $month  ?: null,
+                'linkdigest_cat' => $cat    ?: null,
+                'paged'          => '%#%',
+            ]),
+            admin_url('admin.php')
+        );
+        $pagination_links = $max_num_pages > 1 ? paginate_links([
+            'base'      => $base_url,
+            'format'    => '',
+            'current'   => $paged,
+            'total'     => $max_num_pages,
+            'type'      => 'plain',
+            'prev_text' => '&laquo;',
+            'next_text' => '&raquo;',
+        ]) : '';
         ?>
         <div class="wrap">
             <h1 class="wp-heading-inline"><?php esc_html_e('LinkDigest - All Links', 'linkdigest'); ?></h1>
@@ -84,6 +109,18 @@ trait LinkDigest_Admin_LinksPage {
                         <input type="submit" class="button" value="<?php esc_attr_e('Search Links', 'linkdigest'); ?>">
                     </p>
 
+                    <?php if ($max_num_pages > 1) : ?>
+                    <div class="tablenav-pages">
+                        <span class="displaying-num">
+                            <?php echo esc_html(sprintf(
+                                _n('%s item', '%s items', $total_items, 'linkdigest'),
+                                number_format_i18n($total_items)
+                            )); ?>
+                        </span>
+                        <?php echo $pagination_links; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links() escapes internally ?>
+                    </div>
+                    <?php endif; ?>
+
                     <br class="clear">
                 </div>
             </form>
@@ -108,6 +145,14 @@ trait LinkDigest_Admin_LinksPage {
                 </table>
             <?php else : ?>
                 <?php $this->renderCategoryLinks($grouped_links); ?>
+            <?php endif; ?>
+
+            <?php if ($max_num_pages > 1) : ?>
+            <div class="tablenav bottom">
+                <div class="tablenav-pages">
+                    <?php echo $pagination_links; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links() escapes internally ?>
+                </div>
+            </div>
             <?php endif; ?>
         </div>
         <?php

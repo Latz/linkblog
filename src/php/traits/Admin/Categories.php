@@ -29,8 +29,7 @@ trait LinkDigest_Admin_Categories {
             }
         }
 
-        $terms  = get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) );
-        $terms  = is_wp_error( $terms ) ? array() : $terms;
+        $terms  = $this->getCachedCategories();
         $counts = $this->getCategoryLinkCounts();
 
         ?>
@@ -75,6 +74,7 @@ trait LinkDigest_Admin_Categories {
             return $result->get_error_message();
         }
         delete_transient( 'linkdigest_api_categories_list' );
+        delete_transient( 'linkdigest_categories_terms' );
         return null;
     }
 
@@ -92,6 +92,7 @@ trait LinkDigest_Admin_Categories {
             return false;
         }
         delete_transient( 'linkdigest_api_categories_list' );
+        delete_transient( 'linkdigest_categories_terms' );
         return true;
     }
 

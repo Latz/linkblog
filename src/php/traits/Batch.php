@@ -47,7 +47,7 @@ trait LinkDigest_Batch {
             return $guard;
         }
 
-        // Prime caches: 3 queries instead of ~5×N in the batch publishing path
+        // Prime caches: 4 queries instead of ~5×N in the batch publishing path
         get_posts([
             'post__in'               => $link_ids,
             'posts_per_page'         => -1,
@@ -58,7 +58,8 @@ trait LinkDigest_Batch {
             'update_post_term_cache' => false,
         ]);
         update_meta_cache('post', $link_ids);
-        update_object_term_cache($link_ids, 'linkdigest');
+        update_object_term_cache($link_ids, 'linkdigest_category');
+        update_object_term_cache($link_ids, 'linkdigest_tag');
 
         if (empty($post_title)) {
             /* translators: %s: formatted date, e.g. "April 15, 2026" */

@@ -346,6 +346,7 @@ trait LinkDigest_RestApi {
 
     public function invalidateCategoriesCache(): void {
         delete_transient('linkdigest_api_categories_list');
+        delete_transient('linkdigest_categories_terms');
     }
 
     public function addCorsHeaders(bool $served): bool {

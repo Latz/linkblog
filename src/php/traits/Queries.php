@@ -34,11 +34,12 @@ trait LinkDigest_Queries {
         return $cache;
     }
 
-    public function getLinksGroupedByCategory(string $search = '', int $month = 0, int $cat = 0): array {
+    public function getLinksGroupedByCategory(string $search = '', int $month = 0, int $cat = 0, int $paged = 1, int $per_page = 20): array {
         $args = [
             'post_type'              => 'linkdigest',
             'post_status'            => ['linkdigest_pending', 'linkdigest_published', 'linkdigest_draft'],
-            'posts_per_page'         => -1,
+            'posts_per_page'         => $per_page,
+            'paged'                  => $paged,
             'orderby'                => 'date',
             'order'                  => 'DESC',
             'update_post_term_cache' => false,
@@ -59,13 +60,15 @@ trait LinkDigest_Queries {
                 'terms'    => $cat,
             ]];
         }
-        $all_links = get_posts($args);
+        $query = new WP_Query($args);
+        $all_links = $query->posts;
         if (empty($all_links)) {
-            return [];
+            return ['grouped' => [], 'max_num_pages' => 0, 'total_items' => 0];
         }
 
         $link_ids = wp_list_pluck($all_links, 'ID');
-        // One batch query primes the term cache; every get_the_terms() call below becomes a cache hit.
+        // Batch queries prime caches; all subsequent get_the_terms() and get_post_meta() calls become cache hits.
+        update_meta_cache('post', $link_ids);
         update_object_term_cache($link_ids, 'linkdigest');
 
         $grouped = [];
@@ -75,7 +78,34 @@ trait LinkDigest_Queries {
             $group_name = ($cats && !is_wp_error($cats)) ? $cats[0]->name : $uncategorized_key;
             $grouped[$group_name][] = $link;
         }
-        return $grouped;
+
+        wp_reset_postdata();
+
+        return [
+            'grouped'       => $grouped,
+            'max_num_pages' => (int) $query->max_num_pages,
+            'total_items'   => (int) $query->found_posts,
+        ];
+    }
+
+    public function getCachedCategories(): array {
+        $cache_key = 'linkdigest_categories_terms';
+        $categories = get_transient($cache_key);
+
+        if ($categories === false) {
+            $categories = get_terms([
+                'taxonomy'   => 'linkdigest_category',
+                'hide_empty' => false,
+            ]);
+
+            if (is_wp_error($categories)) {
+                return [];
+            }
+
+            set_transient($cache_key, $categories, HOUR_IN_SECONDS);
+        }
+
+        return is_array($categories) ? $categories : [];
     }
 
     public function maybeRunMigration(): void {

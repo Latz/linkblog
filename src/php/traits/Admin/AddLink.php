@@ -19,11 +19,8 @@ trait LinkDigest_Admin_AddLink {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing
         $current_cats    = isset($_POST['linkdigest_categories']) ? array_map('intval', $_POST['linkdigest_categories']) : array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-        // Get all categories
-        $all_categories = get_terms(array(
-            'taxonomy'   => 'linkdigest_category',
-            'hide_empty' => false,
-        ));
+        // Get all categories (cached for 1 hour, invalidated on term changes)
+        $all_categories = $this->getCachedCategories();
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Add New Link', 'linkdigest'); ?></h1>

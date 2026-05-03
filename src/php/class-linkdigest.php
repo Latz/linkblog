@@ -33,37 +33,39 @@ class LinkDigest {
     public static function register(): void {
         $instance = new self();
 
-        // Post type & taxonomies
-        add_action('init', [$instance, 'register_post_type'], 0);
-        add_action('init', [$instance, 'register_taxonomies'], 0);
-        add_action('init', [$instance, 'maybeRunMigration'], 5);
-
-        // Scheduler
+        // Universal hooks: run on every request (front-end, admin, REST, cron, CLI)
+        add_action('init', [$instance, 'register_post_type'],    0);
+        add_action('init', [$instance, 'register_taxonomies'],   0);
+        add_action('init', [$instance, 'maybeRunMigration'],     5);
         add_action('init', [$instance, 'registerSchedulerHooks'], 0);
-
-        // Preflight must fire early on init
-        add_action('init', [$instance, 'handlePreflight'], 1);
-
-        // Meta boxes
-        add_action('add_meta_boxes', [$instance, 'addMetaBoxes']);
-        add_action('save_post_linkdigest', [$instance, 'saveUrl']);
-
-        // REST API
-        add_action('rest_api_init', [$instance, 'registerRestRoutes']);
-        add_action('wp_ajax_linkdigest_get_rest_nonce', [$instance, 'handleGetRestNonce']);
-        add_filter('rest_pre_serve_request', [$instance, 'addCorsHeaders'], 15);
         add_action('created_linkdigest_category', [$instance, 'invalidateCategoriesCache']);
         add_action('edited_linkdigest_category',  [$instance, 'invalidateCategoriesCache']);
         add_action('delete_linkdigest_category',  [$instance, 'invalidateCategoriesCache']);
 
-        // Admin menu & assets
-        add_action('admin_init', [$instance, 'registerSettingX']);
-        add_action('admin_menu', [$instance, 'adminMenu']);
-        add_action('admin_enqueue_scripts', [$instance, 'enqueueAdminAssets']);
-        add_action('wp_dashboard_setup', [$instance, 'addDashboardWidget']);
+        // REST hooks: only register during REST requests
+        add_action('rest_api_init', [$instance, 'register_rest_hooks'], 1);
 
-        // Menu highlighting for taxonomy pages
-        add_filter('parent_file', [$instance, 'parentFileFilter']);
-        add_filter('submenu_file', [$instance, 'submenuFileFilter']);
+        // Admin hooks: only register in admin context (includes wp-admin and admin-ajax.php)
+        if (is_admin()) {
+            $instance->register_admin_hooks();
+        }
+    }
+
+    private function register_admin_hooks(): void {
+        add_action('add_meta_boxes',                       [$this, 'addMetaBoxes']);
+        add_action('save_post_linkdigest',                 [$this, 'saveUrl']);
+        add_action('wp_ajax_linkdigest_get_rest_nonce',    [$this, 'handleGetRestNonce']);
+        add_action('admin_init',                           [$this, 'registerSettingX']);
+        add_action('admin_menu',                           [$this, 'adminMenu']);
+        add_action('admin_enqueue_scripts',                [$this, 'enqueueAdminAssets']);
+        add_action('wp_dashboard_setup',                   [$this, 'addDashboardWidget']);
+        add_filter('parent_file',                          [$this, 'parentFileFilter']);
+        add_filter('submenu_file',                         [$this, 'submenuFileFilter']);
+    }
+
+    public function register_rest_hooks(): void {
+        add_action('init', [$this, 'handlePreflight'], 1);
+        $this->registerRestRoutes();
+        add_filter('rest_pre_serve_request', [$this, 'addCorsHeaders'], 15);
     }
 }

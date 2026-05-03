@@ -29,7 +29,7 @@ beforeEach(function (): void {
 describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
 
     it('shows no-links message when there are no links', function (): void {
-        $this->plugin->shouldReceive('getLinksGroupedByCategory')->andReturn([]);
+        $this->plugin->shouldReceive('getLinksGroupedByCategory')->andReturn(['grouped' => [], 'max_num_pages' => 0, 'total_items' => 0]);
 
         ob_start();
         $this->plugin->showLinksPage();
@@ -41,7 +41,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('shows a category section for each category', function (): void {
         $link = linkdigest_make_post(1, 'Test Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['Tech' => [$link]]);
+            ->andReturn(['grouped' => ['Tech' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
 
         ob_start();
         $this->plugin->showLinksPage();
@@ -54,7 +54,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('renders the link title in the table row', function (): void {
         $link = linkdigest_make_post(1, 'My Test Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
 
         ob_start();
         $this->plugin->showLinksPage();
@@ -66,7 +66,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('renders a URL anchor when a URL is set', function (): void {
         $link = linkdigest_make_post(1, 'Link With URL');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
         Functions\when('get_post_meta')->alias(
             fn($id, $key, $single) => $key === '_linkdigest_url' ? 'https://example.com' : ''
         );
@@ -82,7 +82,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('renders a dash when no URL is set', function (): void {
         $link = linkdigest_make_post(1, 'Link Without URL');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
 
         ob_start();
         $this->plugin->showLinksPage();
@@ -95,7 +95,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('defaults publish_status to unpublished when empty', function (): void {
         $link = linkdigest_make_post(1, 'New Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
 
         ob_start();
         $this->plugin->showLinksPage();
@@ -107,7 +107,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('shows published status badge for a published link', function (): void {
         $link = linkdigest_make_post(1, 'Published Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
         Functions\when('get_post_meta')->alias(
             fn($id, $key, $single) => $key === '_linkdigest_publish_status' ? 'published' : ''
         );
@@ -122,7 +122,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
     it('shows the published date when set', function (): void {
         $link = linkdigest_make_post(1, 'Dated Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
         Functions\when('get_post_meta')->alias(
             fn($id, $key, $single) => $key === '_linkdigest_published_date' ? '2026-01-15' : ''
         );
@@ -138,7 +138,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $longUrl = 'https://example.com/' . str_repeat('a', 40);
         $link = linkdigest_make_post(1, 'Long URL Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
-            ->andReturn(['General' => [$link]]);
+            ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
         Functions\when('get_post_meta')->alias(
             fn($id, $key, $single) => $key === '_linkdigest_url' ? $longUrl : ''
         );

@@ -367,8 +367,8 @@ trait LinkDigest_Admin_Dashboard {
     }
 
     public function renderQuickAddBox( bool $quick_add_success ): void {
-        $categories = get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false ) );
-        $has_categories = ! empty( $categories ) && ! is_wp_error( $categories );
+        $categories = $this->getCachedCategories();
+        $has_categories = ! empty( $categories );
         ?>
         <div class="postbox">
             <div class="postbox-header">
@@ -463,7 +463,7 @@ trait LinkDigest_Admin_Dashboard {
         $total_links       = $publish_stats['total_links'];
         $published_links   = $publish_stats['published_links'];
         $unpublished_links = $publish_stats['unpublished_links'];
-        $total_categories  = (int) get_terms( array( 'taxonomy' => 'linkdigest_category', 'hide_empty' => false, 'fields' => 'count' ) );
+        $total_categories  = count( $this->getCachedCategories() );
 
         $recent_links = get_posts( array(
             'post_type'      => 'linkdigest',
@@ -477,10 +477,8 @@ trait LinkDigest_Admin_Dashboard {
             'post_type'      => 'linkdigest',
             'post_status'    => array( 'linkdigest_published', 'linkdigest_draft' ),
             'posts_per_page' => 5,
-            'orderby'        => 'meta_value',
+            'orderby'        => 'modified',
             'order'          => 'DESC',
-            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-            'meta_key'       => '_linkdigest_published_date',
         ) );
 
         $all_links_url  = esc_url( admin_url( self::ADMIN_LINKS_PAGE ) );

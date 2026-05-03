@@ -448,8 +448,10 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 .linkdigest-links-tablenav {
 	display: flex;
 	align-items: center;
+	gap: 0.5rem;
 	height: auto;
 	padding-top: 0;
+	flex-wrap: wrap;
 }
 
 .linkdigest-links-tablenav .alignleft {
@@ -460,6 +462,14 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 	float: none;
 	margin: 0;
 	margin-inline-start: auto;
+}
+
+.linkdigest-links-tablenav .tablenav-pages {
+	flex-shrink: 0;
+}
+
+.linkdigest-links-tablenav .tablenav-pages .displaying-num {
+	margin-inline-end: 0.5rem;
 }
 
 /* ── All Links table column widths ──────────────────────── */
