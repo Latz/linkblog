@@ -347,9 +347,7 @@ trait LinkDigest_Admin_Dashboard {
     }
 
     private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
-        if ( 'published' === $publish_status ) {
-            echo '<span class="linkdigest-status-badge linkdigest-status-published">' . esc_html__( 'Published', 'linkdigest' ) . '</span>';
-        } elseif ( $is_draft ) {
+        if ( $is_draft ) {
             echo '<span class="linkdigest-status-badge linkdigest-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }
     }
