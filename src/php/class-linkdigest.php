@@ -6,6 +6,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+/**
+ * Main LinkDigest class — orchestrates plugin functionality.
+ *
+ * @since 1.0.0
+ */
 class LinkDigest {
 
     private const ADMIN_LINKS_PAGE = 'admin.php?page=linkdigest-admin'; // NOSONAR — used in traits via self::
@@ -30,6 +35,12 @@ class LinkDigest {
     use LinkDigest_Admin_AddLink;
     use LinkDigest_Admin_Categories;
 
+    /**
+     * Register hooks and initialize plugin.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public static function register(): void {
         $instance = new self();
 
@@ -51,6 +62,14 @@ class LinkDigest {
         }
     }
 
+    /**
+     * Register admin-specific hooks.
+     *
+     * Only called in admin context (wp-admin pages and admin-ajax.php).
+     *
+     * @since 1.0.0
+     * @return void
+     */
     private function register_admin_hooks(): void {
         add_action('add_meta_boxes',                       [$this, 'addMetaBoxes']);
         add_action('save_post_linkdigest',                 [$this, 'saveUrl']);
@@ -63,6 +82,14 @@ class LinkDigest {
         add_filter('submenu_file',                         [$this, 'submenuFileFilter']);
     }
 
+    /**
+     * Register REST API hooks.
+     *
+     * Called via rest_api_init hook, so only fires during REST requests.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function register_rest_hooks(): void {
         add_action('init', [$this, 'handlePreflight'], 1);
         $this->registerRestRoutes();

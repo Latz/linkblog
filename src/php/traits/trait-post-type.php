@@ -11,6 +11,9 @@ trait LinkDigest_PostType {
 
 	/**
 	 * Registers the linkdigest custom post type and its meta.
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function register_post_type(): void {
 		$this->register_post_statuses();
@@ -96,6 +99,9 @@ trait LinkDigest_PostType {
 
 	/**
 	 * Registers the linkdigest custom post statuses.
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	private function register_post_statuses(): void {
 		register_post_status(
@@ -146,7 +152,10 @@ trait LinkDigest_PostType {
 	}
 
 	/**
-	 * Registers the linkdigest custom taxonomies.
+	 * Registers the linkdigest custom taxonomies (categories and tags).
+	 *
+	 * @since 1.0.0
+	 * @return void
 	 */
 	public function register_taxonomies(): void {
 		// Register Category taxonomy.
