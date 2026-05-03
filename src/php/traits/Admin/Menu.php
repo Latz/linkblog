@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 trait LinkDigest_Admin_Menu {
 
+    /**
+     * Register admin menu pages and submenus.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function adminMenu(): void {
         add_menu_page(
             __('Link Digest', 'linkdigest'),
@@ -87,6 +93,13 @@ trait LinkDigest_Admin_Menu {
         );
     }
 
+    /**
+     * Filter the parent menu file for tag management pages.
+     *
+     * @since 1.0.0
+     * @param string $parent_file The parent menu file name.
+     * @return string The filtered parent menu file name.
+     */
     public function parentFileFilter(string $parent_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
@@ -99,6 +112,13 @@ trait LinkDigest_Admin_Menu {
         return $parent_file;
     }
 
+    /**
+     * Filter the submenu file for tag management pages.
+     *
+     * @since 1.0.0
+     * @param string|null $submenu_file The current submenu file name.
+     * @return string The filtered submenu file name.
+     */
     public function submenuFileFilter(?string $submenu_file): string {
         global $pagenow;
         if ($pagenow === 'edit-tags.php') {
@@ -111,6 +131,14 @@ trait LinkDigest_Admin_Menu {
         return $submenu_file ?? '';
     }
 
+    /**
+     * Render a readonly copyable text field.
+     *
+     * @since 1.0.0
+     * @param string $id The field ID.
+     * @param string $value The field value.
+     * @return void
+     */
     private function renderCopyableField(string $id, string $value): void {
         ?>
         <div class="linkdigest-row">
@@ -129,6 +157,12 @@ trait LinkDigest_Admin_Menu {
         <?php
     }
 
+    /**
+     * Render the Chrome extension settings page.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function settingsPage(): void {
         // Handle API key generation
         $nonce = isset($_POST['linkdigest_settings_nonce']) ? sanitize_text_field(wp_unslash($_POST['linkdigest_settings_nonce'])) : '';
@@ -241,6 +275,12 @@ trait LinkDigest_Admin_Menu {
         <?php
     }
 
+    /**
+     * Render the schedule configuration page.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function schedulePage(): void {
         ?>
         <div class="wrap">
@@ -250,6 +290,13 @@ trait LinkDigest_Admin_Menu {
         <?php
     }
 
+    /**
+     * Enqueue admin CSS and JavaScript assets for LinkDigest pages.
+     *
+     * @since 1.0.0
+     * @param string $hook The current admin page hook.
+     * @return void
+     */
     public function enqueueAdminAssets(string $hook): void {
         $is_linkdigest = strpos($hook, 'linkdigest') !== false;
 
@@ -391,12 +438,25 @@ trait LinkDigest_Admin_Menu {
         }
     }
 
+    /**
+     * Register Setting X (experimental settings) option.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function registerSettingX(): void {
         register_setting('linkdigest_x_group', 'linkdigest_x_settings', [
             'sanitize_callback' => [$this, 'sanitizeSettingX'],
         ]);
     }
 
+    /**
+     * Sanitize Setting X input.
+     *
+     * @since 1.0.0
+     * @param mixed $input The unsanitized input.
+     * @return array The sanitized settings array.
+     */
     public function sanitizeSettingX(mixed $input): array {
         $toggles = ['ext_enabled', 'ext_save_as_draft', 'ext_auto_title', 'ext_show_tags',
                     'post_add_source', 'post_auto_excerpt', 'post_archive',
@@ -418,6 +478,12 @@ trait LinkDigest_Admin_Menu {
         return $clean;
     }
 
+    /**
+     * Render the experimental Setting X configuration page.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function settingXPage(): void {
         $defaults = [
             'ext_enabled'          => 0,
@@ -750,6 +816,12 @@ trait LinkDigest_Admin_Menu {
         <?php
     }
 
+    /**
+     * Add the LinkDigest dashboard widget to the WordPress dashboard.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function addDashboardWidget(): void {
         wp_add_dashboard_widget(
             'linkdigest_dashboard_widget',

@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 trait LinkDigest_Publishing {
 
+    /**
+     * Validate a link before publishing.
+     *
+     * @since 1.0.0
+     * @param int $link_id The link post ID.
+     * @return array|null Validation error array or null if valid.
+     */
     public function validateLinkForPublish(int $link_id): ?array {
         if (!current_user_can('publish_posts')) {
             return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkdigest'), 'error_code' => 'no_permission');
@@ -15,6 +22,14 @@ trait LinkDigest_Publishing {
         return $this->validateLinkState($link, $link_id);
     }
 
+    /**
+     * Validate the state of a link post.
+     *
+     * @since 1.0.0
+     * @param \WP_Post $link The link post object.
+     * @param int $link_id The link post ID.
+     * @return array|null Validation error array or null if valid.
+     */
     private function validateLinkState(\WP_Post $link, int $link_id): ?array {
         if (empty($link->post_title)) {
             return array('success' => false, 'post_id' => 0, 'message' => __('Link must have a title to publish.', 'linkdigest'), 'error_code' => 'missing_title');
@@ -27,6 +42,16 @@ trait LinkDigest_Publishing {
         return null;
     }
 
+    /**
+     * Build HTML content for a blog post from a link.
+     *
+     * @since 1.0.0
+     * @param string $title The link title.
+     * @param int $link_id The link post ID.
+     * @param string $url The link URL.
+     * @param string $description The link description.
+     * @return string The formatted post content HTML.
+     */
     public function buildPostContent(string $title, int $link_id, string $url, string $description): string {
         $post_content = '<h2>' . esc_html($title) . '</h2>';
         if (!empty($description)) {
@@ -39,6 +64,14 @@ trait LinkDigest_Publishing {
         return apply_filters('linkdigest_blog_post_content', $post_content, $link_id, $url, $description);
     }
 
+    /**
+     * Map linkdigest categories and tags to a blog post.
+     *
+     * @since 1.0.0
+     * @param int $post_id The blog post ID.
+     * @param int $link_id The link post ID.
+     * @return void
+     */
     public function mapTaxonomies(int $post_id, int $link_id): void {
         $linkdigest_categories = get_the_terms($link_id, 'linkdigest_category');
         if ($linkdigest_categories && !is_wp_error($linkdigest_categories)) {
@@ -54,6 +87,13 @@ trait LinkDigest_Publishing {
         }
     }
 
+    /**
+     * Resolve linkdigest categories to WordPress category IDs, creating missing ones.
+     *
+     * @since 1.0.0
+     * @param array $linkdigest_categories Array of linkdigest category objects.
+     * @return array Array of WordPress category term IDs.
+     */
     private function resolveWpCategoryIds(array $linkdigest_categories): array {
         $category_ids = array();
         foreach ($linkdigest_categories as $linkdigest_cat) {
@@ -70,6 +110,14 @@ trait LinkDigest_Publishing {
         return $category_ids;
     }
 
+    /**
+     * Create a blog post from a linkdigest link.
+     *
+     * @since 1.0.0
+     * @param int $link_id The link post ID.
+     * @param bool $as_draft Whether to create as draft instead of published.
+     * @return array Result array with success, post_id, message, and error_code.
+     */
     public function createBlogPost(int $link_id, bool $as_draft = false): array {
         $validation_error = $this->validateLinkForPublish($link_id);
         if ($validation_error !== null) {

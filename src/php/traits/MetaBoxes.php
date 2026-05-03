@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 trait LinkDigest_MetaBoxes {
 
+    /**
+     * Register the URL meta box for the linkdigest post type.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function addMetaBoxes(): void {
         add_meta_box(
             'linkdigest_url',
@@ -15,6 +21,13 @@ trait LinkDigest_MetaBoxes {
         );
     }
 
+    /**
+     * Render the URL meta box callback.
+     *
+     * @since 1.0.0
+     * @param \WP_Post $post The current post object.
+     * @return void
+     */
     public function urlMetaBoxCallback(\WP_Post $post): void {
         wp_nonce_field('linkdigest_save_url', 'linkdigest_url_nonce');
         $url = get_post_meta($post->ID, '_linkdigest_url', true);
@@ -26,6 +39,13 @@ trait LinkDigest_MetaBoxes {
         <?php
     }
 
+    /**
+     * Save the URL meta value for a linkdigest post.
+     *
+     * @since 1.0.0
+     * @param int $post_id The post ID.
+     * @return void
+     */
     public function saveUrl(int $post_id): void {
         // Check nonce
         if (!isset($_POST['linkdigest_url_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['linkdigest_url_nonce'])), 'linkdigest_save_url')) {

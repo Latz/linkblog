@@ -8,6 +8,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 trait LinkDigest_ScheduleValidator {
 
+    /**
+     * Validate and sanitize schedule configuration data.
+     *
+     * @since 1.0.0
+     * @param array $data The schedule configuration to validate.
+     * @return array|\WP_Error Validated configuration or WP_Error.
+     */
     public function validateScheduleConfig(array $data): array|\WP_Error {
         $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs', 'notify'];
         $unknown      = array_diff(array_keys($data), $allowed_keys);

@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 trait LinkDigest_Batch {
 
+    /**
+     * Publish multiple links as individual blog posts.
+     *
+     * @since 1.0.0
+     * @param mixed $link_ids Array of link post IDs.
+     * @param bool $as_draft Whether to create as drafts instead of published.
+     * @return array Result array with success count, failed count, and messages.
+     */
     public function batchPublishLinks(mixed $link_ids, bool $as_draft = false): array {
         $success_count = 0;
         $failed_count = 0;
@@ -41,6 +49,16 @@ trait LinkDigest_Batch {
         );
     }
 
+    /**
+     * Create a roundup post from multiple links.
+     *
+     * @since 1.0.0
+     * @param mixed $link_ids Array of link post IDs.
+     * @param string $post_title The roundup post title.
+     * @param bool $as_draft Whether to create as draft instead of published.
+     * @param string $mode The scheduling mode that triggered this ('manual', 'daily', etc).
+     * @return array Result array with success status, post_id, link count, and message.
+     */
     public function createRoundupPost(mixed $link_ids, string $post_title, bool $as_draft = false, string $mode = 'manual'): array {
         $guard = $this->validateRoundupRequest($link_ids);
         if ($guard !== null) {
@@ -75,6 +93,13 @@ trait LinkDigest_Batch {
         return $this->executeRoundupInsertion($post_title, $as_draft, $links_by_category, $uncategorized_links, $published_count, $link_ids, $mode);
     }
 
+    /**
+     * Validate a roundup publish request.
+     *
+     * @since 1.0.0
+     * @param mixed $link_ids Array of link post IDs.
+     * @return array|null Validation error array or null if valid.
+     */
     private function validateRoundupRequest(mixed $link_ids): ?array {
         if (!current_user_can('publish_posts')) {
             return array('success' => false, 'post_id' => 0, 'message' => __('You do not have permission to publish posts.', 'linkdigest'), 'error_code' => 'no_permission');
@@ -85,6 +110,19 @@ trait LinkDigest_Batch {
         return null;
     }
 
+    /**
+     * Execute the roundup post insertion and metadata assignment.
+     *
+     * @since 1.0.0
+     * @param string $post_title The roundup post title.
+     * @param bool $as_draft Whether to create as draft.
+     * @param array $links_by_category Links grouped by category.
+     * @param array $uncategorized_links Links without a category.
+     * @param int $count Total count of links.
+     * @param array $link_ids All link post IDs.
+     * @param string $mode The scheduling mode that triggered this.
+     * @return array Result array with success status, post_id, link_count, and message.
+     */
     private function executeRoundupInsertion(string $post_title, bool $as_draft, array $links_by_category, array $uncategorized_links, int $count, array $link_ids, string $mode = 'manual'): array {
         // post_type 'post': the roundup is a normal blog post, not a linkdigest CPT entry.
         $args = apply_filters('linkdigest_roundup_post_args', array(
@@ -138,6 +176,14 @@ trait LinkDigest_Batch {
         return [$links_by_category, $uncategorized_links, $count];
     }
 
+    /**
+     * Build HTML content for a roundup post.
+     *
+     * @since 1.0.0
+     * @param array $links_by_category Links grouped by category.
+     * @param array $uncategorized_links Links without a category.
+     * @return string The formatted roundup content HTML.
+     */
     private function buildRoundupContent(array $links_by_category, array $uncategorized_links): string {
         $content = '';
 
@@ -172,6 +218,14 @@ trait LinkDigest_Batch {
         return $content;
     }
 
+    /**
+     * Assign categories to a roundup post.
+     *
+     * @since 1.0.0
+     * @param int $post_id The roundup post ID.
+     * @param array $links_by_category Links grouped by category.
+     * @return void
+     */
     private function assignRoundupCategories(int $post_id, array $links_by_category): void {
         // Mirrors linkdigest_category terms into native WP categories so the roundup
         // appears in standard category archives; creates the WP category if it doesn't exist.
@@ -199,6 +253,13 @@ trait LinkDigest_Batch {
         }
     }
 
+    /**
+     * Collect all unique category terms from grouped links.
+     *
+     * @since 1.0.0
+     * @param array $links_by_category Links grouped by category.
+     * @return array Array of category term objects.
+     */
     private function collectCategoryTerms(array $links_by_category): array {
         $all_cats = array();
         foreach ($links_by_category as $group) {
@@ -214,6 +275,14 @@ trait LinkDigest_Batch {
         return $all_cats;
     }
 
+    /**
+     * Assign tags from links to a roundup post.
+     *
+     * @since 1.0.0
+     * @param int $post_id The roundup post ID.
+     * @param array $link_ids Array of link post IDs.
+     * @return void
+     */
     private function assignRoundupTags(int $post_id, array $link_ids): void {
         $tag_names = array();
         foreach ($link_ids as $link_id) {
@@ -229,6 +298,15 @@ trait LinkDigest_Batch {
         }
     }
 
+    /**
+     * Mark links as published and update their metadata.
+     *
+     * @since 1.0.0
+     * @param array $link_ids Array of link post IDs.
+     * @param int $post_id The published blog post ID.
+     * @param bool $as_draft Whether links were published as draft.
+     * @return void
+     */
     private function markLinksAsPublished(array $link_ids, int $post_id, bool $as_draft): void {
         $meta_status = $as_draft ? 'draft' : 'published';
         $wp_status   = $as_draft ? 'linkdigest_draft' : 'linkdigest_published';

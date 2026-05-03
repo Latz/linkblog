@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 trait LinkDigest_Queries {
 
+    /**
+     * Get link publishing statistics.
+     *
+     * Uses static cache within requests and transient cache across requests.
+     *
+     * @since 1.0.0
+     * @return array Array with total_links, published_links, draft_links, unpublished_links counts.
+     */
     public function getPublishStatistics(): array {
         // Static prevents repeated DB hits within a single request (e.g., widget + dashboard page).
         static $cache = null;
@@ -34,6 +42,17 @@ trait LinkDigest_Queries {
         return $cache;
     }
 
+    /**
+     * Get links grouped by category with optional filtering and pagination.
+     *
+     * @since 1.0.0
+     * @param string $search Optional search term.
+     * @param int $month Optional month filter (YYYYMM format).
+     * @param int $cat Optional category term ID filter.
+     * @param int $paged Page number for pagination.
+     * @param int $per_page Number of items per page.
+     * @return array Array with grouped links, max_num_pages, and total_items.
+     */
     public function getLinksGroupedByCategory(string $search = '', int $month = 0, int $cat = 0, int $paged = 1, int $per_page = 20): array {
         $args = [
             'post_type'              => 'linkdigest',
@@ -88,6 +107,12 @@ trait LinkDigest_Queries {
         ];
     }
 
+    /**
+     * Get all linkdigest categories with caching.
+     *
+     * @since 1.0.0
+     * @return array Array of category term objects.
+     */
     public function getCachedCategories(): array {
         $cache_key = 'linkdigest_categories_terms';
         $categories = get_transient($cache_key);
@@ -108,6 +133,14 @@ trait LinkDigest_Queries {
         return is_array($categories) ? $categories : [];
     }
 
+    /**
+     * Run schema migration to custom post statuses if needed.
+     *
+     * Migrates existing published linkdigest posts to custom status values.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function maybeRunMigration(): void {
         if (get_option('linkdigest_schema_version') === '2') {
             return;
@@ -150,6 +183,13 @@ trait LinkDigest_Queries {
         update_option('linkdigest_schema_version', '2');
     }
 
+    /**
+     * Unpublish a link and revert it to pending status.
+     *
+     * @since 1.0.0
+     * @param int $link_id The link post ID.
+     * @return array Result array with success status and message.
+     */
     public function unpublishLink(int $link_id): array {
         // Get published post ID
         $published_post_id = get_post_meta($link_id, '_linkdigest_published_post_id', true);

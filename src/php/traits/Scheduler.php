@@ -8,13 +8,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 trait LinkDigest_Scheduler {
 
-    // Called from register() — binds the cron callback
+    /**
+     * Register scheduler hooks and callbacks.
+     *
+     * Called from the main plugin initialization.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function registerSchedulerHooks(): void {
         add_action('linkdigest_execute_schedule', [$this, 'executeSchedule']);
         add_action('linkdigest_after_run', [$this, 'maybeSendRunNotification'], 10, 3);
     }
 
-    // Calculates next timestamp, cancels any pending event, schedules a new one
+    /**
+     * Calculate and schedule the next event based on schedule configuration.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function scheduleNextEvent(): void {
         wp_clear_scheduled_hook('linkdigest_execute_schedule');
         $ts = $this->getNextScheduleTimestamp();
@@ -23,7 +35,15 @@ trait LinkDigest_Scheduler {
         }
     }
 
-    // Cron callback: check trigger condition → publish → re-schedule
+    /**
+     * Execute the schedule if conditions are met.
+     *
+     * Cron callback that checks trigger conditions, publishes if needed, and reschedules.
+     *
+     * @since 1.0.0
+     * @param bool $reschedule Whether to reschedule the next event after execution.
+     * @return array Result array with published status, post_id, link_count, and reason.
+     */
     public function executeSchedule(bool $reschedule = true): array {
         if (get_transient('linkdigest_run_lock')) {
             return ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'locked'];
@@ -36,6 +56,13 @@ trait LinkDigest_Scheduler {
         }
     }
 
+    /**
+     * Internal implementation of schedule execution.
+     *
+     * @since 1.0.0
+     * @param bool $reschedule Whether to reschedule the next event.
+     * @return array Result array with execution details.
+     */
     private function doExecuteSchedule(bool $reschedule): array {
         $config  = get_option('linkdigest_schedule', []);
         $mode    = $config['mode']    ?? 'daily';
@@ -127,7 +154,14 @@ trait LinkDigest_Scheduler {
         return $result;
     }
 
-    // Returns next UNIX timestamp (UTC) based on schedule config, or null for 'manual'
+    /**
+     * Calculate the next schedule timestamp based on configuration.
+     *
+     * Returns next UNIX timestamp in UTC based on schedule config, or null for manual mode.
+     *
+     * @since 1.0.0
+     * @return int|null Next schedule timestamp or null if manual mode.
+     */
     public function getNextScheduleTimestamp(): ?int {
         $config     = get_option('linkdigest_schedule', []);
         $mode       = $config['mode']       ?? 'daily';
@@ -166,6 +200,15 @@ trait LinkDigest_Scheduler {
         return null;
     }
 
+    /**
+     * Check if a date matches the schedule mode and recurrence settings.
+     *
+     * @since 1.0.0
+     * @param \DateTime $date The date to check.
+     * @param string $mode The schedule mode.
+     * @param array $rec The recurrence settings.
+     * @return bool True if date matches schedule.
+     */
     private function dayMatchesSchedule(\DateTime $date, string $mode, array $rec): bool {
         if (in_array($mode, ['daily', 'count', 'age'], true)) {
             return true;
@@ -177,6 +220,14 @@ trait LinkDigest_Scheduler {
         };
     }
 
+    /**
+     * Check if a date matches the weekly schedule.
+     *
+     * @since 1.0.0
+     * @param \DateTime $date The date to check.
+     * @param array $rec The recurrence settings with weekdays.
+     * @return bool True if date is on a scheduled weekday.
+     */
     private function matchesWeeklySchedule(\DateTime $date, array $rec): bool {
         $map = ['MO' => 1, 'TU' => 2, 'WE' => 3, 'TH' => 4, 'FR' => 5, 'SA' => 6, 'SU' => 7];
         $dow = (int) $date->format('N');
@@ -188,6 +239,14 @@ trait LinkDigest_Scheduler {
         return false;
     }
 
+    /**
+     * Check if a date matches the monthly schedule.
+     *
+     * @since 1.0.0
+     * @param \DateTime $date The date to check.
+     * @param array $rec The recurrence settings with month days and weekday patterns.
+     * @return bool True if date matches the monthly schedule.
+     */
     private function matchesMonthlySchedule(\DateTime $date, array $rec): bool {
         $dom = (int) $date->format('j');
         $map = ['MO' => 1, 'TU' => 2, 'WE' => 3, 'TH' => 4, 'FR' => 5, 'SA' => 6, 'SU' => 7];
@@ -213,6 +272,12 @@ trait LinkDigest_Scheduler {
         return false;
     }
 
+    /**
+     * Preview what would be published if schedule ran now.
+     *
+     * @since 1.0.0
+     * @return array Preview data with would_publish status and link information.
+     */
     public function previewSchedule(): array {
         $config  = get_option('linkdigest_schedule', []);
         $mode    = $config['mode']    ?? 'daily';
@@ -256,6 +321,15 @@ trait LinkDigest_Scheduler {
         ];
     }
 
+    /**
+     * Send notification email after schedule runs, if enabled.
+     *
+     * @since 1.0.0
+     * @param int|null $post_id The published post ID, or null if nothing was published.
+     * @param array $link_ids Array of link post IDs that were published.
+     * @param string $mode The schedule mode that ran.
+     * @return void
+     */
     public function maybeSendRunNotification(int|null $post_id, array $link_ids, string $mode): void {
         $config = get_option('linkdigest_schedule', []);
         $notify = $config['notify'] ?? [];
@@ -282,6 +356,14 @@ trait LinkDigest_Scheduler {
         wp_mail($to, $subject, $message);
     }
 
+    /**
+     * Check if a link is older than a specified number of days.
+     *
+     * @since 1.0.0
+     * @param int $link_id The link post ID.
+     * @param int $days Number of days to check against.
+     * @return bool True if link is older than specified days.
+     */
     private function isLinkOlderThan(int $link_id, int $days): bool {
         $post = get_post($link_id);
         if (!$post) {

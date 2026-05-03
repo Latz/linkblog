@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 trait LinkDigest_Admin_Dashboard {
 
+    /**
+     * Render the LinkDigest summary dashboard widget.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function dashboardWidgetContent(): void {
         // Get statistics
         $stats = $this->getPublishStatistics();
@@ -63,6 +69,12 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Get all unpublished link IDs in oldest-first order.
+     *
+     * @since 1.0.0
+     * @return array Array of unpublished link post IDs.
+     */
     public function getUnpublishedLinkIds(): array {
         return get_posts( array(
             'post_type'      => 'linkdigest',
@@ -74,6 +86,12 @@ trait LinkDigest_Admin_Dashboard {
         ) );
     }
 
+    /**
+     * Handle batch publish form submission.
+     *
+     * @since 1.0.0
+     * @return array|null Batch result or null if no request was made.
+     */
     public function handleBatchPublishRequest(): ?array {
         if ( ! isset( $_POST['linkdigest_batch_publish'] ) ) {
             return null;
@@ -86,6 +104,12 @@ trait LinkDigest_Admin_Dashboard {
         return $this->batchPublishLinks( $this->getUnpublishedLinkIds(), $as_draft );
     }
 
+    /**
+     * Handle roundup creation form submission.
+     *
+     * @since 1.0.0
+     * @return array|null Roundup result or null if no request was made.
+     */
     public function handleRoundupRequest(): ?array {
         if ( ! isset( $_POST['linkdigest_create_roundup'] ) ) {
             return null;
@@ -99,6 +123,12 @@ trait LinkDigest_Admin_Dashboard {
         return $this->createRoundupPost( $this->getUnpublishedLinkIds(), $roundup_title, $as_draft );
     }
 
+    /**
+     * Handle quick add link form submission.
+     *
+     * @since 1.0.0
+     * @return bool True if link was added successfully.
+     */
     public function handleQuickAddRequest(): bool {
         if ( ! isset( $_POST['linkdigest_quick_add'] ) ) {
             return false;
@@ -126,6 +156,14 @@ trait LinkDigest_Admin_Dashboard {
         return (bool) $post_id;
     }
 
+    /**
+     * Render success/error notices for dashboard actions.
+     *
+     * @since 1.0.0
+     * @param array|null $batch_result Batch publishing result.
+     * @param array|null $roundup_result Roundup creation result.
+     * @return void
+     */
     public function renderDashboardNotices( ?array $batch_result, ?array $roundup_result ): void {
         if ( $batch_result !== null ) {
             if ( $batch_result['success'] > 0 ) {
@@ -150,6 +188,12 @@ trait LinkDigest_Admin_Dashboard {
         }
     }
 
+    /**
+     * Get subtitle text and icon for the unpublished links box.
+     *
+     * @since 1.0.0
+     * @return array Array with text and icon keys for the subtitle.
+     */
     private function unpublishedLinksSubtitle(): array {
         $schedule = get_option( 'linkdigest_schedule', null );
         if ( ! $schedule || ! isset( $schedule['mode'] ) ) {
@@ -189,6 +233,13 @@ trait LinkDigest_Admin_Dashboard {
         return [ 'text' => '', 'icon' => '' ];
     }
 
+    /**
+     * Render the recent unpublished links dashboard box.
+     *
+     * @since 1.0.0
+     * @param array $recent_links Array of recent unpublished link posts.
+     * @return void
+     */
     public function renderUnpublishedLinksBox( array $recent_links ): void {
         $subtitle = $this->unpublishedLinksSubtitle();
         ?>
@@ -249,6 +300,13 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render the recently published links dashboard box.
+     *
+     * @since 1.0.0
+     * @param array $recently_published Array of recently published link posts.
+     * @return void
+     */
     public function renderRecentlyPublishedBox( array $recently_published ): void {
         ?>
         <div class="postbox">
@@ -272,6 +330,13 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render the publish now dashboard box.
+     *
+     * @since 1.0.0
+     * @param int $unpublished_count Number of unpublished links available.
+     * @return void
+     */
     public function renderPublishBox( int $unpublished_count ): void {
         ?>
         <div class="postbox">
@@ -316,6 +381,13 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render the recently published links list.
+     *
+     * @since 1.0.0
+     * @param array $recently_published Array of recently published link posts.
+     * @return void
+     */
     private function renderRecentlyPublishedList( array $recently_published ): void {
         ?>
         <ul class="linkdigest-recent-links">
@@ -346,12 +418,27 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render the published status badge for a link.
+     *
+     * @since 1.0.0
+     * @param string $publish_status The publish status value.
+     * @param bool $is_draft Whether the link was published as a draft.
+     * @return void
+     */
     private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
         if ( $is_draft ) {
             echo '<span class="linkdigest-status-badge linkdigest-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }
     }
 
+    /**
+     * Get metadata for a recently published link.
+     *
+     * @since 1.0.0
+     * @param \WP_Post $link The link post object.
+     * @return array Metadata array with published post ID, status, date, category, and draft status.
+     */
     private function getRecentlyPublishedLinkMetadata( \WP_Post $link ): array {
         $publish_status = get_post_meta( $link->ID, '_linkdigest_publish_status', true );
         $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
@@ -364,6 +451,13 @@ trait LinkDigest_Admin_Dashboard {
         ];
     }
 
+    /**
+     * Render the quick add link dashboard box.
+     *
+     * @since 1.0.0
+     * @param bool $quick_add_success Whether the quick add was just successful.
+     * @return void
+     */
     public function renderQuickAddBox( bool $quick_add_success ): void {
         $categories = $this->getCachedCategories();
         $has_categories = ! empty( $categories );
@@ -417,6 +511,12 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render the schedule status bar.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     private function renderScheduleStatusBar(): void {
         $schedule = get_option( 'linkdigest_schedule', null );
         if ( $schedule === null ) {
@@ -450,8 +550,20 @@ trait LinkDigest_Admin_Dashboard {
         <?php
     }
 
+    /**
+     * Render dashboard JavaScript (hook point for subclasses).
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function renderDashboardJs(): void {}
 
+    /**
+     * Render the main LinkDigest dashboard page.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function dashboardPage(): void {
         $batch_result      = $this->handleBatchPublishRequest();
         $roundup_result    = $this->handleRoundupRequest();

@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 trait LinkDigest_RestApi {
 
+    /**
+     * Register REST API routes for LinkDigest.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function registerRestRoutes(): void {
         register_rest_route(LINKDIGEST_REST_NAMESPACE, '/add-link', array(
             'methods' => 'POST',
@@ -107,6 +113,12 @@ trait LinkDigest_RestApi {
         ));
     }
 
+    /**
+     * Get the current API key via REST.
+     *
+     * @since 1.0.0
+     * @return mixed REST response with API key or WP_Error if not configured.
+     */
     public function restGetApiKey(): mixed {
         $key = get_option('linkdigest_api_key', '');
         if (empty($key)) {
@@ -115,6 +127,12 @@ trait LinkDigest_RestApi {
         return rest_ensure_response(['key' => $key]);
     }
 
+    /**
+     * Handle nonce requests from the Chrome extension.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function handleGetRestNonce(): void {
         $origin = get_http_origin();
         if (is_string($origin) && $this->isFromChromeExtension($origin)) {
@@ -126,6 +144,13 @@ trait LinkDigest_RestApi {
         wp_send_json_success(['nonce' => wp_create_nonce('wp_rest')]);
     }
 
+    /**
+     * Delete a link via REST API.
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request The REST request with link ID.
+     * @return \WP_REST_Response|\WP_Error Response or error.
+     */
     public function restDeleteLink(\WP_REST_Request $request): \WP_REST_Response|\WP_Error {
         $link_id = (int) $request['id'];
         if (get_post_type($link_id) !== 'linkdigest') {
@@ -139,6 +164,12 @@ trait LinkDigest_RestApi {
         return new \WP_REST_Response(null, 204);
     }
 
+    /**
+     * Get the schedule configuration.
+     *
+     * @since 1.0.0
+     * @return mixed REST response with schedule configuration.
+     */
     public function getSchedule(): mixed {
         $default = array(
             'mode'       => 'daily',
@@ -155,6 +186,13 @@ trait LinkDigest_RestApi {
         return rest_ensure_response($config);
     }
 
+    /**
+     * Save the schedule configuration.
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request The REST request with schedule data.
+     * @return mixed REST response or error.
+     */
     public function saveSchedule(\WP_REST_Request $request): mixed {
         $data = $request->get_json_params();
         if (empty($data)) {
@@ -172,6 +210,12 @@ trait LinkDigest_RestApi {
         return rest_ensure_response(array('success' => true));
     }
 
+    /**
+     * Get schedule diagnostics and status information.
+     *
+     * @since 1.0.0
+     * @return mixed REST response with diagnostics data.
+     */
     public function getScheduleDiagnostics(): mixed {
         $next_ts  = wp_next_scheduled('linkdigest_execute_schedule');
         $last_run = get_option('linkdigest_last_run', null);
@@ -183,6 +227,12 @@ trait LinkDigest_RestApi {
         ]);
     }
 
+    /**
+     * Manually trigger the schedule to run immediately.
+     *
+     * @since 1.0.0
+     * @return \WP_REST_Response|\WP_Error Response or error.
+     */
     public function runScheduleNow(): \WP_REST_Response|\WP_Error {
         if (get_transient('linkdigest_run_lock')) {
             return new \WP_Error('run_in_progress', __('A schedule run is already in progress', 'linkdigest'), array('status' => 429));
@@ -191,6 +241,15 @@ trait LinkDigest_RestApi {
         return rest_ensure_response($result);
     }
 
+    /**
+     * Check permissions for REST API requests.
+     *
+     * Supports API key authentication and standard WordPress user capabilities.
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request The REST request.
+     * @return bool True if user has permission.
+     */
     public function restPermissionCheck(\WP_REST_Request $request): bool {
         // API key first: used by the Chrome extension and external callers that can't
         // hold a WP session cookie. Falls back to standard WP capability check.
@@ -204,6 +263,13 @@ trait LinkDigest_RestApi {
         return current_user_can('edit_posts');
     }
 
+    /**
+     * Add a new link via REST API.
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request The REST request with link data.
+     * @return mixed REST response with link creation result.
+     */
     public function restAddLink(\WP_REST_Request $request): mixed {
         $title = $request->get_param('title');
         $url = $request->get_param('url');
@@ -243,6 +309,14 @@ trait LinkDigest_RestApi {
         ));
     }
 
+    /**
+     * Validate link data for REST submission.
+     *
+     * @since 1.0.0
+     * @param string $title The link title.
+     * @param string|null $url The link URL.
+     * @return bool|\WP_Error True if valid, WP_Error otherwise.
+     */
     private function validateRestLink(string $title, ?string $url): bool|\WP_Error {
         if (empty($title)) {
             return new \WP_Error('missing_title', __('Title is required.', 'linkdigest'), array('status' => 400));
@@ -265,6 +339,13 @@ trait LinkDigest_RestApi {
         return true;
     }
 
+    /**
+     * Resolve or create linkdigest categories from names.
+     *
+     * @since 1.0.0
+     * @param array $categories Array of category names.
+     * @return array Array of category term IDs.
+     */
     private function resolveOrCreateCategories(array $categories): array {
         $ids = array();
         foreach ($categories as $cat_name) {
@@ -281,6 +362,15 @@ trait LinkDigest_RestApi {
         return $ids;
     }
 
+    /**
+     * Apply categories and tags to a link post.
+     *
+     * @since 1.0.0
+     * @param int $post_id The link post ID.
+     * @param mixed $categories Array of category names or IDs.
+     * @param mixed $tags Comma-separated tag names or array.
+     * @return void
+     */
     private function applyLinkTaxonomies(int $post_id, mixed $categories, mixed $tags): void {
         if (!empty($categories) && is_array($categories)) {
             $ids = $this->resolveOrCreateCategories($categories);
@@ -294,6 +384,12 @@ trait LinkDigest_RestApi {
         }
     }
 
+    /**
+     * Get all linkdigest categories via REST API.
+     *
+     * @since 1.0.0
+     * @return mixed REST response with categories list.
+     */
     public function restGetCategories(): mixed {
         $cache_key = 'linkdigest_api_categories_list';
         $category_list = get_transient($cache_key);
@@ -321,6 +417,13 @@ trait LinkDigest_RestApi {
         return rest_ensure_response($category_list);
     }
 
+    /**
+     * Update a linkdigest category via REST API.
+     *
+     * @since 1.0.0
+     * @param \WP_REST_Request $request The REST request with category data.
+     * @return mixed REST response with updated category data.
+     */
     public function updateCategory( \WP_REST_Request $request ): mixed {
         $term_id = (int) $request['id'];
         $args    = array( 'name' => $request['name'] );
@@ -344,11 +447,24 @@ trait LinkDigest_RestApi {
         ) );
     }
 
+    /**
+     * Invalidate all categories-related caches.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function invalidateCategoriesCache(): void {
         delete_transient('linkdigest_api_categories_list');
         delete_transient('linkdigest_categories_terms');
     }
 
+    /**
+     * Add CORS headers for Chrome extension requests.
+     *
+     * @since 1.0.0
+     * @param bool $served Whether the request was served.
+     * @return bool The served status.
+     */
     public function addCorsHeaders(bool $served): bool {
         $origin = get_http_origin();
         if (is_string($origin) && $this->isFromChromeExtension($origin)) {
@@ -359,6 +475,12 @@ trait LinkDigest_RestApi {
         return $served;
     }
 
+    /**
+     * Handle preflight OPTIONS requests from the Chrome extension.
+     *
+     * @since 1.0.0
+     * @return void
+     */
     public function handlePreflight(): void {
         $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
         if (!$request_uri || strpos($request_uri, '/wp-json/') === false) {
@@ -376,10 +498,24 @@ trait LinkDigest_RestApi {
         }
     }
 
+    /**
+     * Check if a request origin is from the Chrome extension.
+     *
+     * @since 1.0.0
+     * @param string $origin The request origin.
+     * @return bool True if from Chrome extension.
+     */
     private function isFromChromeExtension( string $origin ): bool {
         return strpos( $origin, 'chrome-extension://' ) === 0;
     }
 
+    /**
+     * Set CORS origin headers for a specific origin.
+     *
+     * @since 1.0.0
+     * @param string $origin The request origin.
+     * @return void
+     */
     private function setCorsOriginHeaders( string $origin ): void {
         header( 'Access-Control-Allow-Origin: ' . $origin );
         header( 'Access-Control-Allow-Credentials: true' );
