@@ -74,10 +74,8 @@ trait LinkDigest_ScheduleValidator {
             }
         }
 
-        if (isset($data['post_status'])) {
-            if (!in_array($data['post_status'], ['publish', 'draft'], true)) {
-                return new \WP_Error('invalid_post_status', __('post_status must be "publish" or "draft"', 'linkdigest'), ['status' => 400]);
-            }
+        if (isset($data['post_status']) && !in_array($data['post_status'], ['publish', 'draft'], true)) {
+            return new \WP_Error('invalid_post_status', __('post_status must be "publish" or "draft"', 'linkdigest'), ['status' => 400]);
         }
 
         if (isset($data['notify'])) {

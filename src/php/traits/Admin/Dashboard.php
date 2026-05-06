@@ -195,42 +195,61 @@ trait LinkDigest_Admin_Dashboard {
      * @return array Array with text and icon keys for the subtitle.
      */
     private function unpublishedLinksSubtitle(): array {
+        $empty    = [ 'text' => '', 'icon' => '' ];
         $schedule = get_option( 'linkdigest_schedule', null );
         if ( ! $schedule || ! isset( $schedule['mode'] ) ) {
-            return [ 'text' => '', 'icon' => '' ];
+            return $empty;
         }
         $mode = $schedule['mode'];
         if ( in_array( $mode, [ 'daily', 'weekly', 'monthly', 'age' ], true ) ) {
-            $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
-            if ( ! $next_ts ) {
-                return [ 'text' => '', 'icon' => '' ];
-            }
-            $formatted = wp_date(
-                get_option( 'date_format' ) . ', ' . get_option( 'time_format' ),
-                $next_ts
-            );
-            /* translators: %s: formatted next publish datetime */
-            return [
-                'text' => sprintf( __( 'next: %s', 'linkdigest' ), $formatted ),
-                'icon' => 'dashicons-calendar-alt',
-            ];
+            return $this->getScheduledModeSubtitle();
         }
-        if ( $mode === 'count' ) {
-            $threshold = (int) ( $schedule['trigger']['count'] ?? 10 );
-            $stats     = $this->getPublishStatistics();
-            $pending   = (int) $stats['unpublished_links'];
-            $remaining = max( 0, $threshold - $pending );
-            return [
-                'text' => sprintf(
-                    /* translators: 1: remaining links needed, 2: threshold */
-                    _n( '%1$d out of %2$d left until publish', '%1$d out of %2$d left until publish', $remaining, 'linkdigest' ),
-                    $remaining,
-                    $threshold
-                ),
-                'icon' => '',
-            ];
+        return $mode === 'count' ? $this->getCountModeSubtitle( $schedule ) : $empty;
+    }
+
+    /**
+     * Get subtitle for time-based schedule modes.
+     *
+     * @since 1.0.0
+     * @return array Array with text and icon keys.
+     */
+    private function getScheduledModeSubtitle(): array {
+        $next_ts = wp_next_scheduled( 'linkdigest_execute_schedule' );
+        if ( ! $next_ts ) {
+            return [ 'text' => '', 'icon' => '' ];
         }
-        return [ 'text' => '', 'icon' => '' ];
+        $formatted = wp_date(
+            get_option( 'date_format' ) . ', ' . get_option( 'time_format' ),
+            $next_ts
+        );
+        /* translators: %s: formatted next publish datetime */
+        return [
+            'text' => sprintf( __( 'next: %s', 'linkdigest' ), $formatted ),
+            'icon' => 'dashicons-calendar-alt',
+        ];
+    }
+
+    /**
+     * Get subtitle for count-based schedule mode.
+     *
+     * @since 1.0.0
+     * @param array $schedule The schedule option array.
+     * @return array Array with text and icon keys.
+     */
+    private function getCountModeSubtitle( array $schedule ): array {
+        $threshold = (int) ( $schedule['trigger']['count'] ?? 10 );
+        $stats     = $this->getPublishStatistics();
+        $pending   = (int) $stats['unpublished_links'];
+        $remaining = max( 0, $threshold - $pending );
+        return [
+            'text' => sprintf(
+                /* translators: 1: remaining links needed, 2: threshold */
+                _n( '%1$d out of %2$d left until publish', '%1$d out of %2$d left until publish', $remaining, 'linkdigest' ),
+                $remaining,
+                $threshold
+            ),
+            'icon' => '',
+        ];
     }
 
     /**
@@ -262,33 +281,7 @@ trait LinkDigest_Admin_Dashboard {
                 <?php if ( empty( $recent_links ) ) : ?>
                     <p class="linkdigest-box-empty"><?php esc_html_e( 'No unpublished links at the moment.', 'linkdigest' ); ?></p>
                 <?php else : ?>
-                    <ul class="linkdigest-recent-links">
-                        <?php foreach ( $recent_links as $link ) :
-                            $url             = get_post_meta( $link->ID, '_linkdigest_url', true );
-                            $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
-                            $category_name   = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
-                        ?>
-                            <li class="linkdigest-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
-                                <div class="linkdigest-link-item-header">
-                                    <strong class="linkdigest-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                                </div>
-                                <button class="linkdigest-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
-                                <?php if ( $url ) : ?>
-                                    <a href="<?php echo esc_url( $url ); ?>" class="linkdigest-link-url" target="_blank" rel="noopener">
-                                        <?php echo esc_html( wp_parse_url( $url, PHP_URL_HOST ) ); ?> ↗
-                                    </a>
-                                <?php endif; ?>
-                                <div class="linkdigest-link-meta">
-                                    <?php if ( $category_name ) : ?>
-                                        <span><?php echo esc_html( $category_name ); ?></span>
-                                    <?php endif; ?>
-                                    <span class="linkdigest-date-time" data-timestamp="<?php echo esc_attr( get_the_time( 'U', $link->ID ) ); ?>">
-                                        <?php echo esc_html( get_the_date( 'M j, Y', $link->ID ) ); ?> <?php echo esc_html( get_the_time( 'g:i a', $link->ID ) ); ?>
-                                    </span>
-                                </div>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
+                    <?php $this->renderUnpublishedLinksList( $recent_links ); ?>
                     <div class="linkdigest-box-footer">
                         <a href="<?php echo esc_url( admin_url( self::ADMIN_LINKS_PAGE ) ); ?>" class="button">
                             <?php esc_html_e( 'View All Links', 'linkdigest' ); ?>
@@ -297,6 +290,45 @@ trait LinkDigest_Admin_Dashboard {
                 <?php endif; ?>
             </div>
         </div>
+        <?php
+    }
+
+    /**
+     * Render the list of recent unpublished links.
+     *
+     * @since 1.0.0
+     * @param array $recent_links Array of recent unpublished link posts.
+     * @return void
+     */
+    private function renderUnpublishedLinksList( array $recent_links ): void {
+        ?>
+        <ul class="linkdigest-recent-links">
+            <?php foreach ( $recent_links as $link ) :
+                $url             = get_post_meta( $link->ID, '_linkdigest_url', true );
+                $categories_list = get_the_terms( $link->ID, 'linkdigest_category' );
+                $category_name   = $categories_list && ! is_wp_error( $categories_list ) ? $categories_list[0]->name : '';
+            ?>
+                <li class="linkdigest-link-item" data-link-id="<?php echo esc_attr( $link->ID ); ?>">
+                    <div class="linkdigest-link-item-header">
+                        <strong class="linkdigest-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
+                    </div>
+                    <button class="linkdigest-delete-btn" title="<?php esc_attr_e( 'Delete link', 'linkdigest' ); ?>" data-link-id="<?php echo (int) $link->ID; ?>"><span class="dashicons dashicons-trash"></span></button>
+                    <?php if ( $url ) : ?>
+                        <a href="<?php echo esc_url( $url ); ?>" class="linkdigest-link-url" target="_blank" rel="noopener">
+                            <?php echo esc_html( wp_parse_url( $url, PHP_URL_HOST ) ); ?> ↗
+                        </a>
+                    <?php endif; ?>
+                    <div class="linkdigest-link-meta">
+                        <?php if ( $category_name ) : ?>
+                            <span><?php echo esc_html( $category_name ); ?></span>
+                        <?php endif; ?>
+                        <span class="linkdigest-date-time" data-timestamp="<?php echo esc_attr( get_the_time( 'U', $link->ID ) ); ?>">
+                            <?php echo esc_html( get_the_date( 'M j, Y', $link->ID ) ); ?> <?php echo esc_html( get_the_time( 'g:i a', $link->ID ) ); ?>
+                        </span>
+                    </div>
+                </li>
+            <?php endforeach; ?>
+        </ul>
         <?php
     }
 
@@ -397,7 +429,7 @@ trait LinkDigest_Admin_Dashboard {
                 <li class="linkdigest-link-item">
                     <div class="linkdigest-link-item-header">
                         <strong class="linkdigest-link-title"><?php echo esc_html( $link->post_title ); ?></strong>
-                        <?php $this->renderPublishedLinkBadge( $meta['publish_status'], $meta['is_draft'] ); ?>
+                        <?php $this->renderPublishedLinkBadge( $meta['is_draft'] ); ?>
                     </div>
                     <?php if ( $meta['published_post_id'] ) : ?>
                         <a href="<?php echo esc_url( $meta['is_draft'] ? get_edit_post_link( $meta['published_post_id'] ) : get_permalink( $meta['published_post_id'] ) ); ?>" class="linkdigest-link-url" target="_blank" rel="noopener">
@@ -422,11 +454,10 @@ trait LinkDigest_Admin_Dashboard {
      * Render the published status badge for a link.
      *
      * @since 1.0.0
-     * @param string $publish_status The publish status value.
      * @param bool $is_draft Whether the link was published as a draft.
      * @return void
      */
-    private function renderPublishedLinkBadge( string $publish_status, bool $is_draft ): void {
+    private function renderPublishedLinkBadge( bool $is_draft ): void {
         if ( $is_draft ) {
             echo '<span class="linkdigest-status-badge linkdigest-status-draft">' . esc_html__( 'Draft', 'linkdigest' ) . '</span>';
         }

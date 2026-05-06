@@ -60,7 +60,7 @@ export default function DiagnosticsPanel({ data, loading, onRefresh, mode }) {
               </div>
             )}
 
-            {mode === 'count' && typeof data.links_until_post !== 'undefined' && (
+            {mode === 'count' && data.links_until_post !== undefined && (
               <div className="linkdigest-diag-row">
                 <dt>{__('Next run', 'linkdigest')}</dt>
                 <dd>
