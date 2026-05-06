@@ -1,25 +1,27 @@
 import { __ } from '@wordpress/i18n';
 
+const createMode = (value, label, desc) => ({ value, label: __(label, 'linkdigest'), desc: __(desc, 'linkdigest') });
+
 const GROUPS = [
   {
     label: __('Scheduled', 'linkdigest'),
     modes: [
-      { value: 'daily',   label: __('Daily',   'linkdigest'), desc: __('Every N days', 'linkdigest') },
-      { value: 'weekly',  label: __('Weekly',  'linkdigest'), desc: __('Specific weekdays', 'linkdigest') },
-      { value: 'monthly', label: __('Monthly', 'linkdigest'), desc: __('Calendar days', 'linkdigest') },
+      createMode('daily',   'Daily',   'Every N days'),
+      createMode('weekly',  'Weekly',  'Specific weekdays'),
+      createMode('monthly', 'Monthly', 'Calendar days'),
     ],
   },
   {
     label: __('Trigger-based', 'linkdigest'),
     modes: [
-      { value: 'count', label: __('By Count', 'linkdigest'), desc: __('When N links queue', 'linkdigest') },
-      { value: 'age',   label: __('By Age',   'linkdigest'), desc: __('When oldest link ages', 'linkdigest') },
+      createMode('count', 'By Count', 'When N links queue'),
+      createMode('age',   'By Age',   'When oldest link ages'),
     ],
   },
   {
     label: __('Manual', 'linkdigest'),
     modes: [
-      { value: 'manual', label: __('Manual', 'linkdigest'), desc: __('No auto-publish', 'linkdigest') },
+      createMode('manual', 'Manual', 'No auto-publish'),
     ],
   },
 ];
