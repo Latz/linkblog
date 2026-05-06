@@ -21,76 +21,14 @@ trait LinkDigest_Admin_Menu {
             6
         );
 
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Dashboard', 'linkdigest'),
-            __('Dashboard', 'linkdigest'),
-            'read',
-            'linkdigest-dashboard',
-            [$this, 'dashboardPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Show Links', 'linkdigest'),
-            __('All Links', 'linkdigest'),
-            'read',
-            'linkdigest-admin',
-            [$this, 'showLinksPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Add Link', 'linkdigest'),
-            __('Add Link', 'linkdigest'),
-            'read',
-            'linkdigest-add',
-            [$this, 'addLinkPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Categories', 'linkdigest'),
-            __('Categories', 'linkdigest'),
-            'manage_categories',
-            'linkdigest-categories',
-            [$this, 'categoriesPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Tags', 'linkdigest'),
-            __('Tags', 'linkdigest'),
-            'manage_categories',
-            'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkdigest'
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Chrome Extension', 'linkdigest'),
-            __('Chrome Extension', 'linkdigest'),
-            'manage_options',
-            'linkdigest-settings',
-            [$this, 'settingsPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Settings', 'linkdigest'),
-            __('Settings', 'linkdigest'),
-            'manage_options',
-            'linkdigest-setting-x',
-            [$this, 'settingXPage']
-        );
-
-        add_submenu_page(
-            'linkdigest-dashboard',
-            __('Schedule', 'linkdigest'),
-            __('Schedule', 'linkdigest'),
-            'manage_options',
-            'linkdigest-schedule',
-            [$this, 'schedulePage']
-        );
+        $this->addSubmenu(__('Dashboard',        'linkdigest'), __('Dashboard',        'linkdigest'), 'read',              'linkdigest-dashboard',                                    'dashboardPage');
+        $this->addSubmenu(__('Show Links',       'linkdigest'), __('All Links',        'linkdigest'), 'read',              'linkdigest-admin',                                        'showLinksPage');
+        $this->addSubmenu(__('Add Link',         'linkdigest'), __('Add Link',         'linkdigest'), 'read',              'linkdigest-add',                                          'addLinkPage');
+        $this->addSubmenu(__('Categories',       'linkdigest'), __('Categories',       'linkdigest'), 'manage_categories', 'linkdigest-categories',                                   'categoriesPage');
+        $this->addSubmenu(__('Tags',             'linkdigest'), __('Tags',             'linkdigest'), 'manage_categories', 'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkdigest');
+        $this->addSubmenu(__('Chrome Extension', 'linkdigest'), __('Chrome Extension', 'linkdigest'), 'manage_options',    'linkdigest-settings',                                     'settingsPage');
+        $this->addSubmenu(__('Settings',         'linkdigest'), __('Settings',         'linkdigest'), 'manage_options',    'linkdigest-setting-x',                                    'settingXPage');
+        $this->addSubmenu(__('Schedule',         'linkdigest'), __('Schedule',         'linkdigest'), 'manage_options',    'linkdigest-schedule',                                     'schedulePage');
     }
 
     /**
@@ -101,15 +39,7 @@ trait LinkDigest_Admin_Menu {
      * @return string The filtered parent menu file name.
      */
     public function parentFileFilter(string $parent_file): string {
-        global $pagenow;
-        if ($pagenow === 'edit-tags.php') {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkdigest_tag') {
-                return 'linkdigest-dashboard';
-            }
-        }
-        return $parent_file;
+        return $this->isLinkDigestTag() ? 'linkdigest-dashboard' : $parent_file;
     }
 
     /**
@@ -120,15 +50,9 @@ trait LinkDigest_Admin_Menu {
      * @return string The filtered submenu file name.
      */
     public function submenuFileFilter(?string $submenu_file): string {
-        global $pagenow;
-        if ($pagenow === 'edit-tags.php') {
-            // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-            $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
-            if ($taxonomy === 'linkdigest_tag') {
-                return 'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkdigest';
-            }
-        }
-        return $submenu_file ?? '';
+        return $this->isLinkDigestTag()
+            ? 'edit-tags.php?taxonomy=linkdigest_tag&post_type=linkdigest'
+            : ($submenu_file ?? '');
     }
 
     /**
@@ -308,18 +232,9 @@ trait LinkDigest_Admin_Menu {
             return;
         }
 
-        $js_dir  = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
-        $js_url  = plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
-
         if (strpos($hook, 'linkdigest-dashboard') !== false) {
             wp_enqueue_script('postbox');
-            wp_enqueue_script(
-                'linkdigest-dashboard-js',
-                $js_url . 'dashboard.js',
-                array(),
-                (string) filemtime($js_dir . 'dashboard.js'),
-                true
-            );
+            $this->enqueuePageScript('linkdigest-dashboard-js', 'dashboard.js');
             wp_localize_script('linkdigest-dashboard-js', 'linkdigestDash', array(
                 'restUrl' => rest_url(LINKDIGEST_REST_NAMESPACE . '/links/'),
                 'nonce'   => wp_create_nonce('wp_rest'),
@@ -332,13 +247,7 @@ trait LinkDigest_Admin_Menu {
         }
 
         if (strpos($hook, 'linkdigest-settings') !== false) {
-            wp_enqueue_script(
-                'linkdigest-settings-page',
-                $js_url . 'settings-page.js',
-                array('jquery'),
-                (string) filemtime($js_dir . 'settings-page.js'),
-                true
-            );
+            $this->enqueuePageScript('linkdigest-settings-page', 'settings-page.js', array('jquery'));
             wp_localize_script('linkdigest-settings-page', 'linkdigestSettings', array(
                 'labels' => array(
                     'confirmRegenerate' => __('This will permanently invalidate your current API key. You will need to update the Chrome extension with the new key. Continue?', 'linkdigest'),
@@ -351,24 +260,12 @@ trait LinkDigest_Admin_Menu {
             ));
         }
 
-if (strpos($hook, 'linkdigest-admin') !== false) {
-            wp_enqueue_script(
-                'linkdigest-links-page',
-                $js_url . 'links-page.js',
-                array(),
-                (string) filemtime($js_dir . 'links-page.js'),
-                true
-            );
+        if (strpos($hook, 'linkdigest-admin') !== false) {
+            $this->enqueuePageScript('linkdigest-links-page', 'links-page.js');
         }
 
         if (strpos($hook, 'linkdigest-categories') !== false) {
-            wp_enqueue_script(
-                'linkdigest-categories-js',
-                $js_url . 'categories.js',
-                array(),
-                (string) filemtime($js_dir . 'categories.js'),
-                true
-            );
+            $this->enqueuePageScript('linkdigest-categories-js', 'categories.js');
             wp_localize_script('linkdigest-categories-js', 'linkdigestCats', array(
                 'restUrl' => rest_url(LINKDIGEST_REST_NAMESPACE . '/categories/'),
                 'nonce'   => wp_create_nonce('wp_rest'),
@@ -421,7 +318,7 @@ if (strpos($hook, 'linkdigest-admin') !== false) {
         }
     }
 
-/**
+    /**
      * Render the experimental Setting X configuration page.
      *
      * @since 1.0.0
@@ -433,6 +330,52 @@ if (strpos($hook, 'linkdigest-admin') !== false) {
             <h1><?php esc_html_e('Settings', 'linkdigest'); ?></h1>
         </div>
         <?php
+    }
+
+    /**
+     * Register a submenu page under the linkdigest-dashboard parent.
+     *
+     * @since 1.0.0
+     * @param string      $page_title Page title.
+     * @param string      $menu_title Menu label.
+     * @param string      $cap        Required capability.
+     * @param string      $slug       Menu slug.
+     * @param string|null $callback   Method name on $this, or null for no render callback.
+     * @return void
+     */
+    private function addSubmenu(string $page_title, string $menu_title, string $cap, string $slug, ?string $callback = null): void {
+        add_submenu_page('linkdigest-dashboard', $page_title, $menu_title, $cap, $slug, $callback !== null ? [$this, $callback] : null);
+    }
+
+    /**
+     * Return true when the current request is for the linkdigest_tag taxonomy screen.
+     *
+     * @since 1.0.0
+     * @return bool
+     */
+    private function isLinkDigestTag(): bool {
+        global $pagenow;
+        if ($pagenow !== 'edit-tags.php') {
+            return false;
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $taxonomy = isset($_GET['taxonomy']) ? sanitize_key(wp_unslash($_GET['taxonomy'])) : '';
+        return $taxonomy === 'linkdigest_tag';
+    }
+
+    /**
+     * Enqueue a versioned JS asset from the assets/js/ directory.
+     *
+     * @since 1.0.0
+     * @param string   $handle Script handle.
+     * @param string   $file   Filename inside assets/js/.
+     * @param string[] $deps   Script dependencies.
+     * @return void
+     */
+    private function enqueuePageScript(string $handle, string $file, array $deps = []): void {
+        $js_dir = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
+        $js_url = plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'assets/js/';
+        wp_enqueue_script($handle, $js_url . $file, $deps, (string) filemtime($js_dir . $file), true);
     }
 
     /**
