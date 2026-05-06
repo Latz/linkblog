@@ -3,15 +3,25 @@
  */
 
 /**
+ * Remove trailing slashes from a string.
+ *
+ * @param {string} str
+ * @returns {string}
+ */
+function removeTrailingSlashes(str) {
+    let clean = str;
+    while (clean.endsWith('/')) clean = clean.slice(0, -1);
+    return clean;
+}
+
+/**
  * Remove a trailing slash from a URL string.
  *
  * @param {string} url
  * @returns {string}
  */
 export function normalizeEndpoint(url) {
-    let clean = (url || '').trimEnd();
-    while (clean.endsWith('/')) clean = clean.slice(0, -1);
-    return clean;
+    return removeTrailingSlashes((url || '').trimEnd());
 }
 
 /**

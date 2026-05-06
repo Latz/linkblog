@@ -89,6 +89,8 @@ export function isCacheFresh(timestamp, ttlMs, now = Date.now()) {
  */
 export function buildApiUrl(endpoint, route) {
     let clean = endpoint;
-    while (clean.endsWith('/')) clean = clean.slice(0, -1);
+    while (clean.endsWith('/')) {
+        clean = clean.slice(0, -1);
+    }
     return `${clean}${route}`;
 }

@@ -6,53 +6,16 @@
 
 # Test info
 
-- Name: ui/dashboard.spec.js >> LinkDigest dashboard >> link list renders in the page
-- Location: tests/e2e/ui/dashboard.spec.js:47:9
+- Name: ui/dashboard.spec.js >> LinkDigest dashboard >> page loads without a PHP fatal
+- Location: tests/e2e/ui/dashboard.spec.js:34:9
 
 # Error details
 
 ```
-Error: expect(locator).toBeVisible() failed
-
-Locator: locator('#postbox-container-1 .postbox').first()
-Expected: visible
-Timeout: 5000ms
-Error: element(s) not found
-
-Call log:
-  - Expect "toBeVisible" with timeout 5000ms
-  - waiting for locator('#postbox-container-1 .postbox').first()
-
-```
-
-# Page snapshot
-
-```yaml
-- generic [ref=e2]:
-  - heading "Powered by WordPress" [level=1] [ref=e3]:
-    - link "Powered by WordPress" [ref=e4] [cursor=pointer]:
-      - /url: https://wordpress.org/
-  - generic [ref=e5]:
-    - paragraph [ref=e6]:
-      - generic [ref=e7]: Username or Email Address
-      - textbox "Username or Email Address" [ref=e8]: admin
-    - generic [ref=e9]:
-      - generic [ref=e10]: Password
-      - generic [ref=e11]:
-        - textbox "Password" [active] [ref=e12]
-        - button "Show password" [ref=e13] [cursor=pointer]:
-          - generic [ref=e14]: 
-    - paragraph [ref=e15]:
-      - checkbox "Remember Me" [ref=e16] [cursor=pointer]
-      - generic [ref=e17]: Remember Me
-    - paragraph:
-      - button "Log In" [ref=e18] [cursor=pointer]
-  - paragraph [ref=e19]:
-    - link "Lost your password?" [ref=e20] [cursor=pointer]:
-      - /url: http://localhost:8888/wp-login.php?action=lostpassword
-  - paragraph [ref=e21]:
-    - link "← Go to linkdigest" [ref=e22] [cursor=pointer]:
-      - /url: http://localhost:8888/
+Error: page.waitForURL: Test ended.
+=========================== logs ===========================
+  "domcontentloaded" event fired
+============================================================
 ```
 
 # Test source
@@ -80,7 +43,8 @@ Call log:
   20 |     await page.fill('#user_login', WP_ENV.ADMIN_USER);
   21 |     await page.fill('#user_pass', process.env.WP_ADMIN_PASSWORD ?? WP_ENV.ADMIN_PASSWORD);
   22 |     await page.click('#wp-submit');
-  23 |     await page.waitForURL(/wp-admin/);
+> 23 |     await page.waitForURL(/wp-admin/);
+     |                ^ Error: page.waitForURL: Test ended.
   24 | }
   25 | 
   26 | // ---------------------------------------------------------------------------
@@ -108,8 +72,7 @@ Call log:
   48 |         await page.goto(DASHBOARD_URL);
   49 |         // The unpublished links section is always present; the list itself only
   50 |         // renders when links exist, so check the containing postbox.
-> 51 |         await expect(page.locator('#postbox-container-1 .postbox').first()).toBeVisible();
-     |                                                                             ^ Error: expect(locator).toBeVisible() failed
+  51 |         await expect(page.locator('#postbox-container-1 .postbox').first()).toBeVisible();
   52 |     });
   53 | });
   54 | 
