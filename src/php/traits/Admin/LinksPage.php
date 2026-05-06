@@ -66,86 +66,12 @@ trait LinkDigest_Admin_LinksPage {
             <?php if ($action_message) : ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo wp_kses_post($action_message); ?></p></div>
             <?php endif; ?>
-
             <?php if ($action_error) : ?>
                 <div class="notice notice-error is-dismissible"><p><?php echo esc_html($action_error); ?></p></div>
             <?php endif; ?>
 
-            <form method="get" class="linkdigest-filter-form">
-                <input type="hidden" name="page" value="linkdigest-admin">
-
-                <div class="tablenav top linkdigest-links-tablenav">
-                    <div class="alignleft actions">
-                        <label class="screen-reader-text" for="filter-by-date"><?php esc_html_e('Filter by date', 'linkdigest'); ?></label>
-                        <select name="m" id="filter-by-date">
-                            <option value="0"<?php selected($month, 0); ?>><?php esc_html_e('All dates', 'linkdigest'); ?></option>
-                            <?php foreach ($date_options as $row) :
-                                $val = (int) $row->year * 100 + (int) $row->month;
-                                $label = sprintf(
-                                    /* translators: 1: month name, 2: year */
-                                    _x('%1$s %2$d', 'month year', 'linkdigest'),
-                                    $wp_locale->get_month($row->month),
-                                    $row->year
-                                );
-                            ?>
-                                <option value="<?php echo esc_attr((string) $val); ?>"<?php selected($month, $val); ?>><?php echo esc_html($label); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <label class="screen-reader-text" for="linkdigest-filter-cat"><?php esc_html_e('Filter by category', 'linkdigest'); ?></label>
-                        <select name="linkdigest_cat" id="linkdigest-filter-cat">
-                            <option value="0"<?php selected($cat, 0); ?>><?php esc_html_e('All categories', 'linkdigest'); ?></option>
-                            <?php foreach ($categories as $term) : ?>
-                                <option value="<?php echo esc_attr((string) $term->term_id); ?>"<?php selected($cat, $term->term_id); ?>><?php echo esc_html($term->name); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-
-                        <input type="submit" name="filter_action" id="post-query-submit" class="button" value="<?php esc_attr_e('Filter', 'linkdigest'); ?>">
-                    </div>
-
-                    <p class="search-box">
-                        <label class="screen-reader-text" for="link-search-input"><?php esc_html_e('Search Links', 'linkdigest'); ?></label>
-                        <input type="search" id="link-search-input" name="s" value="<?php echo esc_attr($search); ?>">
-                        <input type="submit" class="button" value="<?php esc_attr_e('Search Links', 'linkdigest'); ?>">
-                    </p>
-
-                    <?php if ($max_num_pages > 1) : ?>
-                    <div class="tablenav-pages">
-                        <span class="displaying-num">
-                            <?php echo esc_html(sprintf(
-                                _n('%s item', '%s items', $total_items, 'linkdigest'),
-                                number_format_i18n($total_items)
-                            )); ?>
-                        </span>
-                        <?php echo $pagination_links; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links() escapes internally ?>
-                    </div>
-                    <?php endif; ?>
-
-                    <br class="clear">
-                </div>
-            </form>
-
-            <?php if (!$has_links && !$is_filtered) : ?>
-                <p><?php esc_html_e('No links found. Add your first link!', 'linkdigest'); ?></p>
-            <?php elseif (!$has_links) : ?>
-                <table class="wp-list-table widefat fixed striped">
-                    <thead><tr>
-                        <th class="manage-column column-title"><?php esc_html_e('Title', 'linkdigest'); ?></th>
-                        <th class="manage-column column-url"><?php esc_html_e('URL', 'linkdigest'); ?></th>
-                        <th class="manage-column column-status"><?php esc_html_e('Status', 'linkdigest'); ?></th>
-                        <th class="manage-column column-published"><?php esc_html_e('Published', 'linkdigest'); ?></th>
-                        <th class="manage-column column-date"><?php esc_html_e('Date', 'linkdigest'); ?></th>
-                        <th class="manage-column column-actions"><?php esc_html_e('Actions', 'linkdigest'); ?></th>
-                    </tr></thead>
-                    <tbody>
-                        <tr class="no-items">
-                            <td class="colspanchange" colspan="6"><?php esc_html_e('No links found.', 'linkdigest'); ?></td>
-                        </tr>
-                    </tbody>
-                </table>
-            <?php else : ?>
-                <?php $this->renderCategoryLinks($grouped_links); ?>
-            <?php endif; ?>
+            <?php $this->renderLinksFilterForm($date_options, $categories, $month, $cat, $search, $total_items, $max_num_pages, $pagination_links, $wp_locale); ?>
+            <?php $this->renderLinksTableSection($has_links, $is_filtered, $grouped_links); ?>
 
             <?php if ($max_num_pages > 1) : ?>
             <div class="tablenav bottom">
@@ -156,6 +82,92 @@ trait LinkDigest_Admin_LinksPage {
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    private function renderLinksFilterForm(array $date_options, array $categories, int $month, int $cat, string $search, int $total_items, int $max_num_pages, string $pagination_links, \WP_Locale $wp_locale): void {
+        ?>
+        <form method="get" class="linkdigest-filter-form">
+            <input type="hidden" name="page" value="linkdigest-admin">
+
+            <div class="tablenav top linkdigest-links-tablenav">
+                <div class="alignleft actions">
+                    <label class="screen-reader-text" for="filter-by-date"><?php esc_html_e('Filter by date', 'linkdigest'); ?></label>
+                    <select name="m" id="filter-by-date">
+                        <option value="0"<?php selected($month, 0); ?>><?php esc_html_e('All dates', 'linkdigest'); ?></option>
+                        <?php foreach ($date_options as $row) :
+                            $val = (int) $row->year * 100 + (int) $row->month;
+                            $label = sprintf(
+                                /* translators: 1: month name, 2: year */
+                                _x('%1$s %2$d', 'month year', 'linkdigest'),
+                                $wp_locale->get_month($row->month),
+                                $row->year
+                            );
+                        ?>
+                            <option value="<?php echo esc_attr((string) $val); ?>"<?php selected($month, $val); ?>><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <label class="screen-reader-text" for="linkdigest-filter-cat"><?php esc_html_e('Filter by category', 'linkdigest'); ?></label>
+                    <select name="linkdigest_cat" id="linkdigest-filter-cat">
+                        <option value="0"<?php selected($cat, 0); ?>><?php esc_html_e('All categories', 'linkdigest'); ?></option>
+                        <?php foreach ($categories as $term) : ?>
+                            <option value="<?php echo esc_attr((string) $term->term_id); ?>"<?php selected($cat, $term->term_id); ?>><?php echo esc_html($term->name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <input type="submit" name="filter_action" id="post-query-submit" class="button" value="<?php esc_attr_e('Filter', 'linkdigest'); ?>">
+                </div>
+
+                <p class="search-box">
+                    <label class="screen-reader-text" for="link-search-input"><?php esc_html_e('Search Links', 'linkdigest'); ?></label>
+                    <input type="search" id="link-search-input" name="s" value="<?php echo esc_attr($search); ?>">
+                    <input type="submit" class="button" value="<?php esc_attr_e('Search Links', 'linkdigest'); ?>">
+                </p>
+
+                <?php if ($max_num_pages > 1) : ?>
+                <div class="tablenav-pages">
+                    <span class="displaying-num">
+                        <?php echo esc_html(sprintf(
+                            _n('%s item', '%s items', $total_items, 'linkdigest'),
+                            number_format_i18n($total_items)
+                        )); ?>
+                    </span>
+                    <?php echo $pagination_links; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- paginate_links() escapes internally ?>
+                </div>
+                <?php endif; ?>
+
+                <br class="clear">
+            </div>
+        </form>
+        <?php
+    }
+
+    private function renderLinksTableSection(bool $has_links, bool $is_filtered, array $grouped_links): void {
+        if (!$has_links && !$is_filtered) {
+            echo '<p>' . esc_html__('No links found. Add your first link!', 'linkdigest') . '</p>';
+            return;
+        }
+        if (!$has_links) {
+            ?>
+            <table class="wp-list-table widefat fixed striped">
+                <thead><tr>
+                    <th class="manage-column column-title"><?php esc_html_e('Title', 'linkdigest'); ?></th>
+                    <th class="manage-column column-url"><?php esc_html_e('URL', 'linkdigest'); ?></th>
+                    <th class="manage-column column-status"><?php esc_html_e('Status', 'linkdigest'); ?></th>
+                    <th class="manage-column column-published"><?php esc_html_e('Published', 'linkdigest'); ?></th>
+                    <th class="manage-column column-date"><?php esc_html_e('Date', 'linkdigest'); ?></th>
+                    <th class="manage-column column-actions"><?php esc_html_e('Actions', 'linkdigest'); ?></th>
+                </tr></thead>
+                <tbody>
+                    <tr class="no-items">
+                        <td class="colspanchange" colspan="6"><?php esc_html_e('No links found.', 'linkdigest'); ?></td>
+                    </tr>
+                </tbody>
+            </table>
+            <?php
+            return;
+        }
+        $this->renderCategoryLinks($grouped_links);
     }
 
     private function hasLinks(array $grouped_links): bool {
