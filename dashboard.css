@@ -258,8 +258,7 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 
 .linkdigest-link-item-header,
 .linkdigest-link-url,
-.linkdigest-link-meta,
-.linkdigest-delete-confirm-row {
+.linkdigest-link-meta {
 	grid-column: 1;
 }
 
@@ -339,8 +338,7 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 	color: #646970;
 }
 
-.linkdigest-delete-confirm-yes,
-.linkdigest-delete-cancel {
+.linkdigest-delete-confirm-yes {
 	font-size: 11px;
 	font-weight: 600;
 	padding: 2px 8px;
@@ -356,6 +354,12 @@ a.linkdigest-stat-card--link .linkdigest-stat-value {
 }
 
 .linkdigest-delete-cancel {
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 3px;
+	border: 1px solid;
+	cursor: pointer;
 	background: #f6f7f7;
 	border-color: #c3c4c7;
 	color: #1d2327;
@@ -496,10 +500,6 @@ td.linkdigest-cat-count-col {
 	color: #646970;
 	font-size: 12px;
 	max-width: 220px;
-}
-
-.linkdigest-cat-actions {
-	white-space: nowrap;
 }
 
 .linkdigest-cat-delete-btn {
