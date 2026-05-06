@@ -151,7 +151,9 @@
       "Read(//etc/mysql/**)",
       "Read(//etc/**)",
       "Bash(sudo sed *)",
-      "Bash(echo \"Syntax check status: $?\")"
+      "Bash(echo \"Syntax check status: $?\")",
+      "Bash(/bin/run-tests.sh *)",
+      "Bash(./bin/run-tests.sh)"
     ]
   }
 }

@@ -84,7 +84,11 @@ trait LinkDigest_Admin_LinksPage {
         <?php
     }
 
-    private function renderLinksFilterForm(array $date_options, array $categories, array $filters, int $total_items, int $max_num_pages, string $pagination_links, \WP_Locale $wp_locale): void {
+    private function renderLinksFilterForm(array $date_options, array $categories, array $filters, int $total_items, int $max_num_pages, string $pagination_links, ?\WP_Locale $wp_locale = null): void {
+        if ($wp_locale === null && isset($GLOBALS['wp_locale'])) {
+            $wp_locale = $GLOBALS['wp_locale'];
+        }
+
         $month  = (int) ($filters['month'] ?? 0);
         $cat    = (int) ($filters['cat'] ?? 0);
         $search = (string) ($filters['search'] ?? '');
