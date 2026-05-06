@@ -263,6 +263,38 @@ if (!function_exists('delete_transient')) {
 // ---------------------------------------------------------------------------
 // Capabilities & REST
 // ---------------------------------------------------------------------------
+if (!function_exists('is_admin')) {
+    function is_admin(): bool { return false; }
+}
+if (!function_exists('add_query_arg')) {
+    function add_query_arg(mixed ...$args): string {
+        if (count($args) === 1 && is_array($args[0])) {
+            $new_args = $args[0];
+            $url = '';
+        } elseif (count($args) === 2 && is_array($args[0])) {
+            $new_args = $args[0];
+            $url = (string) $args[1];
+        } else {
+            $new_args = [$args[0] => $args[1]];
+            $url = isset($args[2]) ? (string) $args[2] : '';
+        }
+        $parts = parse_url($url);
+        parse_str($parts['query'] ?? '', $query);
+        $query = array_merge($query, $new_args);
+        $base = ($parts['scheme'] ?? '') . (isset($parts['scheme']) ? '://' : '') . ($parts['host'] ?? '') . ($parts['path'] ?? '');
+        return $base . '?' . http_build_query($query);
+    }
+}
+if (!function_exists('wp_parse_args')) {
+    function wp_parse_args(mixed $args, mixed $defaults = []): array {
+        if (is_object($args)) {
+            $args = get_object_vars($args);
+        } elseif (!is_array($args)) {
+            parse_str((string) $args, $args);
+        }
+        return array_merge((array) $defaults, (array) $args);
+    }
+}
 if (!function_exists('current_user_can')) {
     function current_user_can(string $capability, mixed ...$args): bool { return false; }
 }

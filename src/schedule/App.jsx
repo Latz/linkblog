@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Notice, CheckboxControl, TextControl } from '@wordpress/components';
+import { Button, Notice, CheckboxControl, TextControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { buildRRule } from './lib/rrule';
 import { SCHEDULE_MODES } from './lib/modes';
@@ -17,6 +17,7 @@ const DEFAULT_FORM = {
   trigger: { count: 10, tag_id: null, days: 7 },
   times: [],
   notify: { enabled: false, email: '' },
+  post_status: 'publish',
 };
 
 function Section({ title, children }) {
@@ -184,6 +185,18 @@ export default function App() {
           </Section>
         )}
 
+        <Section title={__('Post Status', 'linkdigest')}>
+          <SelectControl
+            value={form.post_status ?? 'publish'}
+            options={[
+              { label: __('Publish', 'linkdigest'), value: 'publish' },
+              { label: __('Draft', 'linkdigest'), value: 'draft' },
+            ]}
+            onChange={post_status => setForm(f => ({ ...f, post_status }))}
+            __nextHasNoMarginBottom
+          />
+        </Section>
+
         <Section title={__('Notifications', 'linkdigest')}>
           <CheckboxControl
             label={__('Email me after each run', 'linkdigest')}
@@ -211,7 +224,7 @@ export default function App() {
 
       <div className="linkdigest-schedule-sidebar">
         <NextSchedules config={config} form={form} />
-        <DiagnosticsPanel data={diag} loading={diagLoading} onRefresh={refreshDiag} />
+        <DiagnosticsPanel data={diag} loading={diagLoading} onRefresh={refreshDiag} mode={form.mode} />
       </div>
     </div>
   );

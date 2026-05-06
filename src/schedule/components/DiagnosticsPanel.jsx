@@ -21,9 +21,10 @@ function fmtTs(ts) {
  * @param {object|null} data       - Diagnostics data from the API.
  * @param {boolean}     loading    - True while data is being fetched.
  * @param {Function}    onRefresh  - Callback to re-fetch diagnostics.
+ * @param {string}      mode       - Current schedule mode.
  * @returns {JSX.Element}
  */
-export default function DiagnosticsPanel({ data, loading, onRefresh }) {
+export default function DiagnosticsPanel({ data, loading, onRefresh, mode }) {
   const lastRun = data?.last_run;
   const statusBadgeClass = lastRun?.status === 'success'
     ? 'linkdigest-diag-badge linkdigest-diag-badge--success'
@@ -39,23 +40,36 @@ export default function DiagnosticsPanel({ data, loading, onRefresh }) {
 
         {!loading && data && (
           <dl className="linkdigest-diag-list">
-            <div className="linkdigest-diag-row">
-              <dt>{__('Next run', 'linkdigest')}</dt>
-              <dd>
-                {data.next_scheduled
-                  ? fmtTs(data.next_scheduled)
-                  : (
-                    <>
-                      <em>{__('Not scheduled', 'linkdigest')}</em>
-                      {data.wp_cron_disabled && (
-                        <span className="linkdigest-diag-reason">
-                          {' — '}{__('WP-Cron disabled', 'linkdigest')}
-                        </span>
-                      )}
-                    </>
-                  )}
-              </dd>
-            </div>
+            {mode !== 'count' && (
+              <div className="linkdigest-diag-row">
+                <dt>{__('Next run', 'linkdigest')}</dt>
+                <dd>
+                  {data.next_scheduled
+                    ? fmtTs(data.next_scheduled)
+                    : (
+                      <>
+                        <em>{__('Not scheduled', 'linkdigest')}</em>
+                        {data.wp_cron_disabled && (
+                          <span className="linkdigest-diag-reason">
+                            {' — '}{__('WP-Cron disabled', 'linkdigest')}
+                          </span>
+                        )}
+                      </>
+                    )}
+                </dd>
+              </div>
+            )}
+
+            {mode === 'count' && typeof data.links_until_post !== 'undefined' && (
+              <div className="linkdigest-diag-row">
+                <dt>{__('Next run', 'linkdigest')}</dt>
+                <dd>
+                  {data.links_until_post > 0
+                    ? sprintf(__('%d links until post', 'linkdigest'), data.links_until_post)
+                    : <em>{__('Ready to post', 'linkdigest')}</em>}
+                </dd>
+              </div>
+            )}
 
             <div className="linkdigest-diag-row">
               <dt>{__('Last run', 'linkdigest')}</dt>

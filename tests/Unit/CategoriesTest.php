@@ -95,17 +95,18 @@ describe('LinkDigest::restGetCategories()', function (): void {
 
 describe('LinkDigest::invalidateCategoriesCache()', function (): void {
 
-    it('deletes the correct transient key', function (): void {
-        $deletedKey = null;
+    it('deletes the correct transient keys', function (): void {
+        $deletedKeys = [];
         Functions\when('delete_transient')->alias(
-            function (string $key) use (&$deletedKey): bool {
-                $deletedKey = $key;
+            function (string $key) use (&$deletedKeys): bool {
+                $deletedKeys[] = $key;
                 return true;
             }
         );
 
         $this->plugin->invalidateCategoriesCache();
 
-        expect($deletedKey)->toBe('linkdigest_api_categories_list');
+        expect($deletedKeys)->toContain('linkdigest_api_categories_list');
+        expect($deletedKeys)->toContain('linkdigest_categories_terms');
     });
 });

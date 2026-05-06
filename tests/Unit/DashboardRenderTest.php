@@ -40,7 +40,7 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         expect($html)->toContain('Test Link');
     });
 
-    it('shows published badge for a published link', function (): void {
+    it('shows no badge for a published link', function (): void {
         $link = linkdigest_make_post(1, 'Published Link');
         Functions\when('get_post_meta')->alias(
             fn($id, $key, $single) => $key === '_linkdigest_publish_status' ? 'published' : ''
@@ -50,7 +50,7 @@ describe('LinkDigest::renderRecentlyPublishedBox()', function (): void { // NOSO
         $this->plugin->renderRecentlyPublishedBox([$link]);
         $html = ob_get_clean();
 
-        expect($html)->toContain('linkdigest-status-published');
+        expect($html)->not->toContain('linkdigest-status-published');
         expect($html)->not->toContain('linkdigest-status-draft');
     });
 

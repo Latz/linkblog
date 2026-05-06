@@ -219,12 +219,25 @@ trait LinkDigest_RestApi {
     public function getScheduleDiagnostics(): mixed {
         $next_ts  = wp_next_scheduled('linkdigest_execute_schedule');
         $last_run = get_option('linkdigest_last_run', null);
-        return rest_ensure_response([
+        $config   = get_option('linkdigest_schedule', []);
+        $mode     = $config['mode'] ?? 'daily';
+
+        $response = [
             'next_scheduled'        => $next_ts ?: null,
             'last_run'              => $last_run ?: null,
             'wp_cron_disabled'      => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
             'cron_notice_dismissed' => (bool) get_option('linkdigest_cron_notice_dismissed', false),
-        ]);
+        ];
+
+        if ($mode === 'count') {
+            $trigger = $config['trigger'] ?? [];
+            $count_threshold = (int) ($trigger['count'] ?? 10);
+            $unpublished_count = count($this->getUnpublishedLinkIds());
+            $links_until_post = max(0, $count_threshold - $unpublished_count);
+            $response['links_until_post'] = $links_until_post;
+        }
+
+        return rest_ensure_response($response);
     }
 
     /**

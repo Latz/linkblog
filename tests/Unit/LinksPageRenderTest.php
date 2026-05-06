@@ -104,7 +104,7 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         expect($html)->toContain('linkdigest-status-unpublished');
     });
 
-    it('shows published status badge for a published link', function (): void {
+    it('shows Published text (no badge) for a published link', function (): void {
         $link = linkdigest_make_post(1, 'Published Link');
         $this->plugin->shouldReceive('getLinksGroupedByCategory')
             ->andReturn(['grouped' => ['General' => [$link]], 'max_num_pages' => 1, 'total_items' => 1]);
@@ -116,7 +116,8 @@ describe('LinkDigest::showLinksPage() rendering', function (): void { // NOSONAR
         $this->plugin->showLinksPage();
         $html = ob_get_clean();
 
-        expect($html)->toContain('linkdigest-status-published');
+        expect($html)->toContain('Published');
+        expect($html)->not->toContain('linkdigest-status-published');
     });
 
     it('shows the published date when set', function (): void {

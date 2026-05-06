@@ -16,7 +16,7 @@ trait LinkDigest_ScheduleValidator {
      * @return array|\WP_Error Validated configuration or WP_Error.
      */
     public function validateScheduleConfig(array $data): array|\WP_Error {
-        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs', 'notify'];
+        $allowed_keys = ['mode', 'times', 'recurrence', 'trigger', 'publishAs', 'notify', 'post_status'];
         $unknown      = array_diff(array_keys($data), $allowed_keys);
         if (!empty($unknown)) {
             return new \WP_Error(
@@ -71,6 +71,12 @@ trait LinkDigest_ScheduleValidator {
             $data['publishAs'] = (int) $data['publishAs'];
             if ($data['publishAs'] < 0) {
                 return new \WP_Error('invalid_publish_as', __('publishAs must be a non-negative integer', 'linkdigest'), ['status' => 400]);
+            }
+        }
+
+        if (isset($data['post_status'])) {
+            if (!in_array($data['post_status'], ['publish', 'draft'], true)) {
+                return new \WP_Error('invalid_post_status', __('post_status must be "publish" or "draft"', 'linkdigest'), ['status' => 400]);
             }
         }
 

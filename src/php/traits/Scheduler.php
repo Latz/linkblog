@@ -111,7 +111,8 @@ trait LinkDigest_Scheduler {
             }
 
             do_action('linkdigest_before_run', $link_ids, $mode);
-            $roundup = $this->createRoundupPost($link_ids, $title, false, $mode);
+            $as_draft = ($config['post_status'] ?? 'publish') === 'draft';
+            $roundup  = $this->createRoundupPost($link_ids, $title, $as_draft, $mode);
 
             // Restore previous user context.
             if (get_current_user_id() !== $prev_user_id) {

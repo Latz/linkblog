@@ -146,7 +146,11 @@
       "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon16.png)",
       "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon32.png)",
       "Bash(identify -verbose /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon16.png)",
-      "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu.png /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu-2x.png)"
+      "Bash(identify /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu.png /home/latz/www/wp/wp-content/plugins/linkdigest/assets/icon-menu-2x.png)",
+      "Bash(sudo find *)",
+      "Read(//etc/mysql/**)",
+      "Read(//etc/**)",
+      "Bash(sudo sed *)"
     ]
   }
 }

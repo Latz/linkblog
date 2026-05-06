@@ -129,6 +129,28 @@ describe('LinkDigest::validateScheduleConfig()', function (): void {
         expect($result->get_error_data()['status'])->toBe(400);
     });
 
+    it('accepts post_status "publish" as a valid value', function (): void {
+        $result = $this->plugin->validateScheduleConfig(['mode' => 'daily', 'post_status' => 'publish']);
+
+        expect($result)->toBeArray();
+        expect($result['post_status'])->toBe('publish');
+    });
+
+    it('accepts post_status "draft" as a valid value', function (): void {
+        $result = $this->plugin->validateScheduleConfig(['mode' => 'daily', 'post_status' => 'draft']);
+
+        expect($result)->toBeArray();
+        expect($result['post_status'])->toBe('draft');
+    });
+
+    it('returns 400 invalid_post_status for an unrecognized value', function (): void {
+        $result = $this->plugin->validateScheduleConfig(['mode' => 'daily', 'post_status' => 'pending']);
+
+        expect($result)->toBeInstanceOf(WP_Error::class);
+        expect($result->get_error_code())->toBe('invalid_post_status');
+        expect($result->get_error_data()['status'])->toBe(400);
+    });
+
     it('accepts notify as a known top-level key', function (): void {
         $result = $this->plugin->validateScheduleConfig([
             'mode'   => 'daily',
