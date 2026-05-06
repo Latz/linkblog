@@ -22,7 +22,9 @@ export function extractPageDescription(doc) {
     for (const [attr, value] of candidates) {
         const nodes = doc.querySelectorAll(`[${attr}="${value}" i]`);
         for (const node of nodes) {
-            const text = (node.content || '').trim().replaceAll(/(^\n+)|(\n+$)/g, '');
+            let text = (node.content || '').trim();
+            while (text.startsWith('\n')) text = text.slice(1);
+            while (text.endsWith('\n')) text = text.slice(0, -1);
             if (text) return text;
         }
     }
@@ -86,6 +88,7 @@ export function isCacheFresh(timestamp, ttlMs, now = Date.now()) {
  * @returns {string}
  */
 export function buildApiUrl(endpoint, route) {
-    const clean = endpoint.replace(/\/+$/, '');
+    let clean = endpoint;
+    while (clean.endsWith('/')) clean = clean.slice(0, -1);
     return `${clean}${route}`;
 }

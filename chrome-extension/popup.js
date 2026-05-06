@@ -28,7 +28,9 @@ export function extractPageDescription() {
     for (const [attr, value] of candidates) {
         const nodes = document.querySelectorAll(`[${attr}="${value}" i]`);
         for (const node of nodes) {
-            const text = (node.content || '').trim().replaceAll(/(^\n+)|(\n+$)/g, '');
+            let text = (node.content || '').trim();
+            while (text.startsWith('\n')) text = text.slice(1);
+            while (text.endsWith('\n')) text = text.slice(0, -1);
             if (text) return text;
         }
     }

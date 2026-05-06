@@ -9,7 +9,9 @@
  * @returns {string}
  */
 export function normalizeEndpoint(url) {
-    return (url || '').trimEnd().replace(/\/+$/, '');
+    let clean = (url || '').trimEnd();
+    while (clean.endsWith('/')) clean = clean.slice(0, -1);
+    return clean;
 }
 
 /**

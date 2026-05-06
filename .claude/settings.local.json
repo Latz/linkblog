@@ -154,7 +154,8 @@
       "Bash(echo \"Syntax check status: $?\")",
       "Bash(/bin/run-tests.sh *)",
       "Bash(./bin/run-tests.sh)",
-      "Bash(pest --testsuite=Unit)"
+      "Bash(pest --testsuite=Unit)",
+      "WebFetch(domain:sonarcloud.io)"
     ]
   }
 }
