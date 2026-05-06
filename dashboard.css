@@ -706,3 +706,27 @@ textarea.linkdigest-cat-inline-input {
 	vertical-align: middle;
 	margin-inline-end: 2px;
 }
+
+/* ── Settings page: input + button rows ─────────────────────── */
+.linkdigest-row {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.linkdigest-row .large-text {
+	flex: 1;
+	min-width: 0;
+}
+
+.linkdigest-row .button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+}
+
+/* ── Settings page: full width cards ────────────────────────── */
+.linkdigest-settings-card,
+.linkdigest-setup-card {
+	max-width: none;
+}

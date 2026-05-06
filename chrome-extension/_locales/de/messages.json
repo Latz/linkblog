@@ -1,5 +1,5 @@
 {
-  "appName":              { "message": "LinkDigest" },
+  "appName":              { "message": "LinkDigest Chrome Extension" },
   "appDescription":       { "message": "Links für dein LinkDigest WordPress-Plugin speichern" },
 
   "pageTitle":            { "message": "LinkDigest" },

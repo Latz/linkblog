@@ -177,7 +177,7 @@ trait LinkDigest_Admin_Menu {
         $has_key_attr = $api_key ? 'data-has-key="1"' : '';
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e('LinkDigest Extension', 'linkdigest'); ?></h1>
+            <h1><?php esc_html_e('LinkDigest Chrome Extension', 'linkdigest'); ?></h1>
 
             <div class="card linkdigest-settings-card">
                 <h2><?php esc_html_e('Chrome Extension Access Data', 'linkdigest'); ?></h2>
@@ -253,23 +253,16 @@ trait LinkDigest_Admin_Menu {
                 </form>
             </div>
 
-            <details class="linkdigest-setup-details" <?php echo $api_key ? '' : 'open'; ?>>
-                <summary>
-                    <div class="card linkdigest-row linkdigest-setup-summary-card">
-                        <span class="dashicons dashicons-arrow-right-alt2" id="linkdigest-setup-arrow"></span>
-                        <h2 class="linkdigest-setup-heading"><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
-                    </div>
-                </summary>
-                <div class="card linkdigest-setup-content">
-                    <ol>
-                        <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
-                        <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
-                        <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkdigest'); ?></li>
-                        <li><?php esc_html_e('Click Save', 'linkdigest'); ?></li>
-                        <li><?php esc_html_e('Now you can save links directly from any webpage!', 'linkdigest'); ?></li>
-                    </ol>
-                </div>
-            </details>
+            <div class="card linkdigest-setup-card">
+                <h2><?php esc_html_e('Chrome Extension Setup', 'linkdigest'); ?></h2>
+                <ol>
+                    <li><?php esc_html_e('Download and install the LinkDigest Chrome extension', 'linkdigest'); ?></li>
+                    <li><?php esc_html_e('Click the extension icon and go to Settings', 'linkdigest'); ?></li>
+                    <li><?php esc_html_e('Paste your API Endpoint and API Key from above', 'linkdigest'); ?></li>
+                    <li><?php esc_html_e('Click Save', 'linkdigest'); ?></li>
+                    <li><?php esc_html_e('Now you can save links directly from any webpage!', 'linkdigest'); ?></li>
+                </ol>
+            </div>
         </div>
 
         <?php
