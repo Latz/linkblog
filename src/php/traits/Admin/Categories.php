@@ -13,19 +13,9 @@ trait LinkDigest_Admin_Categories {
 
         if ( isset( $_SERVER['REQUEST_METHOD'] ) && sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) === 'POST' ) {
             if ( isset( $_POST['linkdigest_add_category'] ) ) {
-                $error  = $this->handleAddCategory();
-                $notice = $error
-                    ? array( 'type' => 'error',   'msg' => $error )
-                    : array( 'type' => 'success', 'msg' => __( 'Category added.', 'linkdigest' ) );
-
+                $notice = $this->buildAddCategoryNotice();
             } elseif ( isset( $_POST['linkdigest_delete_category'] ) ) {
-                $deleted = $this->handleDeleteCategory();
-                $notice  = array(
-                    'type' => $deleted ? 'success' : 'error',
-                    'msg'  => $deleted
-                        ? __( 'Category deleted.', 'linkdigest' )
-                        : __( 'Could not delete category.', 'linkdigest' ),
-                );
+                $notice = $this->buildDeleteCategoryNotice();
             }
         }
 
@@ -58,6 +48,24 @@ trait LinkDigest_Admin_Categories {
     // -------------------------------------------------------------------------
     // POST handlers
     // -------------------------------------------------------------------------
+
+    private function buildAddCategoryNotice(): array {
+        $error = $this->handleAddCategory();
+        if ( $error ) {
+            return array( 'type' => 'error', 'msg' => $error );
+        }
+        return array( 'type' => 'success', 'msg' => __( 'Category added.', 'linkdigest' ) );
+    }
+
+    private function buildDeleteCategoryNotice(): array {
+        $deleted = $this->handleDeleteCategory();
+        return array(
+            'type' => $deleted ? 'success' : 'error',
+            'msg'  => $deleted
+                ? __( 'Category deleted.', 'linkdigest' )
+                : __( 'Could not delete category.', 'linkdigest' ),
+        );
+    }
 
     private function handleAddCategory(): ?string {
         $nonce = isset( $_POST['linkdigest_cat_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_cat_nonce'] ) ) : '';
