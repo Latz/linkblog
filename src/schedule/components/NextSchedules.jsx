@@ -6,7 +6,7 @@ import { SCHEDULE_MODES } from '../lib/modes';
 const DAYS   = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-const loc = window.linkdigestSchedule || {};
+const loc = globalThis.linkdigestSchedule || {};
 const SITE_TIMEZONE = loc.timezone || null;
 
 /**

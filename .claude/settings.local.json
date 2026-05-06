@@ -150,7 +150,8 @@
       "Bash(sudo find *)",
       "Read(//etc/mysql/**)",
       "Read(//etc/**)",
-      "Bash(sudo sed *)"
+      "Bash(sudo sed *)",
+      "Bash(echo \"Syntax check status: $?\")"
     ]
   }
 }

@@ -213,6 +213,7 @@ trait LinkDigest_Admin_LinksPage {
         if (empty($publish_status)) {
             $publish_status = 'unpublished';
         }
+        $sort_val = $publish_status === 'published' ? '1' : ($publish_status === 'draft' ? '2' : '3');
         ?>
         <tr>
             <td class="column-title"><strong><?php echo esc_html($link->post_title); ?></strong></td>
@@ -223,7 +224,7 @@ trait LinkDigest_Admin_LinksPage {
                     -
                 <?php endif; ?>
             </td>
-            <td class="column-status" data-sort-val="<?php echo $publish_status === 'published' ? '1' : ($publish_status === 'draft' ? '2' : '3'); ?>"><?php $this->renderLinkStatusBadge($publish_status); ?></td>
+            <td class="column-status" data-sort-val="<?php echo esc_attr($sort_val); ?>"><?php $this->renderLinkStatusBadge($publish_status); ?></td>
             <td class="column-published">
                 <?php if ($published_date) : ?>
                     <?php echo esc_html(mysql2date('Y-m-d', $published_date)); ?>

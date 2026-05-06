@@ -184,7 +184,7 @@ trait LinkDigest_Admin_Menu {
                 <p><?php esc_html_e('Use these credentials to connect the LinkDigest Chrome extension to your WordPress site.', 'linkdigest'); ?></p>
 
                 <div class="linkdigest-settings-field">
-                    <label class="linkdigest-settings-label">
+                    <label class="linkdigest-settings-label" for="linkdigest-api-endpoint">
                         <?php esc_html_e('API Endpoint', 'linkdigest'); ?>
                         <span class="linkdigest-settings-note">(<?php esc_html_e('read-only', 'linkdigest'); ?>)</span>
                     </label>
