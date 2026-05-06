@@ -1,4 +1,5 @@
 import { applyI18n } from './i18n.js';
+import { extractPageDescription as extractPageDescriptionUtil, renderCategories as renderCategoriesUtil } from '../src/js/popup-utils.js';
 
 // Check if settings are configured
 export async function checkSettings() {
@@ -17,24 +18,7 @@ export async function checkSettings() {
 
 // Extract description from page meta tags (runs inside the tab's context)
 export function extractPageDescription() {
-    const candidates = [
-        ['property', 'og:description'],
-        ['name',     'description'],
-        ['name',     'twitter:description'],
-        ['name',     'og:description'],
-        ['http-equiv', 'description'],
-    ];
-
-    for (const [attr, value] of candidates) {
-        const nodes = document.querySelectorAll(`[${attr}="${value}" i]`);
-        for (const node of nodes) {
-            let text = (node.content || '').trim();
-            while (text.startsWith('\n')) text = text.slice(1);
-            while (text.endsWith('\n')) text = text.slice(0, -1);
-            if (text) return text;
-        }
-    }
-    return '';
+    return extractPageDescriptionUtil(document);
 }
 
 // Load current page info
@@ -64,7 +48,7 @@ export async function loadPageInfo() {
     }
 }
 
-// Render categories to DOM
+// Render categories to DOM with sorting and i18n
 export function renderCategories(categories) {
     const categoriesList = document.getElementById('categoriesList');
 
@@ -73,27 +57,9 @@ export function renderCategories(categories) {
         return;
     }
 
-    categoriesList.innerHTML = '';
-    const fragment = document.createDocumentFragment();
-
-    [...categories].sort((a, b) => a.name.localeCompare(b.name)).forEach(category => {
-        const radio = document.createElement('input');
-        radio.type = 'radio';
-        radio.name = 'linkdigest_category';
-        radio.id = `cat-${category.id}`;
-        radio.value = category.name;
-        radio.className = 'category-checkbox';
-
-        const label = document.createElement('label');
-        label.htmlFor = `cat-${category.id}`;
-        label.textContent = category.name;
-        label.className = 'category-label';
-
-        fragment.appendChild(radio);
-        fragment.appendChild(label);
-    });
-
-    categoriesList.appendChild(fragment);
+    // Sort categories by name and use the shared render function
+    const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+    renderCategoriesUtil(sorted, categoriesList);
 }
 
 // Load categories from WordPress
