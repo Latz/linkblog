@@ -16,8 +16,8 @@ import constants from '../../../constants.json' assert { type: 'json' };
 
 const { REST_NAMESPACE, ROUTES } = constants;
 
-const api   = (route) => `/wp-json/${REST_NAMESPACE}${route}`;
-const wpApi = (route) => `/wp-json/wp/v2${route}`;
+const api   = (route) => `/?rest_route=/${REST_NAMESPACE}${route}`;
+const wpApi = (route) => `/?rest_route=/wp/v2${route}`;
 
 /** Creates a linkdigest link via REST and returns its post_id. */
 async function createLink(request, suffix = Date.now()) {

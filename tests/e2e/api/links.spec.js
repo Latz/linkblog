@@ -14,7 +14,7 @@ import constants from '../../../constants.json' assert { type: 'json' };
 
 const { REST_NAMESPACE, ROUTES } = constants;
 
-const api = (route) => `/wp-json/${REST_NAMESPACE}${route}`;
+const api = (route) => `/?rest_route=/${REST_NAMESPACE}${route}`;
 
 // ---------------------------------------------------------------------------
 // GET /categories
