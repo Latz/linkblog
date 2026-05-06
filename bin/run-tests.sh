@@ -12,6 +12,18 @@ PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_DIR"
 
 EXIT_CODES=()
+ENV_STARTED=0
+
+# Cleanup function to stop environment on exit
+cleanup() {
+  if [ $ENV_STARTED -eq 1 ]; then
+    echo ""
+    echo "Stopping WordPress environment..."
+    npm run env:stop > /dev/null 2>&1
+  fi
+}
+
+trap cleanup EXIT
 
 # Run PHP Unit Tests
 echo "Running PHP Unit Tests (Pest)..."
@@ -38,6 +50,11 @@ echo ""
 echo "=========================================="
 
 # Run E2E Tests
+echo "Starting WordPress environment for E2E tests..."
+npm run env:start || { echo "✗ Failed to start environment"; EXIT_CODES+=(1); exit 1; }
+ENV_STARTED=1
+
+echo ""
 echo "Running E2E Tests (Playwright)..."
 echo ""
 npm run test:e2e || EXIT_CODES+=(1)
