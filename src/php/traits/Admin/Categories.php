@@ -68,6 +68,22 @@ trait LinkDigest_Admin_Categories {
     }
 
     private function handleAddCategory(): ?string {
+        $error = $this->validateAddCategoryInput();
+        if ( $error !== null ) {
+            return $error;
+        }
+        $name   = sanitize_text_field( wp_unslash( $_POST['cat_name'] ?? '' ) );
+        $desc   = sanitize_textarea_field( wp_unslash( $_POST['cat_description'] ?? '' ) );
+        $result = wp_insert_term( $name, 'linkdigest_category', array( 'description' => $desc ) );
+        if ( is_wp_error( $result ) ) {
+            return $result->get_error_message();
+        }
+        delete_transient( 'linkdigest_api_categories_list' );
+        delete_transient( 'linkdigest_categories_terms' );
+        return null;
+    }
+
+    private function validateAddCategoryInput(): ?string {
         $nonce = isset( $_POST['linkdigest_cat_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_cat_nonce'] ) ) : '';
         if ( ! wp_verify_nonce( $nonce, 'linkdigest_add_category' ) ) {
             return __( 'Security check failed.', 'linkdigest' );
@@ -76,13 +92,6 @@ trait LinkDigest_Admin_Categories {
         if ( empty( $name ) ) {
             return __( 'Category name is required.', 'linkdigest' );
         }
-        $desc   = isset( $_POST['cat_description'] ) ? sanitize_textarea_field( wp_unslash( $_POST['cat_description'] ) ) : '';
-        $result = wp_insert_term( $name, 'linkdigest_category', array( 'description' => $desc ) );
-        if ( is_wp_error( $result ) ) {
-            return $result->get_error_message();
-        }
-        delete_transient( 'linkdigest_api_categories_list' );
-        delete_transient( 'linkdigest_categories_terms' );
         return null;
     }
 
