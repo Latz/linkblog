@@ -217,12 +217,13 @@ trait LinkDigest_Admin_LinksPage {
             $publish_status = 'unpublished';
         }
         $sort_val = $publish_status === 'published' ? '1' : ($publish_status === 'draft' ? '2' : '3');
+        $url_display = strlen($url) > 50 ? substr($url, 0, 50) . '...' : $url;
         ?>
         <tr>
             <td class="column-title"><strong><?php echo esc_html($link->post_title); ?></strong></td>
             <td class="column-url">
                 <?php if ($url) : ?>
-                    <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html(substr($url, 0, 50)) . (strlen($url) > 50 ? '...' : ''); ?></a>
+                    <a href="<?php echo esc_url($url); ?>" target="_blank"><?php echo esc_html($url_display); ?></a>
                 <?php else : ?>
                     -
                 <?php endif; ?>
