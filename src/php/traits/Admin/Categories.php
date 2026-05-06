@@ -96,21 +96,26 @@ trait LinkDigest_Admin_Categories {
     }
 
     private function handleDeleteCategory(): bool {
-        $nonce = isset( $_POST['linkdigest_cat_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_cat_nonce'] ) ) : '';
-        if ( ! wp_verify_nonce( $nonce, 'linkdigest_delete_category' ) ) {
+        if ( ! $this->validateDeleteCategoryInput() ) {
             return false;
         }
-        $term_id = isset( $_POST['cat_term_id'] ) ? (int) $_POST['cat_term_id'] : 0;
-        if ( ! $term_id ) {
-            return false;
-        }
-        $result = wp_delete_term( $term_id, 'linkdigest_category' );
+        $term_id = (int) ( $_POST['cat_term_id'] ?? 0 );
+        $result  = wp_delete_term( $term_id, 'linkdigest_category' );
         if ( is_wp_error( $result ) || $result === false ) {
             return false;
         }
         delete_transient( 'linkdigest_api_categories_list' );
         delete_transient( 'linkdigest_categories_terms' );
         return true;
+    }
+
+    private function validateDeleteCategoryInput(): bool {
+        $nonce = isset( $_POST['linkdigest_cat_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_cat_nonce'] ) ) : '';
+        if ( ! wp_verify_nonce( $nonce, 'linkdigest_delete_category' ) ) {
+            return false;
+        }
+        $term_id = isset( $_POST['cat_term_id'] ) ? (int) $_POST['cat_term_id'] : 0;
+        return (bool) $term_id;
     }
 
     // -------------------------------------------------------------------------
