@@ -216,7 +216,11 @@ trait LinkDigest_Admin_LinksPage {
         if (empty($publish_status)) {
             $publish_status = 'unpublished';
         }
-        $sort_val = $publish_status === 'published' ? '1' : ($publish_status === 'draft' ? '2' : '3');
+        $sort_val = match ($publish_status) {
+            'published' => '1',
+            'draft' => '2',
+            default => '3',
+        };
         $url_display = strlen($url) > 50 ? substr($url, 0, 50) . '...' : $url;
         ?>
         <tr>
