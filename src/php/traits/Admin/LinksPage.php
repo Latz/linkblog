@@ -70,7 +70,7 @@ trait LinkDigest_Admin_LinksPage {
                 <div class="notice notice-error is-dismissible"><p><?php echo esc_html($action_error); ?></p></div>
             <?php endif; ?>
 
-            <?php $this->renderLinksFilterForm($date_options, $categories, $month, $cat, $search, $total_items, $max_num_pages, $pagination_links, $wp_locale); ?>
+            <?php $this->renderLinksFilterForm($date_options, $categories, ['month' => $month, 'cat' => $cat, 'search' => $search], $total_items, $max_num_pages, $pagination_links, $wp_locale); ?>
             <?php $this->renderLinksTableSection($has_links, $is_filtered, $grouped_links); ?>
 
             <?php if ($max_num_pages > 1) : ?>
@@ -84,7 +84,10 @@ trait LinkDigest_Admin_LinksPage {
         <?php
     }
 
-    private function renderLinksFilterForm(array $date_options, array $categories, int $month, int $cat, string $search, int $total_items, int $max_num_pages, string $pagination_links, \WP_Locale $wp_locale): void {
+    private function renderLinksFilterForm(array $date_options, array $categories, array $filters, int $total_items, int $max_num_pages, string $pagination_links, \WP_Locale $wp_locale): void {
+        $month  = (int) ($filters['month'] ?? 0);
+        $cat    = (int) ($filters['cat'] ?? 0);
+        $search = (string) ($filters['search'] ?? '');
         ?>
         <form method="get" class="linkdigest-filter-form">
             <input type="hidden" name="page" value="linkdigest-admin">
