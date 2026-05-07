@@ -98,14 +98,18 @@ trait LinkDigest_Scheduler {
             $result = ['published' => false, 'post_id' => null, 'link_count' => 0, 'reason' => 'condition_not_met'];
         }
 
-        update_option('linkdigest_last_run', [
+        $run_record = [
             'ts'         => time(),
             'mode'       => $mode,
             'link_count' => $result['link_count'],
             'post_id'    => $result['post_id'],
             'status'     => $result['published'] ? 'success' : 'skipped',
             'reason'     => $result['reason'],
-        ]);
+        ];
+        update_option('linkdigest_last_run', $run_record);
+        $history = get_option('linkdigest_run_history', []);
+        array_unshift($history, $run_record);
+        update_option('linkdigest_run_history', array_slice($history, 0, 25));
 
         return $result;
     }

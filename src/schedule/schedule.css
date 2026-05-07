@@ -397,6 +397,51 @@
   padding-inline-start: 2px;
 }
 
+/* Run history */
+.linkdigest-run-reason {
+  display: block;
+  font-size: 11px;
+  color: #787c82;
+  margin-top: 2px;
+}
+
+.linkdigest-history-toggle {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--wp-admin-theme-color, #2271b1);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.linkdigest-history-list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkdigest-history-row {
+  padding: 5px 0;
+  border-top: 1px solid #dcdcde;
+  font-size: 11px;
+}
+
+.linkdigest-history-row-main {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.linkdigest-history-date {
+  font-size: 11px;
+  color: #646970;
+  margin-top: 1px;
+}
+
 .linkdigest-mode-cards {
   display: flex;
   gap: 6px;

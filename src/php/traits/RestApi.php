@@ -227,6 +227,7 @@ trait LinkDigest_RestApi {
             'last_run'              => $last_run ?: null,
             'wp_cron_disabled'      => defined('DISABLE_WP_CRON') && DISABLE_WP_CRON,
             'cron_notice_dismissed' => (bool) get_option('linkdigest_cron_notice_dismissed', false),
+            'run_history'           => get_option('linkdigest_run_history', []),
         ];
 
         if ($mode === 'count') {
