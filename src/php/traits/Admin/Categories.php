@@ -12,9 +12,10 @@ trait LinkDigest_Admin_Categories {
         $notice = null;
 
         if ( isset( $_SERVER['REQUEST_METHOD'] ) && sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) === 'POST' ) {
-            if ( isset( $_POST['linkdigest_add_category'] ) ) {
+            $nonce = isset( $_POST['linkdigest_cat_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['linkdigest_cat_nonce'] ) ) : '';
+            if ( isset( $_POST['linkdigest_add_category'] ) && wp_verify_nonce( $nonce, 'linkdigest_add_category' ) ) {
                 $notice = $this->buildAddCategoryNotice();
-            } elseif ( isset( $_POST['linkdigest_delete_category'] ) ) {
+            } elseif ( isset( $_POST['linkdigest_delete_category'] ) && wp_verify_nonce( $nonce, 'linkdigest_delete_category' ) ) {
                 $notice = $this->buildDeleteCategoryNotice();
             }
         }
@@ -99,7 +100,7 @@ trait LinkDigest_Admin_Categories {
         if ( ! $this->validateDeleteCategoryInput() ) {
             return false;
         }
-        $term_id = (int) ( $_POST['cat_term_id'] ?? 0 );
+        $term_id = (int) ( isset( $_POST['cat_term_id'] ) ? sanitize_text_field( wp_unslash( $_POST['cat_term_id'] ) ) : 0 );
         $result  = wp_delete_term( $term_id, 'linkdigest_category' );
         if ( is_wp_error( $result ) || $result === false ) {
             return false;
@@ -114,7 +115,7 @@ trait LinkDigest_Admin_Categories {
         if ( ! wp_verify_nonce( $nonce, 'linkdigest_delete_category' ) ) {
             return false;
         }
-        $term_id = isset( $_POST['cat_term_id'] ) ? (int) $_POST['cat_term_id'] : 0;
+        $term_id = isset( $_POST['cat_term_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['cat_term_id'] ) ) : 0;
         return (bool) $term_id;
     }
 
