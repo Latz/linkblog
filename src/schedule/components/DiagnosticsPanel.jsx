@@ -27,6 +27,7 @@ function RunBadge({ status }) {
 
 function PostLink({ postId, linkCount }) {
   if (!linkCount) return null;
+  /* translators: %d: number of links in the published digest */
   const label = sprintf(__('%d links', 'linkdigest'), linkCount);
   return (
     <span className="linkdigest-diag-meta">
@@ -80,6 +81,7 @@ export default function DiagnosticsPanel({ data, loading, onRefresh, mode }) {
                   <dt>{__('Next run', 'linkdigest')}</dt>
                   <dd>
                     {data.links_until_post > 0
+                      /* translators: %d: number of links still needed before the next post */
                       ? sprintf(__('%d links until post', 'linkdigest'), data.links_until_post)
                       : <em>{__('Ready to post', 'linkdigest')}</em>}
                   </dd>

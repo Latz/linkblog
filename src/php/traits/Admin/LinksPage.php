@@ -135,6 +135,7 @@ trait LinkDigest_Admin_LinksPage {
                 <div class="tablenav-pages">
                     <span class="displaying-num">
                         <?php echo esc_html(sprintf(
+                            /* translators: %s: number of items in the list table */
                             _n('%s item', '%s items', $total_items, 'linkdigest'),
                             number_format_i18n($total_items)
                         )); ?>

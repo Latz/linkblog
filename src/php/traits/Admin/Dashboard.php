@@ -222,8 +222,8 @@ trait LinkDigest_Admin_Dashboard {
             get_option( 'date_format' ) . ', ' . get_option( 'time_format' ),
             $next_ts
         );
-        /* translators: %s: formatted next publish datetime */
         return [
+            /* translators: %s: formatted next publish datetime */
             'text' => sprintf( __( 'next: %s', 'linkdigest' ), $formatted ),
             'icon' => 'dashicons-calendar-alt',
         ];
@@ -561,8 +561,8 @@ trait LinkDigest_Admin_Dashboard {
                 <span class="dashicons dashicons-calendar-alt linkdigest-schedule-status-icon"></span>
                 <span class="linkdigest-schedule-status-text">
                     <?php
-                    /* translators: %s: formatted next run datetime */
                     printf(
+                        /* translators: %s: formatted next run datetime */
                         esc_html__( 'Next run: %s', 'linkdigest' ),
                         esc_html( wp_date( get_option( 'date_format' ) . ', ' . get_option( 'time_format' ), $next_ts ) )
                     );
