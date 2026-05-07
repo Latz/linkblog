@@ -149,6 +149,7 @@ trait LinkDigest_Queries {
 
         // Bulk-migrate existing 'publish'-status linkdigest posts to custom statuses.
         // Three SQL UPDATEs are far faster than iterating with wp_update_post() for large sites.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm
@@ -160,6 +161,7 @@ trait LinkDigest_Queries {
             'linkdigest'
         ));
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm
@@ -172,6 +174,7 @@ trait LinkDigest_Queries {
         ));
 
         // All remaining 'publish' linkdigest posts have no status meta → they are pending.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->posts}
              SET post_status = 'linkdigest_pending'
