@@ -2,7 +2,7 @@
 /**
  * Plugin Name: LinkDigest
  * Description: Save and publish links to your blog
- * Version: 1.0.2
+ * Version: 2.0.0
  * Author: Latz
  * License: GPL v2 or later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

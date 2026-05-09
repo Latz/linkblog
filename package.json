@@ -1,6 +1,6 @@
 {
   "name": "linkdigest",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "scripts": {
     "build": "wp-scripts build",
     "start": "wp-scripts start",
