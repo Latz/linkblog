@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Notice, CheckboxControl, TextControl, SelectControl } from '@wordpress/components';
+import { Button, Notice, Snackbar, CheckboxControl, TextControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { buildRRule } from './lib/rrule';
 import { SCHEDULE_MODES } from './lib/modes';
@@ -33,6 +33,7 @@ export default function App() {
   const [savedForm, setSavedForm]   = useState(null);
   const [saving, setSaving]         = useState(false);
   const [notice, setNotice]         = useState(null);
+  const [snackbar, setSnackbar]     = useState(null);
   // Initialised from diag.cron_notice_dismissed once diagnostics load.
   const [cronNoticeDismissed, setCronNoticeDismissed] = useState(false);
 
@@ -83,7 +84,7 @@ export default function App() {
     try {
       await apiFetch({ path: '/linkdigest/v1/schedule', method: 'POST', data: form });
       setSavedForm(form);
-      setNotice({ status: 'success', message: __('Schedule saved.', 'linkdigest') });
+      setSnackbar(__('Schedule saved.', 'linkdigest'));
       refreshDiag();
     } catch {
       setNotice({ status: 'error', message: __('Failed to save schedule.', 'linkdigest') });
@@ -207,6 +208,12 @@ export default function App() {
         <NextSchedules config={config} form={form} />
         <DiagnosticsPanel data={diag} loading={diagLoading} onRefresh={refreshDiag} mode={form.mode} />
       </div>
+
+      {snackbar && (
+        <div className="linkdigest-snackbar-region">
+          <Snackbar onRemove={() => setSnackbar(null)}>{snackbar}</Snackbar>
+        </div>
+      )}
     </div>
   );
 }
