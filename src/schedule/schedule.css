@@ -442,6 +442,10 @@
   margin-top: 1px;
 }
 
+.linkdigest-field-mt {
+  margin-top: 16px;
+}
+
 .linkdigest-mode-cards {
   display: flex;
   gap: 6px;

@@ -4,7 +4,7 @@ Tags: links, blogging, roundup, curation
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 2.0.0
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,18 @@ LinkDigest › Schedule lets automatic roundup publishing run without manual act
 * **Manual** — disable automatic publishing entirely
 
 The "Run Schedule Now" button triggers the next scheduled publish immediately, regardless of the configured interval.
+
+=== Notifications ===
+
+After each successful publish run, LinkDigest can send a notification to your team via webhook. Configure notification channels in the **Notifications** panel on LinkDigest › Schedule and click **Save Schedule**.
+
+Notifications fire only when a roundup post is actually created. Skipped runs produce nothing.
+
+* **Email** — check "Email me after each run". Leave the address blank to use the WordPress admin email, or enter a specific address to override it.
+* **Discord** — create a webhook in your Discord server (Server Settings › Integrations › Webhooks) and paste the URL into **Discord Webhook URL**.
+* **Slack** — create an Incoming Webhook at api.slack.com/apps and paste the URL into **Slack Webhook URL**.
+
+All three channels are independent. Leave a field blank to disable that channel.
 
 === Chrome Extension ===
 

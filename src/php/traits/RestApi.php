@@ -111,6 +111,19 @@ trait LinkDigest_RestApi {
             'callback'            => [$this, 'restGetApiKey'],
             'permission_callback' => function() { return current_user_can('manage_options'); },
         ));
+
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/notify', array(
+            array(
+                'methods'             => 'GET',
+                'callback'            => [$this, 'getNotify'],
+                'permission_callback' => fn() => current_user_can('manage_options'),
+            ),
+            array(
+                'methods'             => 'POST',
+                'callback'            => [$this, 'saveNotify'],
+                'permission_callback' => fn() => current_user_can('manage_options'),
+            ),
+        ));
     }
 
     /**
@@ -205,8 +218,43 @@ trait LinkDigest_RestApi {
         if (!array_key_exists('publishAs', $validated)) {
             $validated['publishAs'] = get_current_user_id() ?: null;
         }
+        $existing = get_option('linkdigest_schedule', array());
+        if (isset($existing['notify'])) {
+            $validated['notify'] = $existing['notify'];
+        }
         update_option('linkdigest_schedule', $validated);
         $this->scheduleNextEvent();
+        return rest_ensure_response(array('success' => true));
+    }
+
+    /**
+     * Get the notification configuration.
+     *
+     * @since 2.0.0
+     * @return mixed REST response with notification configuration.
+     */
+    public function getNotify(): mixed {
+        $config  = get_option('linkdigest_schedule', array());
+        $default = array('enabled' => false, 'email' => '', 'discord_webhook' => '', 'slack_webhook' => '');
+        return rest_ensure_response(array_merge($default, (array) ($config['notify'] ?? array())));
+    }
+
+    /**
+     * Save the notification configuration.
+     *
+     * @since 2.0.0
+     * @param \WP_REST_Request $request The REST request with notification data.
+     * @return mixed REST response or error.
+     */
+    public function saveNotify(\WP_REST_Request $request): mixed {
+        $data  = array('notify' => $request->get_json_params());
+        $error = $this->validateNotify($data);
+        if ($error) {
+            return $error;
+        }
+        $config           = get_option('linkdigest_schedule', array());
+        $config['notify'] = $data['notify'];
+        update_option('linkdigest_schedule', $config);
         return rest_ensure_response(array('success' => true));
     }
 

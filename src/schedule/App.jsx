@@ -16,7 +16,6 @@ const DEFAULT_FORM = {
   recurrence: { interval: 1, weekdays: [], monthDays: [{ type: 'day', value: 1, nth: 1, weekday: 'MO' }], nthWeek: null },
   trigger: { count: 10, tag_id: null, days: 7 },
   times: [],
-  notify: { enabled: false, email: '' },
   post_status: 'publish',
 };
 
@@ -195,24 +194,6 @@ export default function App() {
             onChange={post_status => setForm(f => ({ ...f, post_status }))}
             __nextHasNoMarginBottom
           />
-        </Section>
-
-        <Section title={__('Notifications', 'linkdigest')}>
-          <CheckboxControl
-            label={__('Email me after each run', 'linkdigest')}
-            checked={form.notify?.enabled ?? false}
-            onChange={enabled => setForm(f => ({ ...f, notify: { ...f.notify, enabled } }))}
-          />
-          {form.notify?.enabled && (
-            <TextControl
-              label={__('Email address', 'linkdigest')}
-              type="email"
-              value={form.notify?.email ?? ''}
-              placeholder={__('Leave blank to use admin email', 'linkdigest')}
-              onChange={email => setForm(f => ({ ...f, notify: { ...f.notify, email } }))}
-              __nextHasNoMarginBottom
-            />
-          )}
         </Section>
 
         <div className="linkdigest-schedule-actions">

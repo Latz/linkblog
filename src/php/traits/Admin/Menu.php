@@ -284,6 +284,32 @@ trait LinkDigest_Admin_Menu {
             ));
         }
 
+        if (strpos($hook, 'linkdigest-setting-x') !== false) {
+            $asset_file = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/settings.asset.php';
+            if (file_exists($asset_file)) {
+                $asset = require_once $asset_file;
+            } else {
+                $asset = array('dependencies' => array(), 'version' => '1.0.0');
+            }
+
+            wp_enqueue_script(
+                'linkdigest-settings',
+                plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'build/settings.js',
+                $asset['dependencies'],
+                $asset['version'],
+                true
+            );
+
+            if (file_exists(plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/settings.css')) {
+                wp_enqueue_style(
+                    'linkdigest-settings-style',
+                    plugin_dir_url(LINKDIGEST_PLUGIN_FILE) . 'build/settings.css',
+                    array('wp-components'),
+                    $asset['version']
+                );
+            }
+        }
+
         if (strpos($hook, 'linkdigest-schedule') !== false) {
             $asset_file = plugin_dir_path(LINKDIGEST_PLUGIN_FILE) . 'build/schedule.asset.php';
             if (file_exists($asset_file)) {
@@ -328,6 +354,7 @@ trait LinkDigest_Admin_Menu {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Settings', 'linkdigest'); ?></h1>
+            <div id="linkdigest-settings-root"></div>
         </div>
         <?php
     }

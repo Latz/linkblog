@@ -100,7 +100,7 @@ trait LinkDigest_ScheduleValidator {
         return null;
     }
 
-    private function validateNotify(array &$data): ?\WP_Error {
+    protected function validateNotify(array &$data): ?\WP_Error {
         if (!isset($data['notify']) || !is_array($data['notify'])) {
             return isset($data['notify']) ? new \WP_Error('invalid_notify', __('notify must be an object', 'linkdigest'), ['status' => 400]) : null;
         }
@@ -109,6 +109,20 @@ trait LinkDigest_ScheduleValidator {
             $data['notify']['email'] = sanitize_email($data['notify']['email']);
             if (!is_email($data['notify']['email'])) {
                 return new \WP_Error('invalid_notify_email', __('notify.email is not a valid email address', 'linkdigest'), ['status' => 400]);
+            }
+        }
+        foreach (['discord_webhook', 'slack_webhook'] as $key) {
+            if (!empty($data['notify'][$key])) {
+                $url = esc_url_raw($data['notify'][$key]);
+                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    return new \WP_Error(
+                        'invalid_notify_webhook',
+                        /* translators: %s: webhook field name (discord_webhook or slack_webhook) */
+                        sprintf(__('notify.%s is not a valid URL', 'linkdigest'), $key),
+                        ['status' => 400]
+                    );
+                }
+                $data['notify'][$key] = $url;
             }
         }
         return null;

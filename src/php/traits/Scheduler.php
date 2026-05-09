@@ -19,6 +19,7 @@ trait LinkDigest_Scheduler {
     public function registerSchedulerHooks(): void {
         add_action('linkdigest_execute_schedule', [$this, 'executeSchedule']);
         add_action('linkdigest_after_run', [$this, 'maybeSendRunNotification'], 10, 3);
+        add_action('linkdigest_after_run', [$this, 'maybeSendWebhookNotification'], 20, 3);
     }
 
     /**
@@ -389,5 +390,77 @@ trait LinkDigest_Scheduler {
         }
         $cutoff = gmdate('Y-m-d H:i:s', strtotime("-{$days} days"));
         return $post->post_date_gmt < $cutoff;
+    }
+
+    /**
+     * Send Discord/Slack webhook notifications after schedule runs, if configured.
+     *
+     * @since 2.0.0
+     * @param int|null $post_id The published post ID, or null if nothing was published.
+     * @param array $link_ids Array of link post IDs that were published.
+     * @param string $mode The schedule mode that ran.
+     * @return void
+     */
+    public function maybeSendWebhookNotification(int|null $post_id, array $link_ids, string $mode): void {
+        $config   = get_option('linkdigest_schedule', []);
+        $notify   = $config['notify'] ?? [];
+        $count    = count($link_ids);
+        $post_url = $post_id ? get_permalink($post_id) : null;
+
+        if (!empty($notify['discord_webhook'])) {
+            $this->sendDiscordNotification($notify['discord_webhook'], $count, $post_url);
+        }
+        if (!empty($notify['slack_webhook'])) {
+            $this->sendSlackNotification($notify['slack_webhook'], $count, $post_url);
+        }
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    private function sendDiscordNotification(string $webhook_url, int $count, ?string $post_url): void {
+        if ($post_url) {
+            $description = sprintf(
+                /* translators: 1: number of links published, 2: post URL */
+                __('%1$d links published. [View post](%2$s)', 'linkdigest'),
+                $count,
+                $post_url
+            );
+        } else {
+            /* translators: %d: number of links processed */
+            $description = sprintf(__('%d links processed. No post published.', 'linkdigest'), $count);
+        }
+        $payload = [
+            'embeds' => [[
+                'title'       => __('LinkDigest: roundup published', 'linkdigest'),
+                'description' => $description,
+                'color'       => 0x2D9BF0,
+            ]],
+        ];
+        wp_remote_post($webhook_url, [
+            'headers'     => ['Content-Type' => 'application/json'],
+            'body'        => wp_json_encode($payload),
+            'blocking'    => false,
+            'data_format' => 'body',
+        ]);
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    private function sendSlackNotification(string $webhook_url, int $count, ?string $post_url): void {
+        if ($post_url) {
+            /* translators: 1: number of links published, 2: post URL */
+            $text = sprintf(__('*LinkDigest:* %1$d links published. <%2$s|View post>', 'linkdigest'), $count, $post_url);
+        } else {
+            /* translators: %d: number of links processed */
+            $text = sprintf(__('*LinkDigest:* %d links processed. No post published.', 'linkdigest'), $count);
+        }
+        wp_remote_post($webhook_url, [
+            'headers'     => ['Content-Type' => 'application/json'],
+            'body'        => wp_json_encode(['text' => $text]),
+            'blocking'    => false,
+            'data_format' => 'body',
+        ]);
     }
 }

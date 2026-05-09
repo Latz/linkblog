@@ -29,6 +29,7 @@ _Operations_
 - [Previewing upcoming runs](#previewing-upcoming-runs)
 - [Saving the schedule](#saving-the-schedule)
 - [Running the schedule immediately](#running-the-schedule-immediately)
+- [Notifications](#notifications)
 - [What a roundup post looks like](#what-a-roundup-post-looks-like)
 - [Edge cases and caveats](#edge-cases-and-caveats)
 
@@ -302,6 +303,54 @@ The **Run Now** button on the **LinkDigest dashboard** triggers an immediate pub
 In every mode, the run is silently skipped when there are no unpublished links — no empty roundup is ever created.
 
 The automatic schedule is unaffected — the next cron event remains scheduled as normal.
+
+---
+
+## Notifications
+
+LinkDigest can notify you after each publish run via **email**, **Discord**, or **Slack**.
+Configure each channel in the **Notifications** panel on the Schedule page and click **Save Schedule**.
+
+Notifications fire only when a roundup post is actually created. Skipped runs (condition not met, no links, locked) produce no notification.
+
+### Email
+
+Check **Email me after each run** to receive a notification email.
+
+- **Email address** — leave blank to use the WordPress admin email (`Settings › General`). Enter a specific address to override it.
+
+The email contains the link count and a direct URL to the roundup post.
+
+### Discord
+
+1. In your Discord server open **Server Settings › Integrations › Webhooks**.
+2. Click **New Webhook**, choose a channel, and copy the webhook URL.
+3. Paste it into **Discord Webhook URL** on the Schedule page and save.
+
+Leave the field blank to disable Discord notifications.
+
+**Example message:**
+
+> **LinkDigest: roundup published**
+> 12 links published. [View post](https://example.com/links-may-8-2026/)
+
+### Slack
+
+1. Go to **api.slack.com/apps**, create or select an app.
+2. Enable **Incoming Webhooks**, click **Add New Webhook to Workspace**, pick a channel, and copy the URL.
+3. Paste it into **Slack Webhook URL** on the Schedule page and save.
+
+Leave the field blank to disable Slack notifications.
+
+**Example message:**
+
+> *LinkDigest:* 12 links published. <https://example.com/links-may-8-2026/|View post>
+
+### Notes
+
+- Webhooks are sent as **fire-and-forget** (`blocking: false`). A slow or unreachable endpoint does not delay or abort the publish run.
+- All three channels are independent — you can enable any combination.
+- Notifications are sent in Manual mode too, when a **Run Now** triggers an actual post.
 
 ---
 
