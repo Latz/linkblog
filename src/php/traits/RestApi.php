@@ -124,6 +124,12 @@ trait LinkDigest_RestApi {
                 'permission_callback' => fn() => current_user_can('manage_options'),
             ),
         ));
+
+        register_rest_route(LINKDIGEST_REST_NAMESPACE, '/notify/test', array(
+            'methods'             => 'POST',
+            'callback'            => [$this, 'testNotify'],
+            'permission_callback' => fn() => current_user_can('manage_options'),
+        ));
     }
 
     /**
@@ -235,7 +241,7 @@ trait LinkDigest_RestApi {
      */
     public function getNotify(): mixed {
         $config  = get_option('linkdigest_schedule', array());
-        $default = array('enabled' => false, 'email' => '', 'discord_webhook' => '', 'slack_webhook' => '');
+        $default = array('enabled' => false, 'email' => '', 'discord_webhook' => '', 'slack_webhook' => '', 'telegram_bot_token' => '', 'telegram_chat_id' => '');
         return rest_ensure_response(array_merge($default, (array) ($config['notify'] ?? array())));
     }
 
@@ -256,6 +262,101 @@ trait LinkDigest_RestApi {
         $config['notify'] = $data['notify'];
         update_option('linkdigest_schedule', $config);
         return rest_ensure_response(array('success' => true));
+    }
+
+    /**
+     * Send a test notification for the given channel.
+     *
+     * @since 2.0.0
+     * @param \WP_REST_Request $request The REST request with type and value.
+     * @return mixed REST response or error.
+     */
+    public function testNotify(\WP_REST_Request $request): mixed {
+        $type  = sanitize_key((string) $request->get_param('type'));
+        $value = sanitize_text_field((string) $request->get_param('value'));
+
+        switch ($type) {
+            case 'email':
+                $to      = !empty($value) && is_email($value) ? $value : get_option('admin_email');
+                $subject = __('[LinkDigest] Test notification', 'linkdigest');
+                $message = __('This is a test notification from LinkDigest.', 'linkdigest');
+                $sent    = wp_mail($to, $subject, $message);
+                return $sent
+                    ? rest_ensure_response(array('success' => true))
+                    : new \WP_Error('mail_failed', __('Failed to send test email. Check your server mail configuration.', 'linkdigest'), array('status' => 500));
+
+            case 'discord':
+                if (empty($value) || !filter_var($value, FILTER_VALIDATE_URL)) {
+                    return new \WP_Error('invalid_url', __('Enter a valid Discord webhook URL first.', 'linkdigest'), array('status' => 400));
+                }
+                $payload  = array('embeds' => array(array(
+                    'title'       => __('LinkDigest: test notification', 'linkdigest'),
+                    'description' => __('This is a test message.', 'linkdigest'),
+                    'color'       => 0x2D9BF0,
+                )));
+                $response = wp_remote_post($value, array(
+                    'headers'     => array('Content-Type' => 'application/json'),
+                    'body'        => wp_json_encode($payload),
+                    'blocking'    => true,
+                    'data_format' => 'body',
+                ));
+                if (is_wp_error($response)) {
+                    return new \WP_Error('request_failed', $response->get_error_message(), array('status' => 500));
+                }
+                $code = wp_remote_retrieve_response_code($response);
+                return ($code >= 200 && $code < 300)
+                    ? rest_ensure_response(array('success' => true))
+                    /* translators: %d: HTTP status code returned by the webhook endpoint */
+                    : new \WP_Error('webhook_error', sprintf(__('Discord returned HTTP %d.', 'linkdigest'), $code), array('status' => 502));
+
+            case 'slack':
+                if (empty($value) || !filter_var($value, FILTER_VALIDATE_URL)) {
+                    return new \WP_Error('invalid_url', __('Enter a valid Slack webhook URL first.', 'linkdigest'), array('status' => 400));
+                }
+                $response = wp_remote_post($value, array(
+                    'headers'     => array('Content-Type' => 'application/json'),
+                    'body'        => wp_json_encode(array('text' => __('*LinkDigest:* This is a test message.', 'linkdigest'))),
+                    'blocking'    => true,
+                    'data_format' => 'body',
+                ));
+                if (is_wp_error($response)) {
+                    return new \WP_Error('request_failed', $response->get_error_message(), array('status' => 500));
+                }
+                $code = wp_remote_retrieve_response_code($response);
+                return ($code >= 200 && $code < 300)
+                    ? rest_ensure_response(array('success' => true))
+                    /* translators: %d: HTTP status code returned by the webhook endpoint */
+                    : new \WP_Error('webhook_error', sprintf(__('Slack returned HTTP %d.', 'linkdigest'), $code), array('status' => 502));
+
+            case 'telegram':
+                $token   = sanitize_text_field((string) $request->get_param('telegram_bot_token'));
+                $chat_id = sanitize_text_field((string) $request->get_param('telegram_chat_id'));
+                if (empty($token) || empty($chat_id)) {
+                    return new \WP_Error('missing_telegram', __('Enter a bot token and chat ID first.', 'linkdigest'), array('status' => 400));
+                }
+                $tg_url   = 'https://api.telegram.org/bot' . $token . '/sendMessage';
+                $response = wp_remote_post($tg_url, array(
+                    'headers'     => array('Content-Type' => 'application/json'),
+                    'body'        => wp_json_encode(array(
+                        'chat_id'    => $chat_id,
+                        'text'       => __('<b>LinkDigest:</b> This is a test message.', 'linkdigest'),
+                        'parse_mode' => 'HTML',
+                    )),
+                    'blocking'    => true,
+                    'data_format' => 'body',
+                ));
+                if (is_wp_error($response)) {
+                    return new \WP_Error('request_failed', $response->get_error_message(), array('status' => 500));
+                }
+                $code = wp_remote_retrieve_response_code($response);
+                return ($code >= 200 && $code < 300)
+                    ? rest_ensure_response(array('success' => true))
+                    /* translators: %d: HTTP status code returned by the Telegram API */
+                    : new \WP_Error('telegram_error', sprintf(__('Telegram returned HTTP %d.', 'linkdigest'), $code), array('status' => 502));
+
+            default:
+                return new \WP_Error('invalid_type', __('Invalid notification type.', 'linkdigest'), array('status' => 400));
+        }
     }
 
     /**

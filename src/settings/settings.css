@@ -13,7 +13,7 @@
 
 .linkdigest-field-row {
   display: flex;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 8px;
 }
 
@@ -22,8 +22,11 @@
   min-width: 0;
 }
 
+.linkdigest-field-row .components-text-control__input {
+  height: 36px;
+}
+
 .linkdigest-test-wrap {
-  padding-top: 24px; /* label (11px × 1.4 line-height) + 8px margin-bottom */
   flex-shrink: 0;
 }
 

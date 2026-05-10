@@ -17,14 +17,16 @@ const DEFAULT_NOTIFY = {
   email: "",
   discord_webhook: "",
   slack_webhook: "",
+  telegram_bot_token: "",
+  telegram_chat_id: "",
 };
 
-function TestButton({ type, value, disabled, onResult }) {
+function TestButton({ type, value, disabled, onResult, data = {} }) {
   const [busy, setBusy] = useState(false);
 
   function handleTest() {
     setBusy(true);
-    apiFetch({ path: "/linkdigest/v1/notify/test", method: "POST", data: { type, value } })
+    apiFetch({ path: "/linkdigest/v1/notify/test", method: "POST", data: { type, value, ...data } })
       .then(() => onResult(__("Test message sent.", "linkdigest")))
       .catch((err) => onResult(err.message || __("Test failed.", "linkdigest")))
       .finally(() => setBusy(false));
@@ -87,21 +89,19 @@ export default function App() {
             onChange={(enabled) => setNotify((n) => ({ ...n, enabled }))}
             __nextHasNoMarginBottom
           />
-          {notify.enabled && (
-            <div className="linkdigest-field-mt">
-              <div className="linkdigest-field-row">
-                <TextControl
-                  label={__("Email address", "linkdigest")}
-                  type="email"
-                  value={notify.email}
-                  placeholder={__("Leave blank to use admin email", "linkdigest")}
-                  onChange={(email) => setNotify((n) => ({ ...n, email }))}
-                  __nextHasNoMarginBottom
-                />
-                <TestButton type="email" value={notify.email} disabled={false} onResult={setSnackbar} />
-              </div>
+          <div className="linkdigest-field-mt">
+            <div className="linkdigest-field-row">
+              <TextControl
+                label={__("Email address", "linkdigest")}
+                type="email"
+                value={notify.email}
+                placeholder={__("Leave blank to use admin email", "linkdigest")}
+                onChange={(email) => setNotify((n) => ({ ...n, email }))}
+                __nextHasNoMarginBottom
+              />
+              <TestButton type="email" value={notify.email} disabled={false} onResult={setSnackbar} />
             </div>
-          )}
+          </div>
           <div className="linkdigest-field-mt">
             <div className="linkdigest-field-row">
               <TextControl
@@ -134,6 +134,37 @@ export default function App() {
                 type="slack"
                 value={notify.slack_webhook}
                 disabled={!notify.slack_webhook}
+                onResult={setSnackbar}
+              />
+            </div>
+          </div>
+          <div className="linkdigest-field-mt">
+            <div className="linkdigest-field-row">
+              <TextControl
+                label={__("Telegram Bot Token", "linkdigest")}
+                type="text"
+                value={notify.telegram_bot_token}
+                placeholder="1234567890:ABC-DEF…"
+                onChange={(telegram_bot_token) => setNotify((n) => ({ ...n, telegram_bot_token }))}
+                __nextHasNoMarginBottom
+              />
+            </div>
+          </div>
+          <div className="linkdigest-field-mt">
+            <div className="linkdigest-field-row">
+              <TextControl
+                label={__("Telegram Chat ID", "linkdigest")}
+                type="text"
+                value={notify.telegram_chat_id}
+                placeholder="-1001234567890"
+                onChange={(telegram_chat_id) => setNotify((n) => ({ ...n, telegram_chat_id }))}
+                __nextHasNoMarginBottom
+              />
+              <TestButton
+                type="telegram"
+                value={notify.telegram_bot_token}
+                data={{ telegram_bot_token: notify.telegram_bot_token, telegram_chat_id: notify.telegram_chat_id }}
+                disabled={!notify.telegram_bot_token || !notify.telegram_chat_id}
                 onResult={setSnackbar}
               />
             </div>

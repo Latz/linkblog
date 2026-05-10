@@ -125,6 +125,12 @@ trait LinkDigest_ScheduleValidator {
                 $data['notify'][$key] = $url;
             }
         }
+        if (!empty($data['notify']['telegram_bot_token'])) {
+            $data['notify']['telegram_bot_token'] = sanitize_text_field($data['notify']['telegram_bot_token']);
+        }
+        if (!empty($data['notify']['telegram_chat_id'])) {
+            $data['notify']['telegram_chat_id'] = sanitize_text_field($data['notify']['telegram_chat_id']);
+        }
         return null;
     }
 }

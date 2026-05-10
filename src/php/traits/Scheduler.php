@@ -413,6 +413,9 @@ trait LinkDigest_Scheduler {
         if (!empty($notify['slack_webhook'])) {
             $this->sendSlackNotification($notify['slack_webhook'], $count, $post_url);
         }
+        if (!empty($notify['telegram_bot_token']) && !empty($notify['telegram_chat_id'])) {
+            $this->sendTelegramNotification($notify['telegram_bot_token'], $notify['telegram_chat_id'], $count, $post_url);
+        }
     }
 
     /**
@@ -440,6 +443,29 @@ trait LinkDigest_Scheduler {
         wp_remote_post($webhook_url, [
             'headers'     => ['Content-Type' => 'application/json'],
             'body'        => wp_json_encode($payload),
+            'blocking'    => false,
+            'data_format' => 'body',
+        ]);
+    }
+
+    /**
+     * @since 2.0.0
+     */
+    private function sendTelegramNotification(string $bot_token, string $chat_id, int $count, ?string $post_url): void {
+        if ($post_url) {
+            $text = sprintf(
+                /* translators: 1: number of links published, 2: post URL */
+                __('<b>LinkDigest:</b> %1$d links published. <a href="%2$s">View post</a>', 'linkdigest'),
+                $count,
+                esc_url($post_url)
+            );
+        } else {
+            /* translators: %d: number of links processed */
+            $text = sprintf(__('<b>LinkDigest:</b> %d links processed. No post published.', 'linkdigest'), $count);
+        }
+        wp_remote_post('https://api.telegram.org/bot' . $bot_token . '/sendMessage', [
+            'headers'     => ['Content-Type' => 'application/json'],
+            'body'        => wp_json_encode(['chat_id' => $chat_id, 'text' => $text, 'parse_mode' => 'HTML']),
             'blocking'    => false,
             'data_format' => 'body',
         ]);
